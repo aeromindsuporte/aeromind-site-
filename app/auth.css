@@ -53,3 +53,13 @@
 @media(max-width:1230px){.auth-main{grid-template-columns:minmax(0,1fr) minmax(330px,.85fr)}.auth-illustration{display:none}.auth-presentation{max-width:580px}.auth-panel{padding:27px}.auth-presentation h1{font-size:clamp(40px,5.5vw,62px)}}
 @media(max-width:760px){.auth-container{width:calc(100% - 32px)}.auth-nav{min-height:66px}.auth-nav nav{display:none}.auth-header-actions{margin-left:auto}.auth-logo{font-size:21px}.auth-header-actions a{font-size:10px;min-width:0;padding:9px 12px;min-height:38px}.auth-main{display:flex;flex-direction:column;align-items:stretch;gap:19px;padding:36px 0 40px}.auth-presentation{max-width:none}.auth-presentation h1{font-size:clamp(33px,8.5vw,44px);letter-spacing:-1.5px}.auth-eyebrow{margin-bottom:17px}.auth-intro{font-size:14px;margin:0 0 5px}.auth-benefits{display:none}.auth-panel{border-radius:15px;padding:25px 20px;box-shadow:0 0 35px #7622cc75}.auth-slogan{margin-bottom:22px}.auth-assurances{margin-top:20px}.auth-footer{padding-bottom:25px}.account-grid{grid-template-columns:1fr}.account-header .auth-logo{font-size:18px}}
 @media(max-width:410px){.auth-container{width:calc(100% - 24px)}.auth-header-actions .auth-ghost-btn{display:none}.auth-legal{font-size:10px}.auth-assurances span{font-size:9px}.auth-nav{gap:4px}.auth-presentation h1{font-size:33px}.auth-panel-brand{font-size:26px}.auth-presentation{padding:0 5px}}
+
+/* Client's approved neon-card language, including license state and history. */
+.account-license-state{margin:0 0 17px;padding:12px 14px;border-radius:10px;border:1px solid rgba(234,82,160,.55);background:rgba(106,27,70,.17);color:#f4aacb;font-size:14px;font-weight:800}
+.account-license-state.is-active{border-color:rgba(44,213,137,.6);background:rgba(0,93,55,.22);color:#6cffbd}
+.account-license-state span{margin-right:7px}
+.account-card.account-history{margin-top:17px}.account-history-rows{display:grid;gap:10px}
+.account-history-row{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:16px;row-gap:7px;padding:14px;border-radius:10px;border:1px solid #34446e;background:#0b1933}
+.account-history-row strong{overflow-wrap:anywhere}.account-history-row span{font-size:13px;color:#ecaae6;text-align:right}
+.account-history-row small{grid-column:1/-1;color:#a7bad8;line-height:1.5}
+@media(max-width:500px){.account-history-row{grid-template-columns:1fr}.account-history-row span{text-align:left}.account-card{padding:22px 19px}.account-card p:not(.account-note){font-size:12px}.account-card p span{max-width:65%}}
