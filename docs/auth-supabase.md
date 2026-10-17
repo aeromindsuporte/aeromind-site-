@@ -41,3 +41,10 @@ Apenas após isso promover para main e executar um deploy de produção.
 Os links de confirmação/cadastro não usam query params no callback. A recuperação de senha utiliza uma rota própria /auth/recovery que troca o code PKCE por sessão e redireciona para /redefinir-senha. Se o Supabase não autorizar a URL exata, ele poderá enviar o usuário para a Site URL (home da produção); conferir allowlist e template Reset Password antes de testar.
 
 A conexão PKCE depende dos cookies do navegador que iniciou a recuperação. Abrir o link de e-mail num navegador diferente pode falhar; nesse caso tentar abrir o fluxo inteiro no mesmo navegador ou futuramente migrar o template para token_hash validado no servidor.
+
+### Redefinição robusta sem cookie de navegador (implementada no código)
+- `/auth/recovery` aceita `token_hash` do e-mail, validando `verifyOtp({type:'recovery',token_hash})` e cria sessão para `/redefinir-senha`.
+- Mantém compatibilidade com links existentes contendo `code` (PKCE).
+- Para usufruir do fluxo entre navegadores (por exemplo, ChatGPT/WebView -> Gmail/Chrome), no painel Authentication > Email Templates > Reset Password, colocar o conteúdo do arquivo `docs/email-reset-template.html`. A integração Supabase disponível não permite editar os templates programaticamente.
+- O destino da mensagem usa `{{ .RedirectTo }}` passado pelo aplicativo: deve estar na lista Redirect URLs do Supabase.
+- Nunca publicar chave administrativa, tokens de recuperação, ou credenciais em logs.
