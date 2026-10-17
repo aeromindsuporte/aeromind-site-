@@ -139,3 +139,9 @@
 .admin-release-item strong{font-size:14px}
 .admin-release-item span{color:#65dfb0;font-size:12px}
 .admin-release-item small{flex:1 1 100%;color:#9bafd1;overflow-wrap:anywhere}
+
+.admin-release-form{margin-top:20px;padding:18px;border:1px solid #5b3b95;border-radius:12px;background:linear-gradient(130deg,#180f34,#09132a)}
+.admin-release-form .admin-checkbox{font-size:12px;line-height:1.6;display:flex;align-items:start;gap:9px;font-weight:400}
+.admin-release-form input[type=file]{max-width:100%}
+.admin-release-form input[type=checkbox]{width:18px;height:18px;flex:0 0 auto;accent-color:#ae43f6}
+.admin-release-form .admin-feedback{margin-top:17px;overflow-wrap:anywhere}

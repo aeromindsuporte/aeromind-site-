@@ -4,7 +4,10 @@ import { createClient } from '@/lib/supabase/server';
 import { DownloadButton } from '@/components/account/DownloadButton';
 
 export const dynamic='force-dynamic';
-export const metadata={title:'Download protegido | AeroMind',robots:{index:false,follow:false}};
+export const metadata={title:'Atualizações e download | AeroMind',robots:{index:false,follow:false}};
+type Release={version_code:number;version_name:string;sha256:string;size_bytes:number;
+ status:string;published_at:string|null;release_notes:string};
+const date=(raw:string|null)=>raw?new Date(raw).toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'}):'—';
 
 export default async function Download(){
  const supabase=await createClient();
@@ -12,28 +15,50 @@ export default async function Download(){
  if(!user||authError)redirect('/entrar?next=%2Fdownload');
  const {data:licensed,error:licenseError}=await supabase.rpc('aeromind_has_active_license');
  const active=licensed===true&&!licenseError;
- const release=active ? await supabase.from('aeromind_app_releases')
-   .select('version_name,sha256,size_bytes,status').eq('status','published')
-   .order('version_code',{ascending:false}).limit(1).maybeSingle() : null;
- const version=release?.data;
- const available=active&&!!version&&!release?.error;
+ const result=active?await supabase.from('aeromind_app_releases')
+   .select('version_code,version_name,sha256,size_bytes,status,published_at,release_notes')
+   .in('status',['published','retired']).order('version_code',{ascending:false}).limit(10):null;
+ const releases=(result?.data??[]) as Release[];
+ const current=releases.find(r=>r.status==='published');
+ const available=active&&!!current&&!result?.error;
  return <main className="account-root"><header className="account-header">
   <Link href="/" className="auth-logo"><img src="/images/aeromind-mark.svg" alt="" width="40" height="40"/> AeroMind</Link>
   <Link className="auth-secondary" href="/minha-conta">Minha conta →</Link>
  </header><section className="account-container">
-  <span className="auth-eyebrow">⇩ DOWNLOAD PROTEGIDO</span><h1>Aplicativo <em>AeroMind</em></h1>
-  <p className="account-lead">O download é autorizado pelo servidor e protegido por link temporário.</p>
+  <span className="auth-eyebrow">⇩ DISTRIBUIÇÃO OFICIAL</span>
+  <h1>Download e <em>atualizações</em></h1>
+  <p className="account-lead">Instale novas versões com segurança, mantendo seu login e a licença AeroMind.</p>
   <section className="device-download-card">
-    <div className="device-app-symbol" aria-hidden="true"><img src="/images/aeromind-mark.svg" width="66" height="66" alt=""/></div>
-    <div className="device-app-info"><strong>AeroMind Monitor</strong><p>{version?'Versão '+version.version_name:'Versão aguardando publicação'}</p><span>{active?'Licença validada':'Licença não ativa'}</span></div>
-    <div className="device-app-cta">{available?<DownloadButton/>:<span className="device-notice">Download indisponível nesta etapa</span>}</div>
+   <div className="device-app-symbol"><img src="/images/aeromind-mark.svg" width="66" height="66" alt="Logo AeroMind"/></div>
+   <div className="device-app-info"><strong>AeroMind Monitor</strong>
+     <p>{current?'Versão '+current.version_name+' disponível':'Nenhuma atualização publicada'}</p>
+     <span>{active?'Licença ativa':'Licença inativa ou não confirmada'}</span>
+   </div>
+   <div className="device-app-cta">{available?<DownloadButton/>:
+     <span className="device-notice">{!active?'Ative sua licença para baixar o aplicativo.':'Aguardando APK oficial assinado.'}</span>}
+   </div>
   </section>
-  {version&&<div className="device-release-info"><strong>Arquivo verificado pela equipe</strong><p>SHA-256 declarado: <code>{version.sha256}</code></p><p>Tamanho registrado: {(Number(version.size_bytes)/1024/1024).toFixed(1)} MB</p><small>Confira a procedência do arquivo antes de instalar. O registro do hash não substitui a verificação de assinatura do Android.</small></div>}
+  {current&&<section className="device-release-info">
+    <strong>Versão atual: {current.version_name}</strong>
+    <p>Publicada em {date(current.published_at)} · {(current.size_bytes/1048576).toFixed(2)} MB</p>
+    {current.release_notes&&<p className="account-release-notes">{current.release_notes}</p>}
+    <p>SHA-256: <code>{current.sha256}</code></p>
+    <small>O hash permite conferir a integridade do download. A assinatura Android também deve corresponder à versão instalada.</small>
+  </section>}
+  {releases.filter(r=>r.status==='retired').length>0&&<section className="device-explanation">
+    <h2>Histórico de atualizações</h2>
+    <div className="account-update-history">{releases.filter(r=>r.status==='retired').map(r=>
+       <div className="account-update-item" key={r.version_code}>
+        <strong>{r.version_name}</strong><small>{date(r.published_at)}</small>
+        {r.release_notes&&<p>{r.release_notes}</p>}
+       </div>
+    )}</div>
+  </section>}
   <section className="device-explanation">
-    <h2>Como instalar</h2>
-    <p>1. Baixe o APK apenas neste site, após a publicação oficial. 2. Confirme a origem e assinatura. 3. Instale seguindo as orientações do Android. 4. Entre com sua conta e vincule seu aparelho quando a integração estiver habilitada.</p>
-    <p>Não desative proteções de segurança do Android sem entender os riscos. Antes do lançamento, o APK passará por validação de assinatura e integridade.</p>
-    <Link className="auth-secondary auth-button-link" href="/dispositivos">Gerenciar meus dispositivos →</Link>
+    <h2>Como atualizar sem perder seus dados</h2>
+    <p>1. Entre na mesma conta AeroMind utilizada no aplicativo. 2. Baixe a versão oficial disponível. 3. Instale sobre a versão atual, sem desinstalá-la, usando o mesmo identificador e certificado de assinatura. 4. Reabra o aplicativo e confirme sua licença.</p>
+    <p>Se o Android informar que a assinatura não corresponde, não desinstale o aplicativo para forçar a instalação: procure o suporte antes.</p>
+    <Link href="/dispositivos" className="auth-secondary auth-button-link">Meus dispositivos →</Link>
   </section>
  </section></main>;
 }

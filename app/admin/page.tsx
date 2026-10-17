@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { saveLicense, saveCatalogPlan, revokeAdminDevice } from './actions';
 import './admin.css';
+import { ReleaseUploader } from '@/components/admin/ReleaseUploader';
 
 export const dynamic='force-dynamic';
 export const metadata={title:'Painel Administrativo | AeroMind', robots:{index:false,follow:false}};
@@ -25,6 +26,7 @@ const sections=[
   {href:'#licencas',icon:'⚿',label:'Licenças'},
   {href:'#planos',icon:'◈',label:'Planos'},
   {href:'#dispositivos',icon:'▯',label:'Dispositivos'},
+  {href:'#releases',icon:'⇧',label:'Atualizações'},
   {href:'#downloads',icon:'⇩',label:'Downloads'},
   {href:'#cupons',icon:'◇',label:'Cupons'},
   {href:'#pagamentos',icon:'▣',label:'Pagamentos'},
@@ -192,13 +194,15 @@ export default async function Admin({searchParams}:{searchParams:Promise<{msg?:s
           <strong>AeroMind {r.version}</strong><span>{r.status==='published'?'Publicado':r.status==='draft'?'Rascunho':'Arquivado'}</span>
           <small>{r.path}</small>
         </div>)}</div>:<p className="admin-empty">Nenhum APK publicado. Assim que o arquivo Android assinado estiver disponível, registraremos a versão e verificaremos sua integridade.</p>}
-        <p className="admin-card-explain">Este painel não permite upload ou publicação sem conferência do arquivo. Downloads usam links temporários apenas para licenças ativas.</p>
+        <p className="admin-card-explain">Envie apenas APK assinado. O arquivo é guardado em bucket privado e conferido pelo servidor antes de substituir a versão publicada.</p>
+        <ReleaseUploader/>
+        <p className="admin-card-explain">Os clientes com licença ativa receberão o download por link temporário. As versões anteriores permanecem no histórico.</p>
       </section>
       <section id="relatorios" className="admin-card admin-audit"><SectionHead title="Histórico de alterações" note="Últimos 20 eventos"/>
        {data.audit.length?<div className="admin-audit-list">{data.audit.map((x,i)=><p key={x.license_id+x.created_at+i}><span>{asDate(x.created_at)}</span><strong>{x.action==='create'?'Licença criada':'Licença alterada'}</strong><span>{x.old_status?x.old_status+' → ':''}{x.new_status}</span></p>)}</div>:<p className="admin-empty">Ainda não existem alterações de licenças.</p>}
       </section>
       <div className="admin-bottom-grid">
-        <section id="downloads" className="admin-card admin-muted"><h2>⇩ Downloads protegidos</h2><p>O armazenamento privado e as regras de acesso estão preparados. Falta enviar e validar o APK Android assinado.</p><span>Em preparação</span></section>
+        <section id="downloads" className="admin-card admin-muted"><h2>⇩ Downloads protegidos</h2><p>O download e as atualizações estão preparados. Publique um APK de produção assinado na seção Versões do aplicativo.</p><span>Em preparação</span></section>
         <section id="cupons" className="admin-card admin-muted"><h2>◇ Cupons</h2><p>Cupons promocionais permanecerão desativados até existir um sistema de pagamentos validado.</p><span>Em preparação</span></section>
         <section id="pagamentos" className="admin-card admin-muted"><h2>▣ Pagamentos</h2><p>Receita e cobranças não estão integradas. Nenhuma movimentação financeira é simulada.</p><span>Em preparação</span></section>
       </div>

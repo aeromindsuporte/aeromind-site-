@@ -69,8 +69,8 @@ export default async function Conta() {
         </section>
         <section className="account-card">
           <h2>Download do aplicativo</h2>
-          <p className="account-note">O download será liberado somente quando houver uma versão oficial do APK publicada e sua licença estiver ativa.</p>
-          <Link href="/download" className="auth-secondary auth-button-link">Ver disponibilidade →</Link>
+          <p className="account-note">Instale a versão mais recente, veja as novidades e baixe atualizações autorizadas para sua licença.</p>
+          <Link href="/download" className="auth-secondary auth-button-link">Ver downloads e atualizações →</Link>
         </section>
         <section className="account-card">
           <h2>Meus dispositivos</h2>
