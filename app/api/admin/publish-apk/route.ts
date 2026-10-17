@@ -45,6 +45,11 @@ export async function POST(request:NextRequest){
    const content=Buffer.from(await apk.arrayBuffer());
    const actual=createHash('sha256').update(content).digest('hex');
    if(actual!==sha) return reply(422,'Falha na conferência SHA-256 do APK.');
+   // Prevent accidental production publication of AndroidIDE debug-signed APKs.
+   // Certificate string checks are supplementary; human apksigner verification
+   // and AndroidManifest debuggable checks remain mandatory before upload.
+   if(content.includes(Buffer.from('Android Debug','utf8')))
+     return reply(422,'APK assinado com certificado Android Debug. Gere e assine uma versão release.');
    if(content.subarray(0,2).toString()!=='PK'
      ||!content.includes(Buffer.from('AndroidManifest.xml'))
      ||!content.includes(Buffer.from('classes.dex')))
