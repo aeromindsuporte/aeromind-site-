@@ -138,3 +138,7 @@
 .device-app-symbol img{width:45px;height:45px}
 .device-app-cta{max-width:none;width:100%}
 }
+
+.device-state.pending{background:#4a310d;border:1px solid #a87522;color:#fbd08c}
+.device-approve{border-radius:9px;border:1px solid #23b994;background:#063d37;color:#75f8d3;padding:10px 14px;font-size:12px;cursor:pointer}
+.device-approve:disabled{cursor:not-allowed;opacity:.45}

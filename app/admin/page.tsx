@@ -11,7 +11,7 @@ type Customer={id:string;email:string;display_name:string|null;created_at:string
 type License={id:string;email:string;plan_name:string;status:string;created_at:string;valid_until:string|null};
 type Plan={slug:string;tier:string;duration_days:number;price_cents:number|null;visible:boolean};
 type Audit={license_id:string;action:string;new_status:string;old_status:string|null;created_at:string};
-type AdminDevice={id:string;email:string;name:string;os_version:string|null;status:'active'|'revoked';registered_at:string;last_seen_at:string|null};
+type AdminDevice={id:string;email:string;name:string;os_version:string|null;status:'active'|'pending'|'revoked';registered_at:string;last_seen_at:string|null};
 type AdminRelease={version:string;code:number;status:string;path:string;published_at:string|null};
 type Overview={
  users_total:number;users_confirmed:number;licenses_active:number;licenses_expired:number;
@@ -180,9 +180,9 @@ export default async function Admin({searchParams}:{searchParams:Promise<{msg?:s
         {devices.length?devices.map(d=><tr key={d.id}>
           <td className="admin-email">{d.email}</td>
           <td>{d.name}<small className="admin-device-os">{d.os_version||'Android'}</small></td>
-          <td><span className={'admin-pill status-'+d.status}>{d.status==='active'?'Ativo':'Revogado'}</span></td>
+          <td><span className={'admin-pill status-'+d.status}>{d.status==='active'?'Ativo':d.status==='pending'?'Pendente':'Revogado'}</span></td>
           <td>{d.last_seen_at?asDate(d.last_seen_at):'—'}</td>
-          <td>{d.status==='active'?<form action={revokeAdminDevice}><input type="hidden" name="device_id" value={d.id}/><button className="admin-inline-action admin-danger-action" type="submit">Revogar</button></form>:'—'}</td>
+          <td>{d.status!=='revoked'?<form action={revokeAdminDevice}><input type="hidden" name="device_id" value={d.id}/><button className="admin-inline-action admin-danger-action" type="submit">Revogar</button></form>:'—'}</td>
         </tr>):<tr><td colSpan={5} className="admin-empty">Nenhum aparelho cadastrado.</td></tr>}
         </tbody></table></div>
       </section>
