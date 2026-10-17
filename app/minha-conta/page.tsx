@@ -25,11 +25,12 @@ export default async function Conta() {
   const {data:{user},error} = await client.auth.getUser();
   if (error || !user) redirect('/entrar?next=%2Fminha-conta');
 
-  const [profileResult,licenseResult,validResult] = await Promise.all([
+  const [profileResult,licenseResult,validResult,staffResult] = await Promise.all([
     client.from('profiles').select('display_name').eq('id',user.id).maybeSingle(),
     client.from('licenses').select('id,plan_name,status,valid_until,created_at')
       .eq('user_id',user.id).order('created_at',{ascending:false}).limit(10),
-    client.rpc('aeromind_has_active_license')
+    client.rpc('aeromind_has_active_license'),
+    client.from('aeromind_staff').select('role').eq('user_id',user.id).maybeSingle()
   ]);
   const licenses=(licenseResult.data||[]) as License[];
   const isActive=validResult.data===true && !validResult.error;
@@ -38,6 +39,7 @@ export default async function Conta() {
   const displayStatus=valid ? 'Ativa' : current?.status==='active' ? 'Vencida'
     : current ? labels[current.status] : 'Nenhuma licença ativa';
   const name=profileResult.data?.display_name || 'Cliente AeroMind';
+  const isStaff=Boolean(staffResult.data?.role) && !staffResult.error;
 
   return <main className="account-root">
     <header className="account-header">
@@ -76,6 +78,12 @@ export default async function Conta() {
           <a href="mailto:aeromindsuporte@gmail.com?subject=Suporte%20AeroMind" className="auth-secondary auth-button-link">Solicitar suporte →</a>
         </section>
       </div>
+      {isStaff && <section className="account-card account-admin-entry">
+        <div className="account-admin-eyebrow">ACESSO ADMINISTRATIVO</div>
+        <h2>Painel de gestão AeroMind</h2>
+        <p className="account-note">Acompanhe clientes, licenças e planos com acesso protegido e auditoria.</p>
+        <Link className="auth-submit auth-button-link" href="/admin">Abrir painel administrativo →</Link>
+      </section>}
       {licenses.length>0 && <section className="account-card account-history">
         <h2>Histórico de licenças</h2>
         <div className="account-history-rows">

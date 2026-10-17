@@ -63,3 +63,8 @@
 .account-history-row strong{overflow-wrap:anywhere}.account-history-row span{font-size:13px;color:#ecaae6;text-align:right}
 .account-history-row small{grid-column:1/-1;color:#a7bad8;line-height:1.5}
 @media(max-width:500px){.account-history-row{grid-template-columns:1fr}.account-history-row span{text-align:left}.account-card{padding:22px 19px}.account-card p:not(.account-note){font-size:12px}.account-card p span{max-width:65%}}
+
+.account-card.account-admin-entry{margin-top:17px;border:1px solid #ab45f5;background:linear-gradient(125deg,#281046,#0b1435);box-shadow:0 0 24px #8416cd3d}
+.account-admin-eyebrow{font-size:10px;letter-spacing:1.5px;color:#d487ff;margin-bottom:10px;font-weight:800}
+.account-admin-entry h2{margin-bottom:10px}
+.account-admin-entry .auth-submit{margin-top:18px;max-width:310px}
