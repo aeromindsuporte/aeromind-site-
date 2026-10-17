@@ -12,7 +12,7 @@ export function RecoveryForm() {
     e.preventDefault(); if (pending) return; setPending(true); setMessage('');
     try {
       const { error } = await createClient().auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: window.location.origin + '/auth/callback?next=%2Fredefinir-senha'
+        redirectTo: window.location.origin + '/auth/recovery'
       });
       if (error && /rate limit|too many requests/i.test(error.message)) setMessage('Muitas solicitações. Tente novamente mais tarde.');
       else if (error) setMessage('Não foi possível enviar agora. Tente mais tarde.');

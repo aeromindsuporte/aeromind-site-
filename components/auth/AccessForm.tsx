@@ -43,7 +43,7 @@ export function AccessForm({ mode, next = '/minha-conta' }: { mode: Mode; next?:
       } else {
         const { data, error } = await supabase.auth.signUp({
           email: email.trim(), password,
-          options: { emailRedirectTo: window.location.origin + '/auth/callback?next=%2Fminha-conta', data: { full_name: name.trim().slice(0,120) } }
+          options: { emailRedirectTo: window.location.origin + '/auth/callback', data: { full_name: name.trim().slice(0,120) } }
         });
         if (error) { setErrorMessage(friendlyError(error.message)); return; }
         if (data.session) { router.replace('/minha-conta'); router.refresh(); }
