@@ -66,3 +66,16 @@ export async function saveCatalogPlan(formData:FormData) {
   revalidatePath('/admin');
   redirect('/admin?msg=plan-saved#planos');
 }
+
+export async function revokeAdminDevice(formData:FormData){
+  const supabase=await adminClient();
+  const id=word(formData.get('device_id'));
+  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)){
+    redirect('/admin?msg=device-error#dispositivos');
+  }
+  const {data,error}=await supabase.rpc('aeromind_revoke_device',{p_device_id:id});
+  if(error||data!==true)redirect('/admin?msg=device-error#dispositivos');
+  revalidatePath('/admin');
+  revalidatePath('/dispositivos');
+  redirect('/admin?msg=device-revoked#dispositivos');
+}

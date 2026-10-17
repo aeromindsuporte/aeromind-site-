@@ -69,8 +69,13 @@ export default async function Conta() {
         </section>
         <section className="account-card">
           <h2>Download do aplicativo</h2>
-          <p className="account-note">O APK será disponibilizado após assinatura, validação de dispositivos e testes de segurança. Nenhum download está liberado.</p>
+          <p className="account-note">O download será liberado somente quando houver uma versão oficial do APK publicada e sua licença estiver ativa.</p>
           <Link href="/download" className="auth-secondary auth-button-link">Ver disponibilidade →</Link>
+        </section>
+        <section className="account-card">
+          <h2>Meus dispositivos</h2>
+          <p className="account-note">Controle os aparelhos vinculados à sua conta. Limite inicial: dois dispositivos ativos.</p>
+          <Link href="/dispositivos" className="auth-secondary auth-button-link">Gerenciar dispositivos →</Link>
         </section>
         <section className="account-card">
           <h2>Suporte</h2>

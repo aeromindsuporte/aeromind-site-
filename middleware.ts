@@ -30,4 +30,4 @@ export async function middleware(request: NextRequest) {
   return response;
 }
 
-export const config = { matcher: ['/minha-conta/:path*', '/download/:path*', '/admin/:path*'] };
+export const config = { matcher: ['/minha-conta/:path*', '/download/:path*', '/admin/:path*', '/dispositivos/:path*', '/api/apk-link'] };

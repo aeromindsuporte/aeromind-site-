@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { saveLicense, saveCatalogPlan } from './actions';
+import { saveLicense, saveCatalogPlan, revokeAdminDevice } from './actions';
 import './admin.css';
 
 export const dynamic='force-dynamic';
@@ -11,6 +11,8 @@ type Customer={id:string;email:string;display_name:string|null;created_at:string
 type License={id:string;email:string;plan_name:string;status:string;created_at:string;valid_until:string|null};
 type Plan={slug:string;tier:string;duration_days:number;price_cents:number|null;visible:boolean};
 type Audit={license_id:string;action:string;new_status:string;old_status:string|null;created_at:string};
+type AdminDevice={id:string;email:string;name:string;os_version:string|null;status:'active'|'revoked';registered_at:string;last_seen_at:string|null};
+type AdminRelease={version:string;code:number;status:string;path:string;published_at:string|null};
 type Overview={
  users_total:number;users_confirmed:number;licenses_active:number;licenses_expired:number;
  licenses_pending:number;licenses_suspended:number;licenses_expiring_7d:number;
@@ -22,6 +24,7 @@ const sections=[
   {href:'#clientes',icon:'♙',label:'Clientes'},
   {href:'#licencas',icon:'⚿',label:'Licenças'},
   {href:'#planos',icon:'◈',label:'Planos'},
+  {href:'#dispositivos',icon:'▯',label:'Dispositivos'},
   {href:'#downloads',icon:'⇩',label:'Downloads'},
   {href:'#cupons',icon:'◇',label:'Cupons'},
   {href:'#pagamentos',icon:'▣',label:'Pagamentos'},
@@ -30,6 +33,8 @@ const sections=[
 const messages:Record<string,string>={
  'license-saved':'Licença registrada. O histórico de alterações foi atualizado.',
  'plan-saved':'Dados do plano salvos no catálogo interno.',
+ 'device-revoked':'Dispositivo revogado com sucesso.',
+ 'device-error':'Falha ao revogar dispositivo.',
  'invalid':'Revise os dados informados.',
  'expiry':'Licença ativa exige data de validade futura.',
  'license-error':'Não foi possível atualizar a licença. Confirme o e-mail cadastrado e os campos.',
@@ -57,7 +62,10 @@ export default async function Admin({searchParams}:{searchParams:Promise<{msg?:s
  if(userError||!user)redirect('/entrar?next=%2Fadmin');
  const {data:staff,error:staffError}=await supabase.from('aeromind_staff').select('role').eq('user_id',user.id).maybeSingle();
  if(staffError||!staff) redirect('/minha-conta');
- const result=await supabase.rpc('aeromind_admin_overview');
+ const [result,deviceResult]=await Promise.all([supabase.rpc('aeromind_admin_overview'),supabase.rpc('aeromind_admin_devices')]);
+ const inventory=(deviceResult.data??{}) as {devices?:AdminDevice[];releases?:AdminRelease[]};
+ const devices=Array.isArray(inventory.devices)?inventory.devices:[];
+ const releases=Array.isArray(inventory.releases)?inventory.releases:[];
  const raw=(result.data || {}) as Partial<Overview>;
  const data:Overview={
    users_total:Number(raw.users_total)||0,
@@ -164,11 +172,33 @@ export default async function Admin({searchParams}:{searchParams:Promise<{msg?:s
           <button type="submit" disabled={!canDisplay}>Salvar plano</button>
         </form>)}</div>
       </section>
+      <section id="dispositivos" className="admin-card admin-catalog">
+        <SectionHead title="Dispositivos autorizados" note="Até 100 aparelhos recentes"/>
+        <p className="admin-card-explain">Revogue o acesso de um aparelho quando necessário. O vínculo inicial será feito pelo aplicativo Android após sua integração.</p>
+        {deviceResult.error&&<p role="alert" className="admin-feedback bad">Não foi possível consultar os dispositivos.</p>}
+        <div className="admin-table-scroll"><table><thead><tr><th>Cliente</th><th>Aparelho</th><th>Status</th><th>Último acesso</th><th>Ação</th></tr></thead><tbody>
+        {devices.length?devices.map(d=><tr key={d.id}>
+          <td className="admin-email">{d.email}</td>
+          <td>{d.name}<small className="admin-device-os">{d.os_version||'Android'}</small></td>
+          <td><span className={'admin-pill status-'+d.status}>{d.status==='active'?'Ativo':'Revogado'}</span></td>
+          <td>{d.last_seen_at?asDate(d.last_seen_at):'—'}</td>
+          <td>{d.status==='active'?<form action={revokeAdminDevice}><input type="hidden" name="device_id" value={d.id}/><button className="admin-inline-action admin-danger-action" type="submit">Revogar</button></form>:'—'}</td>
+        </tr>):<tr><td colSpan={5} className="admin-empty">Nenhum aparelho cadastrado.</td></tr>}
+        </tbody></table></div>
+      </section>
+      <section id="releases" className="admin-card admin-catalog">
+        <SectionHead title="Versões do aplicativo" note="Armazenamento privado"/>
+        {releases.length?<div className="admin-release-list">{releases.map(r=><div key={r.code} className="admin-release-item">
+          <strong>AeroMind {r.version}</strong><span>{r.status==='published'?'Publicado':r.status==='draft'?'Rascunho':'Arquivado'}</span>
+          <small>{r.path}</small>
+        </div>)}</div>:<p className="admin-empty">Nenhum APK publicado. Assim que o arquivo Android assinado estiver disponível, registraremos a versão e verificaremos sua integridade.</p>}
+        <p className="admin-card-explain">Este painel não permite upload ou publicação sem conferência do arquivo. Downloads usam links temporários apenas para licenças ativas.</p>
+      </section>
       <section id="relatorios" className="admin-card admin-audit"><SectionHead title="Histórico de alterações" note="Últimos 20 eventos"/>
        {data.audit.length?<div className="admin-audit-list">{data.audit.map((x,i)=><p key={x.license_id+x.created_at+i}><span>{asDate(x.created_at)}</span><strong>{x.action==='create'?'Licença criada':'Licença alterada'}</strong><span>{x.old_status?x.old_status+' → ':''}{x.new_status}</span></p>)}</div>:<p className="admin-empty">Ainda não existem alterações de licenças.</p>}
       </section>
       <div className="admin-bottom-grid">
-        <section id="downloads" className="admin-card admin-muted"><h2>⇩ Downloads protegidos</h2><p>O APK ainda não foi publicado. Assinatura do aplicativo, vínculo com o dispositivo e validação de licença estão pendentes.</p><span>Em preparação</span></section>
+        <section id="downloads" className="admin-card admin-muted"><h2>⇩ Downloads protegidos</h2><p>O armazenamento privado e as regras de acesso estão preparados. Falta enviar e validar o APK Android assinado.</p><span>Em preparação</span></section>
         <section id="cupons" className="admin-card admin-muted"><h2>◇ Cupons</h2><p>Cupons promocionais permanecerão desativados até existir um sistema de pagamentos validado.</p><span>Em preparação</span></section>
         <section id="pagamentos" className="admin-card admin-muted"><h2>▣ Pagamentos</h2><p>Receita e cobranças não estão integradas. Nenhuma movimentação financeira é simulada.</p><span>Em preparação</span></section>
       </div>
