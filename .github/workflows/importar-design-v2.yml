@@ -1,0 +1,53 @@
+name: Importar e validar AeroMind V2
+on:
+  push:
+    branches: [design-v2-aprovado]
+    paths:
+      - 'AEROMIND_SITE_DESIGN_V2_APROVACAO.zip'
+permissions:
+  contents: write
+jobs:
+  build-v2:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar ramo de homologacao
+        uses: actions/checkout@v4
+      - name: Instalar o Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Extrair pacote V2 validado
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+          archive=Path('AEROMIND_SITE_DESIGN_V2_APROVACAO.zip')
+          allowed_files={'package.json','tsconfig.json','next-env.d.ts','next.config.ts','.gitignore','.env.example','README.md','README-V2.md'}
+          allowed_dirs=('app/','components/','public/')
+          with ZipFile(archive) as z:
+              for item in z.infolist():
+                  name=item.filename
+                  p=Path(name)
+                  if not name or name.startswith('/') or '..' in p.parts:
+                      raise SystemExit('Invalid package path')
+                  if not (name in allowed_files or name.startswith(allowed_dirs)):
+                      raise SystemExit('Unexpected file in package: '+name)
+                  if item.is_dir():
+                      continue
+                  dest=Path(name)
+                  dest.parent.mkdir(parents=True,exist_ok=True)
+                  dest.write_bytes(z.read(item))
+          print('Pacote V2 extraido; pronto para build')
+          PY
+      - name: Instalar dependencias
+        run: npm install --no-audit --no-fund
+      - name: Verificar build antes do deploy
+        run: npm run build
+      - name: Salvar versao V2 no ramo de homologacao
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "feat: incorporar e validar design V2 aprovado"
+          git push origin HEAD:design-v2-aprovado
