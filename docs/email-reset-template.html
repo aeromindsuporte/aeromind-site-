@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
+<body style="background:#080c1b;color:#f9f4ff;font-family:Arial,sans-serif;margin:0;padding:30px 12px">
+  <table role="presentation" style="max-width:540px;margin:auto;width:100%;background:#10152b;border:1px solid #9a39dc;border-radius:16px;padding:24px"><tr><td>
+    <h1 style="font-size:26px;color:#da63ef;margin-top:0">AeroMind</h1>
+    <h2 style="font-size:20px;color:#ffffff">Redefinição de senha</h2>
+    <p style="color:#c5cde2;line-height:1.6">Recebemos um pedido para redefinir a senha da sua conta. Se foi você, toque no botão abaixo:</p>
+    <p style="margin:30px 0"><a href="{{ .RedirectTo }}?token_hash={{ .TokenHash }}&amp;type=recovery" style="background:#a132ec;color:white;border-radius:8px;padding:15px 20px;text-decoration:none;font-weight:bold">Redefinir minha senha</a></p>
+    <p style="color:#9ba9c5;font-size:13px;line-height:1.6">Se você não solicitou esta alteração, ignore esta mensagem. Não compartilhe o link.</p>
+  </td></tr></table>
+</body>
+</html>
