@@ -68,3 +68,19 @@
 .account-admin-eyebrow{font-size:10px;letter-spacing:1.5px;color:#d487ff;margin-bottom:10px;font-weight:800}
 .account-admin-entry h2{margin-bottom:10px}
 .account-admin-entry .auth-submit{margin-top:18px;max-width:310px}
+
+/* Controles acessíveis em telefones compactos */
+.auth-root a:focus-visible,.account-root a:focus-visible,
+.auth-root button:focus-visible,.account-root button:focus-visible{outline:2px solid #4eeaff;outline-offset:3px}
+.account-card{min-width:0;overflow-wrap:anywhere}
+@media(max-width:390px){
+ .auth-header-actions{gap:4px}
+ .auth-header-actions .auth-main-btn{padding:9px}
+ .auth-logo{font-size:19px}
+ .account-header{gap:8px;padding-inline:12px}
+ .account-header .auth-logo{font-size:16px}
+ .account-header .auth-secondary{padding:9px 10px;font-size:12px;white-space:nowrap}
+ .account-container{width:calc(100% - 24px)}
+ .account-card p:not(.account-note){flex-wrap:wrap;align-items:start}
+ .account-card p span{max-width:100%;text-align:left}
+}
