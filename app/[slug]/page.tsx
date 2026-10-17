@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+export const dynamicParams = false;
 const pages:Record<string,{title:string,desc:string,notice:string}> = {
  "verificar-email":{title:"Verificar e-mail",desc:"Confirmação de identidade da conta AeroMind.",notice:"Será habilitado junto ao sistema de autenticação."},
  "checkout":{title:"Finalizar contratação",desc:"Pagamento seguro após seleção de um plano.",notice:"Checkout desativado. Não envie pagamentos antes da integração oficial."},
  "pagamentos":{title:"Pagamentos",desc:"Recibos e situação da contratação.",notice:"A seção será disponibilizada junto ao provedor de pagamento."},
- "dispositivos":{title:"Meus dispositivos",desc:"Gestão do dispositivo autorizado e pedidos de troca.",notice:"Recurso em implantação; nenhum dispositivo pode ser ativado por esta tela."},
  "termos":{title:"Termos de uso",desc:"Condições comerciais e regras de utilização do AeroMind.",notice:"Documento jurídico em elaboração. A contratação permanece indisponível."},
  "privacidade":{title:"Política de privacidade",desc:"Informações sobre tratamento de dados e direitos dos usuários.",notice:"Documento em revisão. Antes da coleta de dados pessoais, publicaremos a versão completa conforme a LGPD."},
  "reembolso":{title:"Reembolso e cancelamento",desc:"Política aplicável às futuras compras do AeroMind.",notice:"Política comercial ainda não definida; pagamentos permanecem desativados."},
