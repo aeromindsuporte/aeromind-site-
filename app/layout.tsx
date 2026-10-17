@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import './auth.css';
 export const metadata: Metadata = {
  title: 'AeroMind | Monitor inteligente para o Aviator',
  description: 'AeroMind Monitor: acompanhamento, histórico, indicadores B4 e análise Rosa V4. Dados para análise, sem garantia de resultados.',
