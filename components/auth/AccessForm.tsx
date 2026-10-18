@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/browser';
@@ -25,6 +25,8 @@ export function AccessForm({ mode, next = '/minha-conta' }: { mode: Mode; next?:
   const [pending, setPending] = useState(false);
   const [notice, setNotice] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [rememberEmail,setRememberEmail] = useState(true);
+  useEffect(()=>{if(mode!=='login')return;try{const saved=window.localStorage.getItem('aeromind:remember-email');if(saved){setEmail(saved);setRememberEmail(true);}}catch{/* optional autofill */}},[mode]);
   const safeNext = next.startsWith('/') && !next.startsWith('//') && !next.includes('\\') ? next : '/minha-conta';
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -38,6 +40,8 @@ export function AccessForm({ mode, next = '/minha-conta' }: { mode: Mode; next?:
       if (mode === 'login') {
         const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
         if (error) { setErrorMessage(friendlyError(error.message)); return; }
+        try {if(rememberEmail) window.localStorage.setItem('aeromind:remember-email',email.trim());else window.localStorage.removeItem('aeromind:remember-email');}catch{/* optional autofill */}
+        setPassword('');
         router.replace(safeNext);
         router.refresh();
       } else {
@@ -57,7 +61,7 @@ export function AccessForm({ mode, next = '/minha-conta' }: { mode: Mode; next?:
     <label>E-mail <span className="auth-input"><span aria-hidden="true">✉</span><input type="email" name="email" autoComplete="email" required maxLength={320} placeholder="seu@email.com" value={email} onChange={e => setEmail(e.target.value)} /></span></label>
     <label>Senha <span className="auth-input"><span aria-hidden="true">♙</span><input type={visible ? 'text' : 'password'} name="password" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} required minLength={10} placeholder={mode === 'signup' ? 'Mínimo de 10 caracteres' : 'Digite sua senha'} value={password} onChange={e => setPassword(e.target.value)} /><button type="button" className="auth-see" aria-label={visible ? 'Ocultar senha' : 'Mostrar senha'} onClick={() => setVisible(!visible)}>{visible ? 'Ocultar' : 'Mostrar'}</button></span></label>
     {mode === 'signup' && <label>Confirme a senha <input type={visible ? 'text' : 'password'} autoComplete="new-password" minLength={10} required placeholder="Repita sua senha" value={confirm} onChange={e => setConfirm(e.target.value)} /></label>}
-    {mode === 'login' && <div className="auth-options"><span>Sessão segura neste navegador</span><Link href="/recuperar-senha">Esqueci minha senha?</Link></div>}
+    {mode === 'login' && <><div className="auth-options"><label style={{display:'inline-flex',gap:9,alignItems:'center',cursor:'pointer'}}><input type="checkbox" checked={rememberEmail} onChange={e=>setRememberEmail(e.target.checked)} style={{width:18,height:18,accentColor:'#c437ee'}}/> Lembrar meu e-mail</label><Link href="/recuperar-senha">Esqueci minha senha?</Link></div><p className="auth-legal">Para lembrar a senha com segurança, aceite a opção de salvar senha oferecida pelo seu navegador. Não armazenamos sua senha no site.</p></>}
     {errorMessage && <p className="auth-alert error" role="alert">{errorMessage}</p>}
     {notice && <p className="auth-alert success" role="status">{notice}</p>}
     <button type="submit" className="auth-submit" disabled={pending || Boolean(notice)}>{pending ? 'Aguarde...' : mode === 'login' ? 'Entrar →' : 'Criar conta →'}</button>

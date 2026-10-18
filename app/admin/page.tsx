@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { saveLicense, saveCatalogPlan, revokeAdminDevice } from './actions';
+import { saveLicense, saveCatalogPlan, revokeAdminDevice, saveDeviceLimit } from './actions';
 import './admin.css';
 import { ReleaseUploader } from '@/components/admin/ReleaseUploader';
 
@@ -21,20 +21,22 @@ type Overview={
 };
 
 const sections=[
-  {href:'#visao',icon:'▦',label:'Visão geral'},
-  {href:'#clientes',icon:'♙',label:'Clientes'},
-  {href:'#licencas',icon:'⚿',label:'Licenças'},
-  {href:'#planos',icon:'◈',label:'Planos'},
-  {href:'#dispositivos',icon:'▯',label:'Dispositivos'},
-  {href:'#releases',icon:'⇧',label:'Atualizações'},
-  {href:'#downloads',icon:'⇩',label:'Downloads'},
-  {href:'#cupons',icon:'◇',label:'Cupons'},
-  {href:'#pagamentos',icon:'▣',label:'Pagamentos'},
-  {href:'#relatorios',icon:'▥',label:'Relatórios'},
+  {href:'/admin',icon:'▦',label:'Visão geral'},
+  {href:'/admin/clientes',icon:'♙',label:'Clientes'},
+  {href:'/admin/licencas',icon:'⚿',label:'Licenças'},
+  {href:'/admin/planos',icon:'◈',label:'Planos'},
+  {href:'/admin/dispositivos',icon:'▯',label:'Dispositivos'},
+  {href:'/admin/releases',icon:'⇧',label:'Atualizações'},
+  {href:'/admin/downloads',icon:'⇩',label:'Downloads'},
+  {href:'/admin/cupons',icon:'◇',label:'Cupons'},
+  {href:'/admin/pagamentos',icon:'▣',label:'Pagamentos'},
+  {href:'/admin/relatorios',icon:'▥',label:'Relatórios'},
+  {href:'/admin/suporte',icon:'✉',label:'Suporte'},
 ];
 const messages:Record<string,string>={
  'license-saved':'Licença registrada. O histórico de alterações foi atualizado.',
  'plan-saved':'Dados do plano salvos no catálogo interno.',
+ 'limit-saved':'Limite de dispositivos alterado e registrado na auditoria.',
  'device-revoked':'Dispositivo revogado com sucesso.',
  'device-error':'Falha ao revogar dispositivo.',
  'invalid':'Revise os dados informados.',
@@ -58,7 +60,7 @@ function MiniStat({icon,label,value,tone,sub}:{icon:string;label:string;value:st
 function SectionHead({title,note}:{title:string;note?:string}){
  return <div className="admin-section-head"><h2>{title}</h2>{note&&<small>{note}</small>}</div>;
 }
-export default async function Admin({searchParams}:{searchParams:Promise<{msg?:string}>}){
+export default async function Admin({searchParams,activeSection='visao'}:{searchParams:Promise<{msg?:string}>,activeSection?:string}){
  const supabase=await createClient();
  const {data:{user},error:userError}=await supabase.auth.getUser();
  if(userError||!user)redirect('/entrar?next=%2Fadmin');
@@ -97,14 +99,14 @@ export default async function Admin({searchParams}:{searchParams:Promise<{msg?:s
    return color[i]+' '+from+'% '+to+'%';
  });
  const chartGradient=sum?'conic-gradient('+chartColors.join(',')+')':'conic-gradient(#2d3458 0% 100%)';
- return <div className="admin-root">
+ return <div className={'admin-root area-'+activeSection}>
   <header className="admin-top">
     <Link href="/" className="admin-top-brand"><img src="/images/aeromind-mark.svg" width="42" height="42" alt=""/>AeroMind <span>ADMIN</span></Link>
     <div className="admin-top-right"><span className="admin-live"><i/>Dados reais</span><div className="admin-user"><span className="admin-avatar">A</span><div><strong>AeroMind Suporte</strong><small>{staff.role==='owner'?'Proprietário':'Administrador'}</small></div></div><Link href="/minha-conta" className="admin-account-link">Minha conta ↗</Link></div>
   </header>
   <div className="admin-shell">
     <aside className="admin-sidebar" aria-label="Menu administrativo"><p>PAINEL ADMINISTRATIVO</p><nav>
-    {sections.map((x,i)=><a key={x.href} href={x.href} className={i===0?'current':''}><span>{x.icon}</span>{x.label}{(x.label==='Pagamentos'||x.label==='Cupons')&&<small>Em breve</small>}</a>)}
+    {sections.map((x,i)=><a key={x.href} href={x.href} className={x.href===(activeSection==='visao'?'/admin':'/admin/'+activeSection)?'current':''}><span>{x.icon}</span>{x.label}{(x.label==='Pagamentos'||x.label==='Cupons')&&<small>Em breve</small>}</a>)}
     </nav><div className="admin-sidebar-foot"><span>Site e suporte</span><Link href="/">↗ Ver site</Link><a href="mailto:aeromindsuporte@gmail.com">✉ Contato</a><Link href="/minha-conta">◀ Voltar à conta</Link></div></aside>
     <main className="admin-content">
       <section id="visao" className="admin-overview">
@@ -122,7 +124,7 @@ export default async function Admin({searchParams}:{searchParams:Promise<{msg?:s
         <section id="licencas" className="admin-card admin-wide">
           <SectionHead title="Últimas licenças" note="Dados reais · até 100 registros"/>
           <div className="admin-table-scroll"><table><thead><tr><th>Cliente</th><th>Plano</th><th>Status</th><th>Cadastro</th><th>Validade</th><th>Ação</th></tr></thead><tbody>
-          {data.licenses.length?data.licenses.slice(0,10).map(l=><tr key={l.id}><td className="admin-email">{l.email}</td><td>{l.plan_name}</td><td><span className={'admin-pill status-'+l.status}>{statusLabel(l.status,l.valid_until)}</span></td><td>{asDate(l.created_at)}</td><td>{asDate(l.valid_until)}</td><td><a className="admin-inline-action" href="#editar-licenca">Gerenciar ↗</a></td></tr>):<tr><td colSpan={6} className="admin-empty">Nenhuma licença criada até agora.</td></tr>}
+          {data.licenses.length?data.licenses.slice(0,10).map(l=><tr key={l.id}><td className="admin-email">{l.email}</td><td>{l.plan_name}</td><td><span className={'admin-pill status-'+l.status}>{statusLabel(l.status,l.valid_until)}</span></td><td>{asDate(l.created_at)}</td><td>{asDate(l.valid_until)}</td><td><a className="admin-inline-action" href="/admin/licencas#editar-licenca">Gerenciar ↗</a></td></tr>):<tr><td colSpan={6} className="admin-empty">Nenhuma licença criada até agora.</td></tr>}
           </tbody></table></div>
         </section>
         <section className="admin-card admin-side"><SectionHead title="Resumo de planos" note="Licenças registradas"/>
@@ -155,12 +157,21 @@ export default async function Admin({searchParams}:{searchParams:Promise<{msg?:s
             <label className="admin-full">Observação interna <textarea name="note" maxLength={500} rows={2} placeholder="Motivo da atualização (opcional)"/></label>
             <div className="admin-form-foot"><small>A ativação é manual. Nenhuma cobrança será realizada.</small><button type="submit" disabled={!canDisplay}>Salvar licença ↗</button></div>
           </form>
+          <div style={{marginTop:25,borderTop:'1px solid #37447f',paddingTop:18}}>
+           <h3 style={{marginTop:0}}>Aparelhos permitidos por licença</h3>
+           <p className="admin-card-explain">Configure de 1 a 20 aparelhos para a licença mais recente do cliente. Aparelhos já autorizados não são desligados automaticamente quando o limite diminui.</p>
+           <form className="admin-edit-grid" action={saveDeviceLimit}>
+            <label>E-mail do cliente <input type="email" name="email" required placeholder="cliente@email.com" /></label>
+            <label>Quantidade permitida <input type="number" name="max_devices" min="1" max="20" defaultValue="2" required /></label>
+            <div className="admin-form-foot"><small>O limite também é aplicado pelo servidor Android.</small><button type="submit">Salvar limite →</button></div>
+           </form>
+          </div>
         </section>
         <section className="admin-card admin-side admin-quick"><SectionHead title="Acessos rápidos"/>
           <div className="admin-quick-grid">
-            <a href="#editar-licenca" className="admin-quick-link purple"><span>⚿</span><b>Gerenciar licença</b><small>Ativar ou suspender</small></a>
-            <a href="#planos" className="admin-quick-link green"><span>◈</span><b>Configurar planos</b><small>Preços e visibilidade</small></a>
-            <a href="#relatorios" className="admin-quick-link blue"><span>▤</span><b>Ver auditoria</b><small>Histórico de alterações</small></a>
+            <a href="/admin/licencas#editar-licenca" className="admin-quick-link purple"><span>⚿</span><b>Gerenciar licença</b><small>Ativar ou suspender</small></a>
+            <a href="/admin/planos" className="admin-quick-link green"><span>◈</span><b>Configurar planos</b><small>Preços e visibilidade</small></a>
+            <a href="/admin/relatorios" className="admin-quick-link blue"><span>▤</span><b>Ver auditoria</b><small>Histórico de alterações</small></a>
             <div className="admin-quick-link inactive"><span>♙</span><b>Convidar clientes</b><small>Aguardando SMTP</small></div>
           </div>
         </section>
@@ -202,7 +213,7 @@ export default async function Admin({searchParams}:{searchParams:Promise<{msg?:s
        {data.audit.length?<div className="admin-audit-list">{data.audit.map((x,i)=><p key={x.license_id+x.created_at+i}><span>{asDate(x.created_at)}</span><strong>{x.action==='create'?'Licença criada':'Licença alterada'}</strong><span>{x.old_status?x.old_status+' → ':''}{x.new_status}</span></p>)}</div>:<p className="admin-empty">Ainda não existem alterações de licenças.</p>}
       </section>
       <div className="admin-bottom-grid">
-        <section id="downloads" className="admin-card admin-muted"><h2>⇩ Downloads protegidos</h2><p>O download e as atualizações estão preparados. Publique um APK de produção assinado na seção Versões do aplicativo.</p><span>Em preparação</span></section>
+        <section id="downloads" className="admin-card admin-muted"><h2>⇩ Downloads protegidos</h2><p>O arquivo oficial está disponível na área do cliente somente para licenças ativas.</p><Link href="/download">Abrir página de download →</Link></section>
         <section id="cupons" className="admin-card admin-muted"><h2>◇ Cupons</h2><p>Cupons promocionais permanecerão desativados até existir um sistema de pagamentos validado.</p><span>Em preparação</span></section>
         <section id="pagamentos" className="admin-card admin-muted"><h2>▣ Pagamentos</h2><p>Receita e cobranças não estão integradas. Nenhuma movimentação financeira é simulada.</p><span>Em preparação</span></section>
       </div>

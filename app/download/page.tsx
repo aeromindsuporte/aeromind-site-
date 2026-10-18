@@ -31,7 +31,7 @@ export default async function Download(){
   <section className="device-download-card">
    <div className="device-app-symbol"><img src="/images/aeromind-mark.svg" width="66" height="66" alt="Logo AeroMind"/></div>
    <div className="device-app-info"><strong>AeroMind Monitor</strong>
-     <p>{current?'Versão '+current.version_name+' disponível':'Nenhuma atualização publicada'}</p>
+     <p>{current?'Versão '+current.version_name.split('-')[0]+' disponível':'Nenhuma atualização publicada'}</p>
      <span>{active?'Licença ativa':'Licença inativa ou não confirmada'}</span>
    </div>
    <div className="device-app-cta">{available?<DownloadButton/>:
@@ -39,11 +39,10 @@ export default async function Download(){
    </div>
   </section>
   {current&&<section className="device-release-info">
-    <strong>Versão atual: {current.version_name}</strong>
+    <strong>Versão disponível: {current.version_name.split('-')[0]}</strong>
     <p>Publicada em {date(current.published_at)} · {(current.size_bytes/1048576).toFixed(2)} MB</p>
     {current.release_notes&&<p className="account-release-notes">{current.release_notes}</p>}
-    <p>SHA-256: <code>{current.sha256}</code></p>
-    <small>O hash permite conferir a integridade do download. A assinatura Android também deve corresponder à versão instalada.</small>
+    <details className="download-technical"><summary>Detalhes técnicos e integridade do arquivo</summary><p>SHA-256: <code style={{overflowWrap:'anywhere'}}>{current.sha256}</code></p><small>Confira a assinatura digital antes de atualizar uma instalação anterior.</small></details>
   </section>}
   {releases.filter(r=>r.status==='retired').length>0&&<section className="device-explanation">
     <h2>Histórico de atualizações</h2>
@@ -55,10 +54,10 @@ export default async function Download(){
     )}</div>
   </section>}
   <section className="device-explanation">
-    <h2>Como atualizar sem perder seus dados</h2>
-    <p>1. Entre na mesma conta AeroMind utilizada no aplicativo. 2. Baixe a versão oficial disponível. 3. Instale sobre a versão atual, sem desinstalá-la, usando o mesmo identificador e certificado de assinatura. 4. Reabra o aplicativo e confirme sua licença.</p>
+    <h2>Como instalar ou atualizar</h2>
+    <ol style={{lineHeight:1.9,paddingLeft:23}}><li>Entre com a mesma conta usada no aplicativo.</li><li>Toque em <strong>Baixar APK seguro</strong>.</li><li>Abra o arquivo baixado e siga a instalação do Android.</li><li>Reabra o AeroMind e verifique sua licença.</li></ol>
     <p>Se o Android informar que a assinatura não corresponde, não desinstale o aplicativo para forçar a instalação: procure o suporte antes.</p>
-    <Link href="/dispositivos" className="auth-secondary auth-button-link">Meus dispositivos →</Link>
+    <Link href="/dispositivos" className="auth-secondary auth-button-link">Meus dispositivos →</Link><Link href="/suporte" className="auth-secondary auth-button-link" style={{marginLeft:10}}>Preciso de ajuda →</Link>
   </section>
  </section></main>;
 }

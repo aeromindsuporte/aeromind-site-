@@ -36,6 +36,9 @@ export default async function Conta() {
   const isActive=validResult.data===true && !validResult.error;
   const valid=isActive?licenses.find(l=>l.status==='active' && !!l.valid_until && new Date(l.valid_until).getTime()>Date.now()):undefined;
   const current=valid || licenses[0];
+  const published=isActive?await client.from('aeromind_app_releases').select('version_name').eq('status','published').order('version_code',{ascending:false}).limit(1).maybeSingle():null;
+  const releaseName=published?.data?.version_name?.split('-')[0]||'';
+  const appReady=!!releaseName && !published?.error;
   const displayStatus=valid ? 'Ativa' : current?.status==='active' ? 'Vencida'
     : current ? labels[current.status] : 'Nenhuma licença ativa';
   const name=profileResult.data?.display_name || 'Cliente AeroMind';
@@ -65,22 +68,22 @@ export default async function Conta() {
           </div>
           <p><b>Plano</b><span>{current?.plan_name || 'Não contratado'}</span></p>
           <p><b>Validade</b><span>{formatDate(current?.valid_until||null)}</span></p>
-          <p className="account-note">{isActive?'Licença reconhecida pelo servidor. O APK ainda está em preparação.':'Criar conta não ativa uma licença. A contratação permanece indisponível.'}</p>
+          <p className="account-note">{isActive?(appReady?'Licença válida. AeroMind Monitor '+releaseName+' disponível para download.':'Licença válida. Aguarde a publicação da próxima versão do aplicativo.'):'Criar conta não ativa uma licença. Consulte as opções de contratação.'}</p>
         </section>
         <section className="account-card">
           <h2>Download do aplicativo</h2>
-          <p className="account-note">Instale a versão mais recente, veja as novidades e baixe atualizações autorizadas para sua licença.</p>
+          <p className="account-note">{appReady?'O aplicativo já está disponível. Acesse a versão oficial e as instruções de instalação.':'Veja as informações sobre o aplicativo e atualizações.'}</p>
           <Link href="/download" className="auth-secondary auth-button-link">Ver downloads e atualizações →</Link>
         </section>
         <section className="account-card">
           <h2>Meus dispositivos</h2>
-          <p className="account-note">Controle os aparelhos vinculados à sua conta. Limite inicial: dois dispositivos ativos.</p>
+          <p className="account-note">Consulte seus aparelhos e a quantidade permitida para sua licença.</p>
           <Link href="/dispositivos" className="auth-secondary auth-button-link">Gerenciar dispositivos →</Link>
         </section>
         <section className="account-card">
           <h2>Suporte</h2>
-          <p className="account-note">Dúvidas sobre conta, licenças ou acesso? Fale com a equipe AeroMind.</p>
-          <a href="mailto:aeromindsuporte@gmail.com?subject=Suporte%20AeroMind" className="auth-secondary auth-button-link">Solicitar suporte →</a>
+          <p className="account-note">Envie sua dúvida e acompanhe as respostas sem sair do site.</p>
+          <Link href="/suporte" className="auth-secondary auth-button-link">Abrir central de atendimento →</Link>
         </section>
       </div>
       {isStaff && <section className="account-card account-admin-entry">

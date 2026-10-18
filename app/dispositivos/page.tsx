@@ -15,16 +15,18 @@ export default async function Devices({searchParams}:{searchParams:Promise<{stat
  const supabase=await createClient();
  const {data:{user},error:userError}=await supabase.auth.getUser();
  if(!user||userError)redirect('/entrar?next=%2Fdispositivos');
- const [devicesResult,licenseResult]=await Promise.all([
+ const [devicesResult,licenseResult,limitResult]=await Promise.all([
    supabase.from('aeromind_devices')
      .select('id,device_name,os_version,status,registered_at,last_seen_at,revoked_at')
      .eq('user_id',user.id).order('registered_at',{ascending:false}),
-   supabase.rpc('aeromind_has_active_license')
+   supabase.rpc('aeromind_has_active_license'),
+   supabase.from('licenses').select('max_devices').eq('user_id',user.id).eq('status','active').gt('valid_until',new Date().toISOString()).order('valid_until',{ascending:false}).limit(1).maybeSingle()
  ]);
  const devices=(devicesResult.data??[]) as Device[];
  const active=devices.filter(d=>d.status==='active');
  const reserved=devices.filter(d=>d.status==='active'||d.status==='pending');
  const license=licenseResult.data===true&&!licenseResult.error;
+ const maxDevices=Math.max(1,Math.min(20,Number(limitResult.data?.max_devices)||2));
  const {status}=await searchParams;
  return <main className="account-root"><header className="account-header">
    <Link href="/" className="auth-logo"><img src="/images/aeromind-mark.svg" alt="" width="40" height="40"/> AeroMind</Link>
@@ -34,11 +36,11 @@ export default async function Devices({searchParams}:{searchParams:Promise<{stat
    <h1>Meus <em>dispositivos</em></h1>
    <p className="account-lead">Veja e revogue os aparelhos vinculados à sua licença.</p>
    <div className="device-capacity">
-     <div className="device-capacity-top"><strong>{active.length} ativo(s) · {reserved.length} de 2 vagas</strong><span>{license?'Licença ativa':'Licença não ativa'}</span></div>
-     <div className="device-bar" role="progressbar" aria-label="Dispositivos ativos" aria-valuemax={2} aria-valuemin={0} aria-valuenow={Math.min(2,reserved.length)}>
-       <div style={{width:Math.min(100,reserved.length*50)+'%'}}/>
+     <div className="device-capacity-top"><strong>{active.length} ativo(s) · {reserved.length} de {maxDevices} vagas</strong><span>{license?'Licença ativa':'Licença não ativa'}</span></div>
+     <div className="device-bar" role="progressbar" aria-label="Dispositivos ativos" aria-valuemax={maxDevices} aria-valuemin={0} aria-valuenow={Math.min(maxDevices,reserved.length)}>
+       <div style={{width:Math.min(100,reserved.length/maxDevices*100)+'%'}}/>
      </div>
-     <p>Limite inicial: até dois aparelhos por conta. O Android solicitará autorização, e você confirmará aqui antes de liberar o aparelho.</p>
+     <p>Sua licença permite até {maxDevices} aparelho(s). O Android solicitará autorização, e você confirmará aqui antes de liberar o aparelho.</p>
    </div>
    {status==='approved'&&<p role="status" className="device-notice good">Dispositivo autorizado.</p>}
    {status==='approve-failed'&&<p role="alert" className="device-notice error">Não foi possível autorizar. Verifique sua licença e o limite de aparelhos.</p>}

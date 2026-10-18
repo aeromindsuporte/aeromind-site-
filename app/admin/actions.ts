@@ -79,3 +79,16 @@ export async function revokeAdminDevice(formData:FormData){
   revalidatePath('/dispositivos');
   redirect('/admin?msg=device-revoked#dispositivos');
 }
+
+export async function saveDeviceLimit(formData:FormData) {
+ const supabase=await adminClient();
+ const email=word(formData.get('email')).toLowerCase();
+ const limit=Number(word(formData.get('max_devices')));
+ if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)||!Number.isInteger(limit)||limit<1||limit>20)redirect('/admin/licencas?msg=invalid');
+ const {data,error}=await supabase.rpc('aeromind_set_device_limit',{p_customer_email:email,p_max_devices:limit});
+ if(error||data!==true)redirect('/admin/licencas?msg=license-error');
+ revalidatePath('/admin');
+ revalidatePath('/dispositivos');
+ revalidatePath('/minha-conta');
+ redirect('/admin/licencas?msg=limit-saved');
+}
