@@ -22,6 +22,8 @@ export async function saveLicense(formData:FormData) {
   const status=word(formData.get('status'));
   const expires=word(formData.get('valid_until'));
   const note=word(formData.get('note')).slice(0,500);
+  const clientId=word(formData.get('return_to'));
+  const clientPath=/^[0-9a-f]{8}-[0-9a-f-]{27,36}$/i.test(clientId)?'/admin/cliente/'+clientId:'/admin/licencas';
   const tiers=['Básico','Pro','Ultra'];
   const statuses=['pending','active','expired','suspended','revoked'];
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length>320 || !tiers.includes(tier) || !statuses.includes(status)) {
@@ -46,7 +48,7 @@ export async function saveLicense(formData:FormData) {
   }
   revalidatePath('/admin');
   revalidatePath('/minha-conta');
-  redirect('/admin?msg=license-saved#licencas');
+  redirect(clientPath+'?msg=license-saved');
 }
 
 export async function saveCatalogPlan(formData:FormData) {
@@ -63,6 +65,18 @@ export async function saveCatalogPlan(formData:FormData) {
     p_slug:slug,p_price_cents:cents,p_visible:visible
   });
   if(error) redirect('/admin?msg=plan-error#planos');
+  const title=word(formData.get('marketing_title')).slice(0,65);
+  const description=word(formData.get('marketing_description')).slice(0,240);
+  const badge=word(formData.get('marketing_badge')).slice(0,38);
+  const cta=word(formData.get('marketing_cta')).slice(0,40);
+  const highlights=word(formData.get('marketing_features')).split(/\r?\n/).map(x=>x.trim().slice(0,115)).filter(Boolean).slice(0,8);
+  const {error:marketingError}=await supabase.rpc('aeromind_save_plan_presentation',{
+    p_slug:slug,p_title:title,p_description:description,p_badge:badge,
+    p_features:highlights,p_cta:cta,p_highlight:formData.get('marketing_highlight')==='on'
+  });
+  if(marketingError) redirect('/admin?msg=plan-error#planos');
+  revalidatePath('/planos');
+  revalidatePath('/');
   revalidatePath('/admin');
   redirect('/admin?msg=plan-saved#planos');
 }
@@ -84,11 +98,31 @@ export async function saveDeviceLimit(formData:FormData) {
  const supabase=await adminClient();
  const email=word(formData.get('email')).toLowerCase();
  const limit=Number(word(formData.get('max_devices')));
- if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)||!Number.isInteger(limit)||limit<1||limit>20)redirect('/admin/licencas?msg=invalid');
+ const clientId=word(formData.get('return_to'));
+ const clientPath=/^[0-9a-f]{8}-[0-9a-f-]{27,36}$/i.test(clientId)?'/admin/cliente/'+clientId:'/admin/licencas';
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||!Number.isInteger(limit)||limit<1||limit>20)redirect('/admin/licencas?msg=invalid');
  const {data,error}=await supabase.rpc('aeromind_set_device_limit',{p_customer_email:email,p_max_devices:limit});
  if(error||data!==true)redirect('/admin/licencas?msg=license-error');
  revalidatePath('/admin');
  revalidatePath('/dispositivos');
  revalidatePath('/minha-conta');
- redirect('/admin/licencas?msg=limit-saved');
+ redirect(clientPath+'?msg=limit-saved');
+}
+
+export async function saveCoupon(formData:FormData){
+ const sb=await adminClient();
+ const code=word(formData.get('code')).toUpperCase();
+ const percent=Number(word(formData.get('discount_percent')));
+ const rawLimit=word(formData.get('max_uses'));
+ const max_uses=rawLimit?Number(rawLimit):null;
+ const date=word(formData.get('expires_at'));
+ if(!/^[A-Z0-9_-]{4,24}$/.test(code)||!Number.isInteger(percent)||percent<1||percent>90||
+ (max_uses!==null&&(!Number.isInteger(max_uses)||max_uses<1||max_uses>100000))||
+ (date&&!/^\d{4}-\d{2}-\d{2}$/.test(date)))redirect('/admin/cupons?msg=invalid');
+ const expires_at=date?new Date(date+'T23:59:59-03:00').toISOString():null;
+ const {error}=await sb.from('aeromind_coupons').upsert({code,discount_percent:percent,max_uses,expires_at,
+  active:formData.get('active')==='on',updated_at:new Date().toISOString()},{onConflict:'code'});
+ if(error)redirect('/admin/cupons?msg=coupon-error');
+ revalidatePath('/admin/cupons');revalidatePath('/checkout');
+ redirect('/admin/cupons?msg=coupon-saved');
 }
