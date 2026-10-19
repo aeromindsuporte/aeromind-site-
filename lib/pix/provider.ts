@@ -7,9 +7,21 @@ const record=(value:unknown):Data|null=>value && typeof value==='object' && !Arr
 const string=(value:unknown):string|null=>typeof value==='string' && value.length>0?value:null;
 export const PIX_GATEWAY_TIMEOUT_MS=45_000;
 export const ID_PATTERN=/^[A-Za-z0-9_-]{6,128}$/;
+/** Nao enviar uma cobranca AeroMind ao endpoint da Descont' Saude. */
+export function isAeromindCallback(raw:string|undefined):boolean {
+ if(!raw)return false;
+ try {
+  const url=new URL(raw);
+  if(url.protocol!=='https:'||url.username||url.password||url.port||url.search||url.hash)return false;
+  if(url.pathname!=='/api/pix/webhook')return false;
+  return url.hostname==='aeromind-site.vercel.app'
+   || /^aeromind-site-[a-z0-9-]+\.vercel\.app$/i.test(url.hostname);
+ }catch{return false;}
+}
+
 export function sandboxConfigured():boolean{
  return process.env.PAGGPAY_MODE==='sandbox' && !!process.env.PAGGPAY_API_KEY &&
- !!process.env.PAGGPAY_WEBHOOK_SECRET && !!process.env.PAGGPAY_WEBHOOK_URL &&
+ !!process.env.PAGGPAY_WEBHOOK_SECRET && isAeromindCallback(process.env.PAGGPAY_WEBHOOK_URL) &&
  !!process.env.SUPABASE_SERVICE_ROLE_KEY;
 }
 export class GatewayError extends Error{
