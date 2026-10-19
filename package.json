@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "test:pix": "node --experimental-strip-types --test tests/pix-security.test.mjs",
     "start": "next start"
   },
   "dependencies": {
