@@ -168,3 +168,19 @@
  .admin-root .admin-main-grid{display:block}
  .admin-root .admin-main-grid>.admin-card{margin-bottom:16px}
 }
+
+/* Gestão comercial: cards editáveis, relatórios e tabelas de clientes */
+.admin-plan-item textarea,.admin-coupon-list textarea {
+ width:100%;min-width:0;border:1px solid #465a94;border-radius:9px;
+ background:#0c1935;color:#f4f5ff;padding:12px;font:inherit;resize:vertical;
+}
+.admin-report-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:18px 0 28px}
+.admin-report-tiles>div{display:grid;gap:7px;border:1px solid #34477e;border-radius:11px;background:#0c1933;padding:16px}
+.admin-report-tiles small{color:#aabbe6;font-size:12px}.admin-report-tiles strong{color:#fff;font-size:22px}
+.admin-coupon-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:15px}
+.admin-root.area-downloads #downloads,.admin-root.area-pagamentos #pagamentos,
+.admin-root.area-cupons #cupons{width:100%;max-width:none}
+.admin-root.area-downloads .admin-bottom-grid,.admin-root.area-pagamentos .admin-bottom-grid,
+.admin-root.area-cupons .admin-bottom-grid{display:block}
+.admin-root .admin-card [type=checkbox]{accent-color:#b537ee}
+@media(max-width:560px){.admin-report-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-report-tiles strong{font-size:18px}}
