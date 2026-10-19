@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { saveLicense, saveCatalogPlan, revokeAdminDevice, saveDeviceLimit } from './actions';
+import { saveLicense, saveCatalogPlan, revokeAdminDevice, saveDeviceLimit, saveCoupon } from './actions';
 import './admin.css';
 import { ReleaseUploader } from '@/components/admin/ReleaseUploader';
 
@@ -10,7 +10,13 @@ export const metadata={title:'Painel Administrativo | AeroMind', robots:{index:f
 
 type Customer={id:string;email:string;display_name:string|null;created_at:string;confirmed:boolean};
 type License={id:string;email:string;plan_name:string;status:string;created_at:string;valid_until:string|null};
-type Plan={slug:string;tier:string;duration_days:number;price_cents:number|null;visible:boolean};
+type Plan={slug:string;tier:string;duration_days:number;price_cents:number|null;visible:boolean;
+ marketing_title:string|null;marketing_description:string|null;marketing_badge:string|null;
+ marketing_features:string[]|null;marketing_cta:string|null;marketing_highlight:boolean};
+type Coupon={code:string;discount_percent:number;active:boolean;max_uses:number|null;expires_at:string|null};
+type Download={requested_at:string;user_id:string;email:string;version_name:string};
+type Order={id:string;created_at:string;status:string;amount_cents:number;plan_name:string;plan_slug:string;reference_id:string;email:string};
+type Commercial={requests_total:number;download_accounts:number;requests_7d:number;orders_total:number;orders_paid:number;orders_pending:number;revenue_cents:number;tickets_open:number;tickets_progress:number;tickets_resolved:number;coupons_active:number};
 type Audit={license_id:string;action:string;new_status:string;old_status:string|null;created_at:string};
 type AdminDevice={id:string;email:string;name:string;os_version:string|null;status:'active'|'pending'|'revoked';registered_at:string;last_seen_at:string|null};
 type AdminRelease={version:string;code:number;status:string;path:string;published_at:string|null};
@@ -43,7 +49,8 @@ const messages:Record<string,string>={
  'expiry':'Licença ativa exige data de validade futura.',
  'license-error':'Não foi possível atualizar a licença. Confirme o e-mail cadastrado e os campos.',
  'plan-error':'Não foi possível salvar o plano.',
- 'price':'Defina um preço maior que zero para exibir um plano.'
+ 'price':'Defina um preço maior que zero para exibir um plano.',
+ 'coupon-saved':'Cupom registrado com sucesso.', 'coupon-error':'Não foi possível salvar o cupom.'
 };
 const asDate=(s?:string|null)=>s?new Date(s).toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'}):'—';
 const displayMoney=(n:number|null)=>n===null?'Em definição':(n/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
@@ -66,7 +73,19 @@ export default async function Admin({searchParams,activeSection='visao'}:{search
  if(userError||!user)redirect('/entrar?next=%2Fadmin');
  const {data:staff,error:staffError}=await supabase.from('aeromind_staff').select('role').eq('user_id',user.id).maybeSingle();
  if(staffError||!staff) redirect('/minha-conta');
- const [result,deviceResult]=await Promise.all([supabase.rpc('aeromind_admin_overview'),supabase.rpc('aeromind_admin_devices')]);
+ const [result,deviceResult,planResult,couponResult,snapshotResult,downloadsResult,ordersResult]=await Promise.all([
+  supabase.rpc('aeromind_admin_overview'),supabase.rpc('aeromind_admin_devices'),
+  supabase.from('aeromind_plan_catalog').select('slug,tier,duration_days,price_cents,visible,marketing_title,marketing_description,marketing_badge,marketing_features,marketing_cta,marketing_highlight').order('duration_days'),
+  supabase.from('aeromind_coupons').select('code,discount_percent,active,max_uses,expires_at').order('created_at',{ascending:false}),
+  supabase.rpc('aeromind_admin_commercial_snapshot'),
+  supabase.rpc('aeromind_admin_downloads'),
+  supabase.rpc('aeromind_admin_orders')
+ ]);
+ const coupons=(couponResult.data||[]) as Coupon[];
+ const commercial=(snapshotResult.data||{}) as Partial<Commercial>;
+ const downloads=(Array.isArray(downloadsResult.data)?downloadsResult.data:[]) as Download[];
+ const orders=(Array.isArray(ordersResult.data)?ordersResult.data:[]) as Order[];
+ const count=(key:keyof Commercial)=>Number(commercial[key]||0);
  const inventory=(deviceResult.data??{}) as {devices?:AdminDevice[];releases?:AdminRelease[]};
  const devices=Array.isArray(inventory.devices)?inventory.devices:[];
  const releases=Array.isArray(inventory.releases)?inventory.releases:[];
@@ -81,7 +100,7 @@ export default async function Admin({searchParams,activeSection='visao'}:{search
    licenses_expiring_7d:Number(raw.licenses_expiring_7d)||0,
    users:Array.isArray(raw.users)?raw.users:[],
    licenses:Array.isArray(raw.licenses)?raw.licenses:[],
-   plans:Array.isArray(raw.plans)?raw.plans:[],
+   plans:Array.isArray(planResult.data)?planResult.data as Plan[]:Array.isArray(raw.plans)?raw.plans:[],
    audit:Array.isArray(raw.audit)?raw.audit:[]
  };
  const {msg}=await searchParams;
@@ -106,7 +125,7 @@ export default async function Admin({searchParams,activeSection='visao'}:{search
   </header>
   <div className="admin-shell">
     <aside className="admin-sidebar" aria-label="Menu administrativo"><p>PAINEL ADMINISTRATIVO</p><nav>
-    {sections.map((x,i)=><a key={x.href} href={x.href} className={x.href===(activeSection==='visao'?'/admin':'/admin/'+activeSection)?'current':''}><span>{x.icon}</span>{x.label}{(x.label==='Pagamentos'||x.label==='Cupons')&&<small>Em breve</small>}</a>)}
+    {sections.map((x,i)=><a key={x.href} href={x.href} className={x.href===(activeSection==='visao'?'/admin':'/admin/'+activeSection)?'current':''}><span>{x.icon}</span>{x.label}</a>)}
     </nav><div className="admin-sidebar-foot"><span>Site e suporte</span><Link href="/">↗ Ver site</Link><a href="mailto:aeromindsuporte@gmail.com">✉ Contato</a><Link href="/minha-conta">◀ Voltar à conta</Link></div></aside>
     <main className="admin-content">
       <section id="visao" className="admin-overview">
@@ -117,14 +136,14 @@ export default async function Admin({searchParams,activeSection='visao'}:{search
           <MiniStat icon="♙" label="Total de clientes" value={canDisplay?data.users_total:'—'} tone="purple" sub={canDisplay?data.users_confirmed+' confirmados':'Indisponível'} />
           <MiniStat icon="⚿" label="Licenças ativas" value={canDisplay?data.licenses_active:'—'} tone="green" sub="Validade verificada"/>
           <MiniStat icon="◷" label="Licenças expiradas" value={canDisplay?data.licenses_expired:'—'} tone="yellow" sub={data.licenses_expiring_7d+' vencem em 7 dias'}/>
-          <MiniStat icon="▥" label="Receita" value="—" tone="blue" sub="Pagamentos não integrados"/>
+          <MiniStat icon="▥" label="Receita confirmada" value={displayMoney(count('revenue_cents'))} tone="blue" sub="Somente pedidos pagos"/>
         </div>
       </section>
       <div className="admin-main-grid">
         <section id="licencas" className="admin-card admin-wide">
           <SectionHead title="Últimas licenças" note="Dados reais · até 100 registros"/>
           <div className="admin-table-scroll"><table><thead><tr><th>Cliente</th><th>Plano</th><th>Status</th><th>Cadastro</th><th>Validade</th><th>Ação</th></tr></thead><tbody>
-          {data.licenses.length?data.licenses.slice(0,10).map(l=><tr key={l.id}><td className="admin-email">{l.email}</td><td>{l.plan_name}</td><td><span className={'admin-pill status-'+l.status}>{statusLabel(l.status,l.valid_until)}</span></td><td>{asDate(l.created_at)}</td><td>{asDate(l.valid_until)}</td><td><a className="admin-inline-action" href="/admin/licencas#editar-licenca">Gerenciar ↗</a></td></tr>):<tr><td colSpan={6} className="admin-empty">Nenhuma licença criada até agora.</td></tr>}
+          {data.licenses.length?data.licenses.slice(0,10).map(l=><tr key={l.id}><td className="admin-email">{l.email}</td><td>{l.plan_name}</td><td><span className={'admin-pill status-'+l.status}>{statusLabel(l.status,l.valid_until)}</span></td><td>{asDate(l.created_at)}</td><td>{asDate(l.valid_until)}</td><td><Link className="admin-inline-action" href={data.users.find(u=>u.email===l.email)?'/admin/cliente/'+data.users.find(u=>u.email===l.email)!.id:'/admin/licencas#editar-licenca'}>Gerenciar cliente ↗</Link></td></tr>):<tr><td colSpan={6} className="admin-empty">Nenhuma licença criada até agora.</td></tr>}
           </tbody></table></div>
         </section>
         <section className="admin-card admin-side"><SectionHead title="Resumo de planos" note="Licenças registradas"/>
@@ -134,8 +153,8 @@ export default async function Admin({searchParams,activeSection='visao'}:{search
         </section>
         <section id="clientes" className="admin-card admin-wide">
           <SectionHead title="Clientes recentes" note="Até 100 cadastros recentes"/>
-          <div className="admin-table-scroll"><table><thead><tr><th>Cliente</th><th>E-mail</th><th>Cadastro</th><th>Situação</th></tr></thead><tbody>
-          {data.users.length?data.users.slice(0,12).map(u=><tr key={u.id}><td>{u.display_name||'Cliente AeroMind'}</td><td className="admin-email">{u.email}</td><td>{asDate(u.created_at)}</td><td><span className={'admin-pill '+(u.confirmed?'status-active':'status-pending')}>{u.confirmed?'Confirmado':'Pendente'}</span></td></tr>):<tr><td colSpan={4} className="admin-empty">Nenhum cliente cadastrado.</td></tr>}
+          <div className="admin-table-scroll"><table><thead><tr><th>Cliente</th><th>E-mail</th><th>Cadastro</th><th>Situação</th><th>Ação</th></tr></thead><tbody>
+          {data.users.length?data.users.slice(0,12).map(u=><tr key={u.id}><td>{u.display_name||'Cliente AeroMind'}</td><td className="admin-email">{u.email}</td><td>{asDate(u.created_at)}</td><td><span className={'admin-pill '+(u.confirmed?'status-active':'status-pending')}>{u.confirmed?'Confirmado':'Pendente'}</span></td><td><Link className="admin-inline-action" href={'/admin/cliente/'+u.id}>Gerenciar →</Link></td></tr>):<tr><td colSpan={5} className="admin-empty">Nenhum cliente cadastrado.</td></tr>}
           </tbody></table></div>
         </section>
         <section className="admin-card admin-side"><SectionHead title="Status de licenças"/>
@@ -176,12 +195,18 @@ export default async function Admin({searchParams,activeSection='visao'}:{search
           </div>
         </section>
       </div>
-      <section id="planos" className="admin-card admin-catalog"><SectionHead title="Planos cadastrados" note="12 combinações · vendas desativadas"/>
-        <p className="admin-card-explain">Defina preços para o catálogo interno. A opção de visibilidade não habilita pagamentos ou libera o aplicativo.</p>
+      <section id="planos" className="admin-card admin-catalog"><SectionHead title="Planos e cards de divulgação" note="Preços e apresentação na página de vendas"/>
+        <p className="admin-card-explain">Personalize os textos, benefícios e destaque de cada card. As alterações refletem na tela de planos e no site. Cobranças reais só após homologação.</p>
         <div className="admin-catalog-grid">{data.plans.map(p=><form action={saveCatalogPlan} className="admin-plan-item" key={p.slug}>
           <input name="slug" type="hidden" value={p.slug}/><div className="admin-plan-heading"><strong>{p.tier}</strong><span>{period(p.duration_days)}</span></div>
           <label>Preço (R$) <input type="number" inputMode="decimal" name="price" min="0" max="1000000" step="0.01" defaultValue={p.price_cents===null?'':(p.price_cents/100).toFixed(2)} placeholder="Em definição"/></label>
-          <label className="admin-checkbox"><input type="checkbox" name="visible" defaultChecked={p.visible}/>Exibir no futuro catálogo</label>
+          <label className="admin-checkbox"><input type="checkbox" name="visible" defaultChecked={p.visible}/>Exibir na página de planos</label>
+          <label>Título de divulgação<input name="marketing_title" maxLength={65} defaultValue={p.marketing_title||''} placeholder={p.tier}/></label>
+          <label>Descrição do card<textarea name="marketing_description" maxLength={240} rows={2} defaultValue={p.marketing_description||''} placeholder="Descreva o benefício do plano"/></label>
+          <label>Selo de destaque<input name="marketing_badge" maxLength={38} defaultValue={p.marketing_badge||''} placeholder="Mais escolhido"/></label>
+          <label>Benefícios (um por linha)<textarea name="marketing_features" rows={5} defaultValue={(p.marketing_features||[]).join('\n')} placeholder="Benefício 1&#10;Benefício 2"/></label>
+          <label>Texto do botão<input name="marketing_cta" maxLength={40} defaultValue={p.marketing_cta||''} placeholder="Conhecer plano"/></label>
+          <label className="admin-checkbox"><input type="checkbox" name="marketing_highlight" defaultChecked={p.marketing_highlight}/>Destacar este card</label>
           <button type="submit" disabled={!canDisplay}>Salvar plano</button>
         </form>)}</div>
       </section>
@@ -209,13 +234,64 @@ export default async function Admin({searchParams,activeSection='visao'}:{search
         <ReleaseUploader/>
         <p className="admin-card-explain">Os clientes com licença ativa receberão o download por link temporário. As versões anteriores permanecem no histórico.</p>
       </section>
-      <section id="relatorios" className="admin-card admin-audit"><SectionHead title="Histórico de alterações" note="Últimos 20 eventos"/>
+      <section id="relatorios" className="admin-card admin-audit"><SectionHead title="Relatório comercial" note="Dados confirmados e eventos reais"/>
+       {snapshotResult.error&&<p role="alert" className="admin-feedback bad">Relatório temporariamente indisponível.</p>}
+       <div className="admin-report-tiles">
+         <div><small>Receita recebida</small><strong>{displayMoney(count('revenue_cents'))}</strong></div>
+         <div><small>Pedidos pagos</small><strong>{count('orders_paid')}</strong></div>
+         <div><small>Pedidos pendentes</small><strong>{count('orders_pending')}</strong></div>
+         <div><small>Solicitações de download</small><strong>{count('requests_total')}</strong></div>
+         <div><small>Contas que solicitaram</small><strong>{count('download_accounts')}</strong></div>
+         <div><small>Solicitações em 7 dias</small><strong>{count('requests_7d')}</strong></div>
+         <div><small>Chamados em aberto</small><strong>{count('tickets_open')}</strong></div>
+         <div><small>Em atendimento</small><strong>{count('tickets_progress')}</strong></div>
+         <div><small>Cupons ativos</small><strong>{count('coupons_active')}</strong></div>
+       </div>
+       <h3>Auditoria de licenças</h3>
        {data.audit.length?<div className="admin-audit-list">{data.audit.map((x,i)=><p key={x.license_id+x.created_at+i}><span>{asDate(x.created_at)}</span><strong>{x.action==='create'?'Licença criada':'Licença alterada'}</strong><span>{x.old_status?x.old_status+' → ':''}{x.new_status}</span></p>)}</div>:<p className="admin-empty">Ainda não existem alterações de licenças.</p>}
       </section>
       <div className="admin-bottom-grid">
-        <section id="downloads" className="admin-card admin-muted"><h2>⇩ Downloads protegidos</h2><p>O arquivo oficial está disponível na área do cliente somente para licenças ativas.</p><Link href="/download">Abrir página de download →</Link></section>
-        <section id="cupons" className="admin-card admin-muted"><h2>◇ Cupons</h2><p>Cupons promocionais permanecerão desativados até existir um sistema de pagamentos validado.</p><span>Em preparação</span></section>
-        <section id="pagamentos" className="admin-card admin-muted"><h2>▣ Pagamentos</h2><p>Receita e cobranças não estão integradas. Nenhuma movimentação financeira é simulada.</p><span>Em preparação</span></section>
+        <section id="downloads" className="admin-card admin-muted">
+         <h2>⇩ Solicitações de download</h2>
+         <p>São contabilizados pedidos de link seguro feitos por contas autenticadas; isso <strong>não comprova conclusão do download</strong>. O registro começa a partir desta atualização.</p>
+         <p><strong>{count('requests_total')}</strong> solicitações totais · <strong>{count('download_accounts')}</strong> contas distintas</p>
+         {downloadsResult.error&&<p className="admin-feedback bad">Falha ao consultar os registros.</p>}
+         <div className="admin-table-scroll"><table><thead><tr><th>Conta</th><th>Versão</th><th>Data</th></tr></thead><tbody>
+          {downloads.length?downloads.map((x,i)=><tr key={x.user_id+x.requested_at+i}><td className="admin-email">{x.email}</td><td>{x.version_name}</td><td>{new Date(x.requested_at).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})}</td></tr>):<tr><td colSpan={3}>Nenhuma solicitação registrada até o momento.</td></tr>}
+         </tbody></table></div>
+        </section>
+        <section id="cupons" className="admin-card admin-muted">
+         <h2>◇ Cupons promocionais</h2>
+         <p>Crie códigos percentuais de desconto. Aplicação em pedidos Pix está preparada para o ambiente de homologação.</p>
+         <form className="admin-edit-grid" action={saveCoupon}>
+          <label>Código<input name="code" placeholder="AERO10" minLength={4} maxLength={24} pattern="[A-Za-z0-9_-]{4,24}" required/></label>
+          <label>Desconto (%)<input name="discount_percent" type="number" min="1" max="90" required/></label>
+          <label>Máximo de usos (opcional)<input name="max_uses" type="number" min="1" max="100000"/></label>
+          <label>Vencimento (opcional)<input name="expires_at" type="date"/></label>
+          <label className="admin-checkbox"><input type="checkbox" name="active" defaultChecked/>Cupom ativo</label>
+          <div className="admin-form-foot"><small>Use o mesmo código para editar um cupom existente.</small><button type="submit">Salvar cupom</button></div>
+         </form>
+         <h3>Cupons cadastrados</h3>
+         {couponResult.error&&<p className="admin-feedback bad">Não foi possível carregar os cupons.</p>}
+         <div className="admin-coupon-list">{coupons.length?coupons.map(c=><form key={c.code} action={saveCoupon} className="admin-plan-item">
+          <input type="hidden" name="code" value={c.code}/>
+          <strong>{c.code}</strong>
+          <label>Desconto (%)<input name="discount_percent" type="number" min="1" max="90" defaultValue={c.discount_percent} required/></label>
+          <label>Máximo de usos<input name="max_uses" type="number" min="1" max="100000" defaultValue={c.max_uses??''}/></label>
+          <label>Validade<input name="expires_at" type="date" defaultValue={c.expires_at?new Date(c.expires_at).toISOString().slice(0,10):''}/></label>
+          <label className="admin-checkbox"><input type="checkbox" name="active" defaultChecked={c.active}/>Ativo</label>
+          <button>Atualizar cupom</button>
+         </form>):<p>Nenhum cupom cadastrado.</p>}</div>
+        </section>
+        <section id="pagamentos" className="admin-card admin-muted">
+         <h2>▣ Pagamentos e pedidos</h2>
+         <p>Acompanhamento de pedidos reais do banco. A criação de Pix continua restrita ao sandbox até a validação oficial do provedor.</p>
+         <p><strong>{count('orders_paid')}</strong> pagos · <strong>{count('orders_pending')}</strong> pendentes · <strong>{displayMoney(count('revenue_cents'))}</strong> recebidos</p>
+         <Link href="/checkout" className="admin-inline-action">Ver checkout →</Link>
+         <div className="admin-table-scroll"><table><thead><tr><th>Conta</th><th>Plano</th><th>Total</th><th>Status</th><th>Data</th></tr></thead><tbody>
+         {orders.length?orders.map(o=><tr key={o.id}><td className="admin-email">{o.email}</td><td>{o.plan_name}</td><td>{displayMoney(o.amount_cents)}</td><td>{o.status}</td><td>{asDate(o.created_at)}</td></tr>):<tr><td colSpan={5}>Nenhum pedido registrado.</td></tr>}
+         </tbody></table></div>
+        </section>
       </div>
       <footer className="admin-footer">AeroMind Admin · Dados protegidos · <Link href="/">Voltar ao site</Link></footer>
     </main>
