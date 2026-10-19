@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import {requireAdmin} from '@/lib/admin-access';
 import {CommercialAdminShell} from '@/components/admin/CommercialAdminShell';
 import {saveCoupon,toggleCoupon} from '@/app/admin/actions';
