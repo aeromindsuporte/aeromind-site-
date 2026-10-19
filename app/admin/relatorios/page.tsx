@@ -1,0 +1,15 @@
+import Link from 'next/link';import {redirect} from 'next/navigation';import {createClient} from '@/lib/supabase/server';import '../admin.css';
+export const dynamic='force-dynamic';
+export default async function Reports(){
+ const sb=await createClient();const {data:{user}}=await sb.auth.getUser();if(!user)redirect('/entrar?next=%2Fadmin%2Frelatorios');
+ const {data:staff}=await sb.from('aeromind_staff').select('role').eq('user_id',user.id).maybeSingle();if(!staff)redirect('/minha-conta');
+ const [a,b]=await Promise.all([sb.rpc('aeromind_admin_overview'),sb.rpc('aeromind_admin_commercial_snapshot')]);
+ const lic=(a.data||{}) as Record<string,number>;const com=(b.data||{}) as Record<string,number>;
+ const metrics:[string,number|undefined][]=[['Clientes cadastrados',lic.users_total],['Clientes confirmados',lic.users_confirmed],['Licenças ativas',lic.licenses_active],['Licenças expiradas',lic.licenses_expired],['Vencem em 7 dias',lic.licenses_expiring_7d],['Licenças suspensas',lic.licenses_suspended],['Pedidos registrados',com.orders_total],['Pedidos pagos (inclui sandbox)',com.orders_paid],['Pedidos pendentes',com.orders_pending],['Links de download emitidos',com.requests_total],['Contas que solicitaram download',com.download_accounts],['Cupons ativos',com.coupons_active],['Suporte: abertos',com.tickets_open],['Suporte: em atendimento',com.tickets_progress],['Suporte: resolvidos',com.tickets_resolved]];
+ return <main className="admin-root"><header className="admin-top"><Link className="admin-top-brand" href="/admin">← AeroMind <span>ADMIN</span></Link></header><div className="admin-content"><h1>Relatórios e indicadores</h1>
+ <p className="admin-card-explain">Indicadores calculados diretamente do banco, sem dados simulados. Registros de sandbox podem constar no financeiro.</p>
+ {(a.error||b.error)&&<p className="admin-feedback bad">Alguns indicadores não puderam ser atualizados.</p>}
+ <div className="admin-stats">{metrics.map(([label,value],i)=><div className={'admin-stat '+(['purple','green','blue','yellow'][i%4])} key={label}><div className="admin-stat-body"><span>{label}</span><strong>{(a.error&&i<6)||(b.error&&i>=6)?'—':Number(value)||0}</strong></div></div>)}</div>
+ <section className="admin-card" style={{marginTop:24}}><h2>Receita contabilizada como paga</h2><h3>{b.error?'—':((Number(com.revenue_cents)||0)/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</h3><p>Inclui eventuais pagamentos de homologação; não deve ser confundida com faturamento liquidado de produção.</p><p><Link className="admin-inline-action" href="/admin/pagamentos">Consultar pedidos →</Link> · <Link className="admin-inline-action" href="/admin/downloads">Ver downloads →</Link> · <Link className="admin-inline-action" href="/admin/suporte">Ver suporte →</Link></p></section>
+ </div></main>;
+}
