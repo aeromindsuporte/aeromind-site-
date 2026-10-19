@@ -19,8 +19,13 @@ export function isAeromindCallback(raw:string|undefined):boolean {
  }catch{return false;}
 }
 
+// Uma chave pp_live_ nunca pode ser enviada ao endpoint sandbox.
+// Ser compatível com o sandbox não significa credencial válida: isso depende de homologação.
+export function isSandboxKeyCompatible(key:string|undefined):boolean{
+ return !!key && !key.startsWith('pp_live_');
+}
 export function sandboxConfigured():boolean{
- return process.env.PAGGPAY_MODE==='sandbox' && !!process.env.PAGGPAY_API_KEY &&
+ return process.env.PAGGPAY_MODE==='sandbox' && isSandboxKeyCompatible(process.env.PAGGPAY_API_KEY) &&
  !!process.env.PAGGPAY_WEBHOOK_SECRET && isAeromindCallback(process.env.PAGGPAY_WEBHOOK_URL) &&
  !!process.env.SUPABASE_SERVICE_ROLE_KEY;
 }
