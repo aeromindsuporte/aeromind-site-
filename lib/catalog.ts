@@ -6,6 +6,12 @@ export type PublicPlan = {
   duration_days: number;
   price_cents: number;
   visible: boolean;
+  marketing_title: string | null;
+  marketing_description: string | null;
+  marketing_badge: string | null;
+  marketing_features: string[] | null;
+  marketing_cta: string | null;
+  marketing_highlight: boolean;
 };
 
 export async function getVisiblePlans(): Promise<PublicPlan[]> {
@@ -14,7 +20,7 @@ export async function getVisiblePlans(): Promise<PublicPlan[]> {
   if (!url || !key) return [];
   const client=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
   const {data,error}=await client.from('aeromind_plan_catalog')
-    .select('slug,tier,duration_days,price_cents,visible')
+    .select('slug,tier,duration_days,price_cents,visible,marketing_title,marketing_description,marketing_badge,marketing_features,marketing_cta,marketing_highlight')
     .eq('visible',true).not('price_cents','is',null);
   if(error || !data) return [];
   const tiers=['Básico','Pro','Ultra'];
