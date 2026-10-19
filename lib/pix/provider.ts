@@ -13,7 +13,10 @@ export function sandboxConfigured():boolean{
  !!process.env.SUPABASE_SERVICE_ROLE_KEY;
 }
 export class GatewayError extends Error{
- constructor(public httpStatus:number,message='Falha temporária ao consultar a PaggPay'){super(message);}
+ public httpStatus:number;
+ constructor(httpStatus:number,message='Falha temporária ao consultar a PaggPay'){
+  super(message);this.httpStatus=httpStatus;
+ }
 }
 function centsFromBRL(amount:unknown):number{
  if(typeof amount!=='string'||!/^\d+(\.\d{1,2})?$/.test(amount))throw new Error('Formato monetário não verificável');
