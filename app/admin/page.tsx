@@ -106,7 +106,7 @@ export default async function Admin({searchParams,activeSection='visao'}:{search
   </header>
   <div className="admin-shell">
     <aside className="admin-sidebar" aria-label="Menu administrativo"><p>PAINEL ADMINISTRATIVO</p><nav>
-    {sections.map((x,i)=><a key={x.href} href={x.href} className={x.href===(activeSection==='visao'?'/admin':'/admin/'+activeSection)?'current':''}><span>{x.icon}</span>{x.label}{(x.label==='Pagamentos'||x.label==='Cupons')&&<small>Em breve</small>}</a>)}
+    {sections.map((x,i)=><a key={x.href} href={x.href} className={x.href===(activeSection==='visao'?'/admin':'/admin/'+activeSection)?'current':''}><span>{x.icon}</span>{x.label}</a>)}
     </nav><div className="admin-sidebar-foot"><span>Site e suporte</span><Link href="/">↗ Ver site</Link><a href="mailto:aeromindsuporte@gmail.com">✉ Contato</a><Link href="/minha-conta">◀ Voltar à conta</Link></div></aside>
     <main className="admin-content">
       <section id="visao" className="admin-overview">
@@ -124,7 +124,7 @@ export default async function Admin({searchParams,activeSection='visao'}:{search
         <section id="licencas" className="admin-card admin-wide">
           <SectionHead title="Últimas licenças" note="Dados reais · até 100 registros"/>
           <div className="admin-table-scroll"><table><thead><tr><th>Cliente</th><th>Plano</th><th>Status</th><th>Cadastro</th><th>Validade</th><th>Ação</th></tr></thead><tbody>
-          {data.licenses.length?data.licenses.slice(0,10).map(l=><tr key={l.id}><td className="admin-email">{l.email}</td><td>{l.plan_name}</td><td><span className={'admin-pill status-'+l.status}>{statusLabel(l.status,l.valid_until)}</span></td><td>{asDate(l.created_at)}</td><td>{asDate(l.valid_until)}</td><td><a className="admin-inline-action" href="/admin/licencas#editar-licenca">Gerenciar ↗</a></td></tr>):<tr><td colSpan={6} className="admin-empty">Nenhuma licença criada até agora.</td></tr>}
+          {data.licenses.length?data.licenses.slice(0,10).map(l=><tr key={l.id}><td className="admin-email">{l.email}</td><td>{l.plan_name}</td><td><span className={'admin-pill status-'+l.status}>{statusLabel(l.status,l.valid_until)}</span></td><td>{asDate(l.created_at)}</td><td>{asDate(l.valid_until)}</td><td><a className="admin-inline-action" href={'/admin/cliente/'+(data.users.find(u=>u.email===l.email)?.id||'')}>Gerenciar ↗</a></td></tr>):<tr><td colSpan={6} className="admin-empty">Nenhuma licença criada até agora.</td></tr>}
           </tbody></table></div>
         </section>
         <section className="admin-card admin-side"><SectionHead title="Resumo de planos" note="Licenças registradas"/>
@@ -134,8 +134,8 @@ export default async function Admin({searchParams,activeSection='visao'}:{search
         </section>
         <section id="clientes" className="admin-card admin-wide">
           <SectionHead title="Clientes recentes" note="Até 100 cadastros recentes"/>
-          <div className="admin-table-scroll"><table><thead><tr><th>Cliente</th><th>E-mail</th><th>Cadastro</th><th>Situação</th></tr></thead><tbody>
-          {data.users.length?data.users.slice(0,12).map(u=><tr key={u.id}><td>{u.display_name||'Cliente AeroMind'}</td><td className="admin-email">{u.email}</td><td>{asDate(u.created_at)}</td><td><span className={'admin-pill '+(u.confirmed?'status-active':'status-pending')}>{u.confirmed?'Confirmado':'Pendente'}</span></td></tr>):<tr><td colSpan={4} className="admin-empty">Nenhum cliente cadastrado.</td></tr>}
+          <div className="admin-table-scroll"><table><thead><tr><th>Cliente</th><th>E-mail</th><th>Cadastro</th><th>Situação</th><th>Ação</th></tr></thead><tbody>
+          {data.users.length?data.users.slice(0,12).map(u=><tr key={u.id}><td>{u.display_name||'Cliente AeroMind'}</td><td className="admin-email">{u.email}</td><td>{asDate(u.created_at)}</td><td><span className={'admin-pill '+(u.confirmed?'status-active':'status-pending')}>{u.confirmed?'Confirmado':'Pendente'}</span></td><td><Link className="admin-inline-action" href={'/admin/cliente/'+u.id}>Gerenciar ↗</Link></td></tr>):<tr><td colSpan={5} className="admin-empty">Nenhum cliente cadastrado.</td></tr>}
           </tbody></table></div>
         </section>
         <section className="admin-card admin-side"><SectionHead title="Status de licenças"/>
