@@ -5,7 +5,7 @@ export const runtime='nodejs';
 export const dynamic='force-dynamic';
 const fail=(error:string,status:number)=>NextResponse.json({error},{status,headers:{'Cache-Control':'no-store'}});
 export async function POST(req:Request) {
- if(process.env.PAGGPAY_MODE!=='sandbox'||!process.env.PAGGPAY_API_KEY||!process.env.SUPABASE_SERVICE_ROLE_KEY||!process.env.PAGGPAY_WEBHOOK_URL) return fail('Pix desativado durante a homologação.',503);
+ if(process.env.PAGGPAY_MODE!=='sandbox'||!process.env.PAGGPAY_API_KEY||!process.env.SUPABASE_SERVICE_ROLE_KEY||!process.env.PAGGPAY_WEBHOOK_URL||!process.env.PAGGPAY_WEBHOOK_SECRET) return fail('Pix desativado durante a homologação.',503);
  try {
   const sb=await client();const {data:{user}}=await sb.auth.getUser();
   if(!user)return fail('Entre na sua conta.',401);
