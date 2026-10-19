@@ -58,7 +58,7 @@ export async function saveCatalogPlan(formData:FormData) {
   const visible=formData.get('visible')==='on';
   if (!/^(basico|pro|ultra)-(mensal|trimestral|semestral|anual)$/.test(slug)) redirect('/admin/planos?msg=invalid');
   const amount=priceRaw ? Number(priceRaw) : null;
-  if (amount!==null && (!Number.isFinite(amount)||amount<0||amount>1000000)) redirect('/admin?msg=invalid#planos');
+  if (amount!==null && (!Number.isFinite(amount)||amount<0||amount>1000000)) redirect('/admin/planos?msg=invalid');
   const cents=amount===null?null:Math.round(amount*100);
   if (visible && (cents===null||cents===0)) redirect('/admin/planos?msg=price');
   const {error}=await supabase.rpc('aeromind_update_catalog_plan',{
