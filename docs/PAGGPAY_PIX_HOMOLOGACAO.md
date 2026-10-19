@@ -22,3 +22,12 @@ Acesso a esses valores deve ser configurado diretamente no Vercel, não comparti
 - Conferir valores e formato real da API PaggPay com credenciais válidas do sandbox, depois testar aprovado, falha, timeout, webhook falso/repetido, conciliação e liberação de licença em conta de teste.
 - Com provider ID desconhecido após timeout, não gerar outro Pix automaticamente; conciliação manual é a medida segura.
 - Os testes automatizados usam respostas simuladas. Eles não comprovam recebimento de dinheiro, ativação real ou homologação junto à PaggPay.
+
+
+## Protecao contra interferencia com Descont' Saude (19/10/2026)
+
+A Descont' Saude utiliza `reference_id` UUID simples e banco Supabase `qkepsqxakrduxvsvpdcn`. O AeroMind utiliza exclusivamente `aeromind-{UUID}` e banco `kyzgrkeawlalpmhqjvub`. Depois de validar HMAC, o webhook AeroMind responde 200 e ignora avisos com referencia de outra integracao. Uma referencia malformada com prefixo AeroMind e recusada. A criacao de cobranca no AeroMind exige URL de callback HTTPS da propria aplicacao, evitando apontar para a Descont' Saude.
+
+Os webhooks sao assinados por segredo distinto por integracao/cobranca. Em uma **mesma conta** PaggPay, o saldo financeiro sera compartilhado; estes controles isolam operacoes de software, mas nao criam contas recebedoras nem saldos separados. A API key de producao compartilhada em conversa deve ser rotacionada antes de qualquer uso comercial; ela NAO faz parte do codigo nem das variaveis implantadas. Os testes desta etapa sao simulados; a homologacao live segue pendente.
+
+O webhook da Descont' Saude procura `payment_charges.id` UUID. Se ela receber por engano uma notificacao AeroMind com referencia alfanumerica, a consulta direta a coluna UUID pode gerar resposta HTTP de erro, embora nao libere nem altere uma fatura. Deve receber um filtro de referencia UUID proprio caso ambos recebam todos os eventos de conta por webhook global, alem do callback por cobranca recomendado.

@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHmac} from 'node:crypto';
-import {MAX_PIX_WEBHOOK_BYTES,verifyPaggpaySignature,parsePaggpayEvent} from '../lib/pix/webhook.ts';
-import {readPaggpayPix,paymentConfirmed} from '../lib/pix/provider.ts';
+import {MAX_PIX_WEBHOOK_BYTES,verifyPaggpaySignature,parsePaggpayEvent,isAeromindReference} from '../lib/pix/webhook.ts';
+import {readPaggpayPix,paymentConfirmed,isAeromindCallback} from '../lib/pix/provider.ts';
 
 const SECRET='whsec_local_fixture_not_a_credential';
 const NOW=1_792_430_000;
@@ -93,4 +93,34 @@ test('rejeita decimais excessivos e cartão no fallback',()=>{
  pix:{reference_id:reference}};
  assert.throws(()=>readPaggpayPix(record,expected));
  assert.throws(()=>readPaggpayPix({...record,amount:'34.90',payment_method_type:'card'},expected));
+});
+
+test('referencias da Descont Saude nao sao cobrancas AeroMind',()=>{
+ const foreign='11111111-1111-4111-8111-111111111111'; // UUID da origem
+ assert.equal(isAeromindReference(foreign),false);
+ assert.equal(isAeromindReference(reference),true);
+ const notice={...evt,data:{...evt.data,reference_id:foreign}};
+ assert.deepEqual(parsePaggpayEvent(JSON.stringify(notice)),{kind:'foreign'});
+});
+test('outro projeto nao consegue ativar AeroMind mesmo com o mesmo gateway',()=>{
+ const notices=['descont-saude-'+reference,'dspwa-'+reference,'outro_produto', '11111111-1111-4111-8111-111111111111'];
+ for(const id of notices){
+  assert.deepEqual(parsePaggpayEvent(JSON.stringify({...evt,data:{...evt.data,reference_id:id}})),{kind:'foreign'});
+ }
+});
+test('referencia semelhante a AeroMind mas UUID malformado nao e aceita',()=>{
+ const invalid='aeromind-11111111-1111-1111-1111-111111111111';
+ assert.equal(isAeromindReference(invalid),false);
+ assert.deepEqual(parsePaggpayEvent(JSON.stringify({...evt,data:{...evt.data,reference_id:invalid}})),{kind:'invalid'});
+});
+
+test('callback de Descont Saude nunca e aceito na criacao de Pix AeroMind',()=>{
+ assert.equal(isAeromindCallback('https://aeromind-site.vercel.app/api/pix/webhook'),true);
+ assert.equal(isAeromindCallback('https://aeromind-site-stage123-aeromindsuporte-8479.vercel.app/api/pix/webhook'),true);
+ for(const url of [
+  'https://qkepsqxakrduxvsvpdcn.supabase.co/functions/v1/paggpay-webhook',
+  'https://descont-saude-pedro-osorio.vercel.app/api/pix/webhook',
+  'http://aeromind-site.vercel.app/api/pix/webhook',
+  'https://aeromind-site.vercel.app/api/pix/webhook?redirect=other'
+ ])assert.equal(isAeromindCallback(url),false);
 });

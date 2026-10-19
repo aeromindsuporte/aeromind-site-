@@ -15,6 +15,7 @@ export async function POST(req:Request){
  if(!verifyPaggpaySignature(raw,req.headers.get('x-paggpay-webhook-signature'),process.env.PAGGPAY_WEBHOOK_SECRET))return reply('Unauthorized',401);
  const evt=parsePaggpayEvent(raw);
  if(evt.kind==='ignored')return reply('Ignored',200);
+ if(evt.kind==='foreign')return reply('Other integration; ignored',200);
  if(evt.kind==='invalid')return reply('Signed payload not recognized',503);
  const admin=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,process.env.SUPABASE_SERVICE_ROLE_KEY!,
   {auth:{persistSession:false,autoRefreshToken:false}});
