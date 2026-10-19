@@ -11,13 +11,20 @@ export async function POST(req:Request) {
   if(!user)return fail('Entre na sua conta.',401);
   const {data:staff}=await sb.from('aeromind_staff').select('role').eq('user_id',user.id).maybeSingle();
   if(!staff)return fail('Sandbox disponível apenas para administradores.',403);
-  const payload=await req.json() as {plan?:string,payerName?:string,document?:string};
+  const payload=await req.json() as {plan?:string,payerName?:string,document?:string,coupon?:string};
   const slug=String(payload.plan||''),name=String(payload.payerName||'').trim();
   const doc=String(payload.document||'').replace(/[^0-9]/g,'');
   if(!/^(basico|pro|ultra)-(mensal|trimestral|semestral|anual)$/.test(slug)||name.length<3||name.length>120||![11,14].includes(doc.length))return fail('Plano ou dados do pagador inválidos.',400);
   const {data,error}=await sb.rpc('aeromind_create_pix_order',{p_slug:slug});
   if(error||!data)return fail('Não foi possível preparar o pedido.',400);
-  const order=data as {order_id:string,reference_id:string,amount_cents:number};
+  let order=data as {order_id:string,reference_id:string,amount_cents:number};
+  const coupon=(payload.coupon||'').trim();
+  if(coupon){
+   if(!/^[a-zA-Z0-9_-]{4,24}$/.test(coupon))return fail('Cupom inválido.',400);
+   const applied=await sb.rpc('aeromind_apply_coupon_to_order',{p_order_id:order.order_id,p_code:coupon});
+   if(applied.error||typeof applied.data!=='number')return fail('Cupom inválido, vencido ou esgotado.',400);
+   order={...order,amount_cents:applied.data};
+  }
   const r=await fetch('https://sandbox-api.paggpay.com/v1/pix',{method:'POST',cache:'no-store',headers:{Authorization:'Bearer '+process.env.PAGGPAY_API_KEY,'Content-Type':'application/json',Accept:'application/json'},
     body:JSON.stringify({reference_id:order.reference_id,value:order.amount_cents,description:'AeroMind '+slug,payer_name:name,payer_email:user.email,payer_national_registration:doc,webhook_url:process.env.PAGGPAY_WEBHOOK_URL})});
   const json=await r.json().catch(()=>null) as Record<string,unknown>|null;
