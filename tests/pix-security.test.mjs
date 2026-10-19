@@ -48,7 +48,7 @@ test('webhook rejeita moeda distinta, amounts conflitantes e valores inválidos'
  {...evt.data,amount:-1},
  {...evt.data,amount:1.25},
  {...evt.data,amount:true},
- {...evt.data,reference_id:'outro-123'},
+ {...evt.data,reference_id:'aeromind-invalido'},
  ]){
   assert.deepEqual(parsePaggpayEvent(JSON.stringify({...evt,data})),{kind:'invalid'});
  }
