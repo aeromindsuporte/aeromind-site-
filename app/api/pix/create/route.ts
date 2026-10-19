@@ -20,7 +20,7 @@ export async function POST(req:Request) {
   let order=data as {order_id:string,reference_id:string,amount_cents:number};
   const coupon=(payload.coupon||'').trim();
   if(coupon){
-   if(!/^[a-zA-Z0-9_-]{4,32}$/.test(coupon))return fail('Cupom inválido.',400);
+   if(!/^[a-zA-Z0-9_-]{4,24}$/.test(coupon))return fail('Cupom inválido.',400);
    const applied=await sb.rpc('aeromind_apply_coupon_to_order',{p_order_id:order.order_id,p_code:coupon});
    if(applied.error||typeof applied.data!=='number')return fail('Cupom inválido, vencido ou esgotado.',400);
    order={...order,amount_cents:applied.data};

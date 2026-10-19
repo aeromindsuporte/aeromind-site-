@@ -11,7 +11,7 @@ export default async function Coupons({searchParams}:{searchParams:Promise<{msg?
  {msg&&<p className={'admin-feedback '+(msg==='coupon-saved'?'good':'bad')}>{msg==='coupon-saved'?'Cupom atualizado.':'Falha ao salvar cupom. Confira código e valores.'}</p>}
  <section className="admin-card"><h2>Criar ou editar cupom</h2><p className="admin-card-explain">Para editar, informe o mesmo código de um cupom existente.</p>
  <form action={saveCoupon} className="admin-edit-grid">
- <label>Código<input name="code" minLength={4} maxLength={32} pattern="[A-Za-z0-9_-]{4,32}" required placeholder="AERO20"/></label>
+ <label>Código<input name="code" minLength={4} maxLength={24} pattern="[A-Za-z0-9_-]{4,24}" required placeholder="AERO20"/></label>
  <label>Desconto (%)<input type="number" min="1" max="90" name="discount" required defaultValue={10}/></label>
  <label>Limite de usos<input type="number" name="max_uses" min="1" placeholder="Ilimitado"/></label>
  <label>Validade<input type="date" name="expires_at"/></label>

@@ -56,17 +56,19 @@ export async function saveCatalogPlan(formData:FormData) {
   const slug=word(formData.get('slug'));
   const priceRaw=word(formData.get('price')).replace(',','.');
   const visible=formData.get('visible')==='on';
-  if (!/^(basico|pro|ultra)-(mensal|trimestral|semestral|anual)$/.test(slug)) redirect('/admin?msg=invalid#planos');
+  if (!/^(basico|pro|ultra)-(mensal|trimestral|semestral|anual)$/.test(slug)) redirect('/admin/planos?msg=invalid');
   const amount=priceRaw ? Number(priceRaw) : null;
   if (amount!==null && (!Number.isFinite(amount)||amount<0||amount>1000000)) redirect('/admin?msg=invalid#planos');
   const cents=amount===null?null:Math.round(amount*100);
-  if (visible && (cents===null||cents===0)) redirect('/admin?msg=price#planos');
+  if (visible && (cents===null||cents===0)) redirect('/admin/planos?msg=price');
   const {error}=await supabase.rpc('aeromind_update_catalog_plan',{
     p_slug:slug,p_price_cents:cents,p_visible:visible
   });
-  if(error) redirect('/admin?msg=plan-error#planos');
+  if(error) redirect('/admin/planos?msg=plan-error');
   revalidatePath('/admin');
-  redirect('/admin?msg=plan-saved#planos');
+  revalidatePath('/planos');
+  revalidatePath('/');
+  redirect('/admin/planos?msg=plan-saved');
 }
 
 export async function revokeAdminDevice(formData:FormData){
@@ -113,14 +115,14 @@ export async function saveCoupon(formData:FormData){
  const sb=await adminClient(),code=word(formData.get('code')).toUpperCase(),discount=Number(word(formData.get('discount')));
  const raw=word(formData.get('max_uses')),max=raw?Number(raw):null,date=word(formData.get('expires_at'));
  const expiry=date?new Date(date+'T23:59:59-03:00'):null;
- if(!/^[A-Z0-9_-]{4,32}$/.test(code)||!Number.isInteger(discount)||discount<1||discount>90||(max!==null&&(!Number.isInteger(max)||max<1||max>100000))||(expiry&&(Number.isNaN(expiry.getTime())||expiry.getTime()<=Date.now())))redirect('/admin/cupons?msg=invalid');
+ if(!/^[A-Z0-9_-]{4,24}$/.test(code)||!Number.isInteger(discount)||discount<1||discount>90||(max!==null&&(!Number.isInteger(max)||max<1||max>100000))||(expiry&&(Number.isNaN(expiry.getTime())||expiry.getTime()<=Date.now())))redirect('/admin/cupons?msg=invalid');
  const {error}=await sb.from('aeromind_coupons').upsert({code,discount_percent:discount,max_uses:max,expires_at:expiry?.toISOString()||null,active:formData.get('active')==='on',updated_at:new Date().toISOString()},{onConflict:'code'});
  if(error)redirect('/admin/cupons?msg=coupon-error');
  revalidatePath('/admin/cupons');redirect('/admin/cupons?msg=coupon-saved');
 }
 export async function toggleCoupon(formData:FormData){
  const sb=await adminClient(),code=word(formData.get('code'));
- if(!/^[A-Z0-9_-]{4,32}$/.test(code))redirect('/admin/cupons?msg=invalid');
+ if(!/^[A-Z0-9_-]{4,24}$/.test(code))redirect('/admin/cupons?msg=invalid');
  const {error}=await sb.from('aeromind_coupons').update({active:word(formData.get('active'))==='true',updated_at:new Date().toISOString()}).eq('code',code);
  if(error)redirect('/admin/cupons?msg=coupon-error');
  revalidatePath('/admin/cupons');redirect('/admin/cupons?msg=coupon-saved');

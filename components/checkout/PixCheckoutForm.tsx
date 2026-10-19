@@ -31,7 +31,7 @@ export function PixCheckoutForm({slug,baseCents}:{slug:string,baseCents:number})
  <h2>Checkout Pix de homologação</h2><p>Este ambiente é reservado à equipe de testes. Nenhuma licença é ativada antes da confirmação do servidor.</p>
  <label>Nome do pagador<input value={payerName} onChange={e=>setPayerName(e.target.value)} maxLength={120} placeholder="Nome completo" /></label>
  <label>CPF ou CNPJ<input value={document} onChange={e=>setDocument(e.target.value)} placeholder="Somente números" inputMode="numeric"/></label>
- <label>Cupom<input value={coupon} onChange={e=>{setCoupon(e.target.value.toUpperCase());setPreview(null)}} maxLength={32} placeholder="Cupom de desconto"/></label>
+ <label>Cupom<input value={coupon} onChange={e=>{setCoupon(e.target.value.toUpperCase());setPreview(null)}} maxLength={24} placeholder="Cupom de desconto"/></label>
  <button className="auth-secondary" type="button" onClick={checkCoupon}>Verificar cupom</button>
  <strong>Valor do pedido: {money(preview??baseCents)}</strong>
  <button className="auth-submit" type="button" disabled={loading||!!orderId||payerName.trim().length<3||![11,14].includes(document.replace(/\D/g,'').length)} onClick={pay}>{loading?'Preparando cobrança...':'Gerar Pix de teste'}</button>
