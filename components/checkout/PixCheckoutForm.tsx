@@ -1,6 +1,7 @@
 'use client';
 import {useState} from 'react';
 export function PixCheckoutForm({slug,baseCents}:{slug:string,baseCents:number}){
+ const [orderId,setOrderId]=useState('');
  const [coupon,setCoupon]=useState(''),[preview,setPreview]=useState<number|null>(null),[error,setError]=useState(''),[loading,setLoading]=useState(false);
  const [payerName,setPayerName]=useState(''),[document,setDocument]=useState(''),[emv,setEmv]=useState<string|null>(null);
  async function checkCoupon(){
@@ -20,7 +21,7 @@ export function PixCheckoutForm({slug,baseCents}:{slug:string,baseCents:number})
    const j=await r.json() as {error?:string,emv?:string|null,orderId?:string};
    if(!r.ok){setError(j.error||'Não foi possível gerar o Pix.');return;}
    if(j.emv)setEmv(j.emv);
-   if(j.orderId){window.location.assign('/checkout/retorno?pedido='+encodeURIComponent(j.orderId));return;}
+   if(j.orderId){setOrderId(j.orderId);return;}
    setError('Pedido criado, mas o código Pix não foi retornado. Consulte o suporte.');
   }catch{setError('Erro de conexão. Não tente pagar sem código confirmado.');}
   finally{setLoading(false);}
@@ -33,9 +34,10 @@ export function PixCheckoutForm({slug,baseCents}:{slug:string,baseCents:number})
  <label>Cupom<input value={coupon} onChange={e=>{setCoupon(e.target.value.toUpperCase());setPreview(null)}} maxLength={32} placeholder="Cupom de desconto"/></label>
  <button className="auth-secondary" type="button" onClick={checkCoupon}>Verificar cupom</button>
  <strong>Valor do pedido: {money(preview??baseCents)}</strong>
- <button className="auth-submit" type="button" disabled={loading||payerName.trim().length<3||![11,14].includes(document.replace(/\D/g,'').length)} onClick={pay}>{loading?'Preparando cobrança...':'Gerar Pix de teste'}</button>
+ <button className="auth-submit" type="button" disabled={loading||!!orderId||payerName.trim().length<3||![11,14].includes(document.replace(/\D/g,'').length)} onClick={pay}>{loading?'Preparando cobrança...':'Gerar Pix de teste'}</button>
  {error&&<p role="alert" className="device-notice error">{error}</p>}
- {emv&&<p style={{overflowWrap:'anywhere'}}>{emv}</p>}
+ {emv&&<div><strong>Código Pix copia e cola (sandbox):</strong><p style={{overflowWrap:'anywhere'}}>{emv}</p><button className="auth-secondary" onClick={()=>navigator.clipboard?.writeText(emv)} type="button">Copiar código</button></div>}
+ {orderId&&<p><a href={'/checkout/retorno?pedido='+encodeURIComponent(orderId)}>Consultar situação deste pedido →</a></p>}
  <style>{'.account-card label{display:grid;gap:8px}.account-card input{background:#0b1730;color:#fff;border:1px solid #4a518b;padding:13px;border-radius:10px;max-width:100%}'}</style>
  </div>;
 }
