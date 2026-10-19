@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHmac} from 'node:crypto';
 import {MAX_PIX_WEBHOOK_BYTES,verifyPaggpaySignature,parsePaggpayEvent,isAeromindReference} from '../lib/pix/webhook.ts';
-import {readPaggpayPix,paymentConfirmed,isAeromindCallback} from '../lib/pix/provider.ts';
+import {readPaggpayPix,paymentConfirmed,isAeromindCallback,isSandboxKeyCompatible} from '../lib/pix/provider.ts';
 
 const SECRET='whsec_local_fixture_not_a_credential';
 const NOW=1_792_430_000;
@@ -123,4 +123,10 @@ test('callback de Descont Saude nunca e aceito na criacao de Pix AeroMind',()=>{
   'http://aeromind-site.vercel.app/api/pix/webhook',
   'https://aeromind-site.vercel.app/api/pix/webhook?redirect=other'
  ])assert.equal(isAeromindCallback(url),false);
+});
+
+test('nao usar chave live no sandbox',()=>{
+ assert.equal(isSandboxKeyCompatible('pp_live_fixture_sem_credencial'),false);
+ assert.equal(isSandboxKeyCompatible('pp_test_fixture_sem_credencial'),true);
+ assert.equal(isSandboxKeyCompatible(undefined),false);
 });
