@@ -124,7 +124,7 @@ export default async function Admin({searchParams,activeSection='visao'}:{search
         <section id="licencas" className="admin-card admin-wide">
           <SectionHead title="Últimas licenças" note="Dados reais · até 100 registros"/>
           <div className="admin-table-scroll"><table><thead><tr><th>Cliente</th><th>Plano</th><th>Status</th><th>Cadastro</th><th>Validade</th><th>Ação</th></tr></thead><tbody>
-          {data.licenses.length?data.licenses.slice(0,10).map(l=><tr key={l.id}><td className="admin-email">{l.email}</td><td>{l.plan_name}</td><td><span className={'admin-pill status-'+l.status}>{statusLabel(l.status,l.valid_until)}</span></td><td>{asDate(l.created_at)}</td><td>{asDate(l.valid_until)}</td><td><a className="admin-inline-action" href={'/admin/cliente/'+(data.users.find(u=>u.email===l.email)?.id||'')}>Gerenciar ↗</a></td></tr>):<tr><td colSpan={6} className="admin-empty">Nenhuma licença criada até agora.</td></tr>}
+          {data.licenses.length?data.licenses.slice(0,10).map(l=><tr key={l.id}><td className="admin-email">{l.email}</td><td>{l.plan_name}</td><td><span className={'admin-pill status-'+l.status}>{statusLabel(l.status,l.valid_until)}</span></td><td>{asDate(l.created_at)}</td><td>{asDate(l.valid_until)}</td><td><a className="admin-inline-action" href={'/admin/cliente/localizar?email='+encodeURIComponent(l.email)}>Gerenciar ↗</a></td></tr>):<tr><td colSpan={6} className="admin-empty">Nenhuma licença criada até agora.</td></tr>}
           </tbody></table></div>
         </section>
         <section className="admin-card admin-side"><SectionHead title="Resumo de planos" note="Licenças registradas"/>
