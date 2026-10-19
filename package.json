@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run test:pix && next build",
     "test:pix": "node --experimental-strip-types --test tests/pix-security.test.mjs",
     "start": "next start"
   },
