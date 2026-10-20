@@ -90,8 +90,8 @@ export default async function AdminPayments(){
  <p className="admin-card-explain">Cada pedido AeroMind usa uma referência própria e o webhook exclusivo. Se a mesma conta PaggPay for usada pela Descont’ Saúde, o saldo financeiro permanece compartilhado.</p>
  </section>
  <section className="admin-card" style={{marginBottom:16}}><h2>Homologação Pix</h2>
- <p className={'admin-feedback '+(sandboxReady?'good':'bad')}>{sandboxReady?'Variáveis do sandbox preenchidas. Ainda falta testar o provedor.':'Sandbox não configurado. Nenhuma cobrança Pix está disponível no site.'}</p>
- {liveKeyPresent&&<p className="admin-feedback bad">Há uma chave PaggPay de produção cadastrada. Ela não pode ser usada para testar o sandbox; o checkout permanece desativado até a configuração e homologação corretas.</p>}
+ <p className={'admin-feedback '+(sandboxReady?'good':'bad')}>{liveReady?'Modo live ativo para os planos comerciais. Sandbox permanece independente.':sandboxReady?'Variáveis do sandbox preenchidas. Ainda falta testar o provedor.':'Sandbox não configurado. O checkout comercial depende do modo live.'}</p>
+ {liveKeyPresent&&!liveReady&&<p className="admin-feedback bad">Há uma chave de produção cadastrada, mas o modo de pagamento comercial está desativado.</p>}
  <p className="admin-card-explain">Este painel mostra somente se cada configuração está presente, nunca seus valores. Um item preenchido não significa que a credencial foi validada. Somente administradores autenticados podem gerar pedidos de teste.</p>
  <div style={{display:'grid',gap:10,marginTop:16}}>{checks.map(([label,ready])=><div key={label}><strong aria-label={ready?'Configurado':'Pendente'}>{ready?'✓':'○'}</strong> {label} — {ready?'Preenchido':'Pendente'}</div>)}</div>
  <p className="admin-card-explain" style={{marginTop:16}}>Próximas validações: cobrança aprovada e expirada, assinatura HMAC, repetição de webhook, divergência de valores e renovação de licença. O modo sandbox depende de uma chave de teste distinta. O modo live só abre quando habilitado explicitamente em Production.</p>
