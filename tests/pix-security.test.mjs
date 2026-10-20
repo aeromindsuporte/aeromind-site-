@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHmac} from 'node:crypto';
 import {MAX_PIX_WEBHOOK_BYTES,verifyPaggpaySignature,parsePaggpayEvent,isAeromindReference} from '../lib/pix/webhook.ts';
-import {readPaggpayPix,paymentConfirmed,isAeromindCallback,isSandboxKeyCompatible} from '../lib/pix/provider.ts';
+import {readPaggpayPix,paymentConfirmed,isAeromindCallback,isSandboxKeyCompatible,paymentEnvironment,liveConfigured} from '../lib/pix/provider.ts';
 
 const SECRET='whsec_local_fixture_not_a_credential';
 const NOW=1_792_430_000;
@@ -129,4 +129,27 @@ test('nao usar chave live no sandbox',()=>{
  assert.equal(isSandboxKeyCompatible('pp_live_fixture_sem_credencial'),false);
  assert.equal(isSandboxKeyCompatible('pp_test_fixture_sem_credencial'),true);
  assert.equal(isSandboxKeyCompatible(undefined),false);
+});
+
+test('a chave live so habilita Pix com modo live, producao e callback propio',()=>{
+ const keys=['VERCEL_ENV','PAGGPAY_MODE','PAGGPAY_API_KEY','PAGGPAY_WEBHOOK_SECRET','PAGGPAY_WEBHOOK_URL','SUPABASE_SERVICE_ROLE_KEY'];
+ const previous=Object.fromEntries(keys.map(key=>[key,process.env[key]]));
+ try {
+  Object.assign(process.env,{VERCEL_ENV:'production',PAGGPAY_MODE:'live',PAGGPAY_API_KEY:'pp_live_mock_teste',
+   PAGGPAY_WEBHOOK_SECRET:'segredo_somente_fixture',PAGGPAY_WEBHOOK_URL:'https://aeromind-site.vercel.app/api/pix/webhook',
+   SUPABASE_SERVICE_ROLE_KEY:'sb_secret_fixture'});
+  assert.equal(liveConfigured(),true);
+  assert.equal(paymentEnvironment(),'live');
+  process.env.PAGGPAY_MODE='sandbox';
+  assert.equal(liveConfigured(),false);
+  assert.equal(paymentEnvironment(),null);
+  process.env.PAGGPAY_MODE='live';
+  process.env.PAGGPAY_WEBHOOK_URL='https://descontsaude.example.com/api/pix/webhook';
+  assert.equal(liveConfigured(),false);
+  process.env.PAGGPAY_WEBHOOK_URL='https://aeromind-site.vercel.app/api/pix/webhook';
+  process.env.VERCEL_ENV='preview';
+  assert.equal(liveConfigured(),false);
+ } finally {
+  for(const key of keys){if(previous[key]===undefined)delete process.env[key];else process.env[key]=previous[key];}
+ }
 });

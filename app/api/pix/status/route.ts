@@ -1,17 +1,19 @@
 import {NextResponse} from 'next/server';
 import {createClient as userClient} from '@/lib/supabase/server';
 import {createClient as serviceClient} from '@supabase/supabase-js';
-import {sandboxConfigured} from '@/lib/pix/provider';
+import {paymentConfigured,paymentEnvironment} from '@/lib/pix/provider';
 import {reconcileWithPaggpay,orderFields,type StoredPixOrder} from '@/lib/pix/reconcile';
 export const dynamic='force-dynamic';
 export const runtime='nodejs';
 const result=(obj:Record<string,unknown>,status=200)=>NextResponse.json(obj,{status,headers:{'Cache-Control':'no-store'}});
 export async function GET(req:Request){
- if(!sandboxConfigured())return result({error:'Pix indisponível'},503);
+ if(!paymentConfigured())return result({error:'Pix indisponível'},503);
  const sb=await userClient(),{data:{user}}=await sb.auth.getUser();
  if(!user)return result({error:'Autenticação necessária'},401);
- const {data:staff}=await sb.from('aeromind_staff').select('role').eq('user_id',user.id).maybeSingle();
- if(!staff)return result({error:'Acesso restrito ao sandbox'},403);
+ if(paymentEnvironment()==='sandbox'){
+  const {data:staff}=await sb.from('aeromind_staff').select('role').eq('user_id',user.id).maybeSingle();
+  if(!staff)return result({error:'Acesso restrito ao sandbox'},403);
+ }
  const id=new URL(req.url).searchParams.get('pedido')||'';
  if(!/^[0-9a-f]{8}-[0-9a-f-]{27,36}$/i.test(id))return result({error:'Pedido inválido'},400);
  const {data,error}=await sb.from('aeromind_payment_orders').select(orderFields)

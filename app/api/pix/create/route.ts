@@ -1,7 +1,7 @@
 import {NextResponse} from 'next/server';
 import {createClient as userClient} from '@/lib/supabase/server';
 import {createClient as serviceClient} from '@supabase/supabase-js';
-import {paggpayFetch,readPaggpayPix,sandboxConfigured} from '@/lib/pix/provider';
+import {paggpayFetch,readPaggpayPix,paymentConfigured,paymentEnvironment} from '@/lib/pix/provider';
 import {reconcileWithPaggpay,orderFields,type StoredPixOrder} from '@/lib/pix/reconcile';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -10,12 +10,14 @@ const fail=(error:string,status:number)=>respond({error},status);
 const VALID_PLAN=/^(basico|pro|ultra)-(mensal|trimestral|semestral|anual)$/;
 type Payload={plan?:unknown;payerName?:unknown;document?:unknown;coupon?:unknown};
 export async function POST(req:Request){
- if(!sandboxConfigured())return fail('Pix desativado durante a homologação.',503);
+ if(!paymentConfigured())return fail('Pagamento Pix indisponível.',503);
  try{
   const sb=await userClient(),{data:{user}}=await sb.auth.getUser();
   if(!user)return fail('Entre na sua conta.',401);
-  const {data:staff}=await sb.from('aeromind_staff').select('role').eq('user_id',user.id).maybeSingle();
-  if(!staff)return fail('Sandbox disponível somente para administradores.',403);
+  if(paymentEnvironment()==='sandbox'){
+   const {data:staff}=await sb.from('aeromind_staff').select('role').eq('user_id',user.id).maybeSingle();
+   if(!staff)return fail('Sandbox reservado à equipe.',403);
+  }
   const input=await req.json() as Payload;
   const slug=typeof input.plan==='string'?input.plan:'';
   const name=typeof input.payerName==='string'?input.payerName.trim():'';
@@ -54,17 +56,17 @@ export async function POST(req:Request){
   if(order.provider_transaction_id){
    try{
     const remote=await reconcileWithPaggpay(admin,order,order.provider_transaction_id);
-    return respond({environment:'sandbox',orderId,
+    return respond({environment:paymentEnvironment(),orderId,
      status:remote.status==='succeeded'?'paid':remote.code?'pending':'creating',
      amountCents:order.amount_cents,emv:remote.code,expiresAt:remote.expiresAt});
    }catch{
-    return respond({environment:'sandbox',orderId,status:'creating',
+    return respond({environment:paymentEnvironment(),orderId,status:'creating',
      amountCents:order.amount_cents,requiresSupport:true,
      message:'Não foi possível verificar a transação existente. Nenhum Pix adicional foi gerado.'},202);
    }
   }
   if(order.pix_requested_at){
-   return respond({environment:'sandbox',orderId,status:'creating',amountCents:order.amount_cents,
+   return respond({environment:paymentEnvironment(),orderId,status:'creating',amountCents:order.amount_cents,
     requiresSupport:true,message:'Solicitação já iniciada. Aguarde a conciliação, sem gerar nova cobrança.'},202);
   }
   // Reserva atômica: apenas uma requisição simultânea conquista o direito ao POST.
@@ -74,7 +76,7 @@ export async function POST(req:Request){
    .is('provider_transaction_id',null).is('pix_requested_at',null)
    .select(orderFields).maybeSingle();
   if(claimError)return fail('Não foi possível reservar a tentativa Pix.',503);
-  if(!claimed)return respond({environment:'sandbox',orderId,status:'creating',
+  if(!claimed)return respond({environment:paymentEnvironment(),orderId,status:'creating',
    amountCents:order.amount_cents,message:'Cobrança já está sendo criada em outra solicitação.'},202);
   order=claimed as StoredPixOrder;
   let remotePayload:unknown;
@@ -89,7 +91,7 @@ export async function POST(req:Request){
    // Timeout é resultado desconhecido. A reserva deve continuar bloqueada.
    await admin.from('aeromind_payment_orders').update({last_payment_error:'Provedor sem resposta; verificar transação antes de nova tentativa'})
     .eq('id',orderId).eq('status','created');
-   return respond({environment:'sandbox',orderId,status:'creating',amountCents:order.amount_cents,
+   return respond({environment:paymentEnvironment(),orderId,status:'creating',amountCents:order.amount_cents,
     requiresSupport:true,message:'PaggPay não retornou confirmação. A reserva foi preservada para evitar duplicidade.'},202);
   }
   let verified;
@@ -97,11 +99,11 @@ export async function POST(req:Request){
   catch{
    await admin.from('aeromind_payment_orders').update({last_payment_error:'Contrato de retorno Pix divergente'})
     .eq('id',orderId).eq('status','created');
-   return respond({environment:'sandbox',orderId,status:'creating',requiresSupport:true,
+   return respond({environment:paymentEnvironment(),orderId,status:'creating',requiresSupport:true,
     message:'A resposta do Pix não corresponde ao pedido; nenhuma nova cobrança será criada.'},202);
   }
   if(['failed','expired','canceled'].includes(verified.status))return respond({
-   environment:'sandbox',orderId,status:'creating',requiresSupport:true,
+   environment:paymentEnvironment(),orderId,status:'creating',requiresSupport:true,
    message:'Cobrança retornou estado terminal. Requer conciliação antes de nova tentativa.'},202);
   const {data:saved,error:saveError}=await admin.from('aeromind_payment_orders').update({
    status:'pending',provider_transaction_id:verified.transactionId,
@@ -121,7 +123,7 @@ export async function POST(req:Request){
    const {data:toConfirm}=await admin.from('aeromind_payment_orders').select(orderFields).eq('id',orderId).single();
    if(toConfirm)await reconcileWithPaggpay(admin,toConfirm as StoredPixOrder,verified.transactionId);
   }
-  return respond({environment:'sandbox',orderId,status:verified.status==='succeeded'?'paid':verified.code?'pending':'creating',
+  return respond({environment:paymentEnvironment(),orderId,status:verified.status==='succeeded'?'paid':verified.code?'pending':'creating',
    amountCents:order.amount_cents,emv:verified.code,expiresAt:verified.expiresAt});
  }catch{return fail('Erro ao preparar a cobrança. Não repita pagamentos sem conferir o pedido.',503);}
 }

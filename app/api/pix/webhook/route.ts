@@ -2,12 +2,12 @@ import {NextResponse} from 'next/server';
 import {createClient} from '@supabase/supabase-js';
 import {MAX_PIX_WEBHOOK_BYTES,parsePaggpayEvent,verifyPaggpaySignature} from '@/lib/pix/webhook';
 import {reconcileWithPaggpay,orderFields,type StoredPixOrder} from '@/lib/pix/reconcile';
-import {sandboxConfigured} from '@/lib/pix/provider';
+import {paymentConfigured} from '@/lib/pix/provider';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 const reply=(message:string,status:number)=>NextResponse.json({message},{status,headers:{'Cache-Control':'no-store'}});
 export async function POST(req:Request){
- if(!sandboxConfigured())return reply('Unavailable',503);
+ if(!paymentConfigured())return reply('Unavailable',503);
  const claimedSize=Number(req.headers.get('content-length'));
  if(Number.isFinite(claimedSize)&&claimedSize>MAX_PIX_WEBHOOK_BYTES)return reply('Payload too large',413);
  const raw=await req.text();

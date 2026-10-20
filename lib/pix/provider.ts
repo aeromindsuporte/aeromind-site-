@@ -29,6 +29,19 @@ export function sandboxConfigured():boolean{
  !!process.env.PAGGPAY_WEBHOOK_SECRET && isAeromindCallback(process.env.PAGGPAY_WEBHOOK_URL) &&
  !!process.env.SUPABASE_SERVICE_ROLE_KEY;
 }
+// O modo live é um controle explícito de servidor: a presença da chave
+// sozinha nunca libera clientes ou cobranças.
+export function liveConfigured():boolean{
+ return process.env.VERCEL_ENV==='production' && process.env.PAGGPAY_MODE==='live'
+  && process.env.PAGGPAY_API_KEY?.startsWith('pp_live_')===true
+  && !!process.env.PAGGPAY_WEBHOOK_SECRET
+  && isAeromindCallback(process.env.PAGGPAY_WEBHOOK_URL)
+  && !!process.env.SUPABASE_SERVICE_ROLE_KEY;
+}
+export function paymentConfigured():boolean{return liveConfigured()||sandboxConfigured();}
+export function paymentEnvironment(): 'live'|'sandbox'|null {
+ return liveConfigured()?'live':sandboxConfigured()?'sandbox':null;
+}
 export class GatewayError extends Error{
  public httpStatus:number;
  constructor(httpStatus:number,message='Falha temporária ao consultar a PaggPay'){
@@ -80,14 +93,14 @@ export function readPaggpayPix(payload:unknown, expected:PixIdentity):VerifiedPi
 }
 export function paymentConfirmed(pix:VerifiedPix):boolean{return pix.status==='succeeded';}
 export async function paggpayFetch(path:string,body?:Data,timeoutMs=15_000):Promise<unknown>{
- if(!sandboxConfigured())throw new GatewayError(503,'Pix sandbox desativado');
+ if(!paymentConfigured())throw new GatewayError(503,'Pix desativado.');
  if(!/^\/(?:pix|transactions)(?:\/[A-Za-z0-9_%.-]+)?$/.test(path))throw new Error('Rota PaggPay não autorizada');
  const headers:Record<string,string>={Authorization:'Bearer '+process.env.PAGGPAY_API_KEY,
   'Content-Type':'application/json',Accept:'application/json'};
  if(body)headers['X-Paggpay-Webhook-Secret']=process.env.PAGGPAY_WEBHOOK_SECRET!;
  let response:Response;
  try {
-  response=await fetch('https://sandbox-api.paggpay.com/v1'+path,{
+  response=await fetch((liveConfigured()?'https://api.paggpay.com/v1':'https://sandbox-api.paggpay.com/v1')+path,{
    method:body?'POST':'GET',headers,cache:'no-store',
    ...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(timeoutMs),
   });

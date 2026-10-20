@@ -1,7 +1,7 @@
 'use client';
 import {useEffect,useState} from 'react';
 type PixReply={error?:string;message?:string;requiresSupport?:boolean;status?:string;orderId?:string;amountCents?:number;emv?:string|null;expiresAt?:string|null;valid?:boolean;discounted_cents?:number};
-export function PixCheckoutForm({slug,baseCents}:{slug:string,baseCents:number}){
+export function PixCheckoutForm({slug,baseCents,mode}:{slug:string,baseCents:number,mode:'live'|'sandbox'}){
  const [orderId,setOrderId]=useState('');
  const [coupon,setCoupon]=useState(''),[preview,setPreview]=useState<number|null>(null),
  [error,setError]=useState(''),[loading,setLoading]=useState(false);
@@ -55,19 +55,19 @@ export function PixCheckoutForm({slug,baseCents}:{slug:string,baseCents:number})
   finally{setLoading(false);}
  }
  return <div className="account-card" style={{maxWidth:630,display:'grid',gap:16}}>
-  <h2>Checkout Pix de homologação</h2>
-  <p>Ambiente exclusivo da equipe de testes. Licenças só são liberadas após consulta verificada à PaggPay.</p>
+  <h2>{mode==='live'?'Pagamento Pix AeroMind':'Checkout Pix de homologação'}</h2>
+  <p>{mode==='live'?'Pague com Pix copia e cola. Sua licença será liberada automaticamente após confirmação pela PaggPay.':'Ambiente exclusivo da equipe de testes.'}</p>
   <label>Nome do pagador<input value={payerName} onChange={e=>setPayerName(e.target.value)} maxLength={120} placeholder="Nome completo"/></label>
   <label>CPF ou CNPJ<input value={document} onChange={e=>setDocument(e.target.value)} placeholder="Somente números" inputMode="numeric"/></label>
   <label>Cupom<input value={coupon} onChange={e=>{setCoupon(e.target.value.toUpperCase());setPreview(null)}} maxLength={24} placeholder="Cupom de desconto" disabled={!!orderId}/></label>
   <button className="auth-secondary" type="button" onClick={checkCoupon} disabled={!!orderId}>Verificar cupom</button>
   <strong>Valor do pedido: {money(preview??baseCents)}</strong>
-  <button className="auth-submit" type="button" disabled={loading||!!orderId||payerName.trim().length<3||![11,14].includes(document.replace(/\D/g,'').length)} onClick={pay}>{loading?'Preparando cobrança...':'Gerar Pix de teste'}</button>
+  <button className="auth-submit" type="button" disabled={loading||!!orderId||payerName.trim().length<3||![11,14].includes(document.replace(/\D/g,'').length)} onClick={pay}>{loading?'Preparando cobrança...':mode==='live'?'Gerar Pix para pagamento':'Gerar Pix de teste'}</button>
   {error&&<p role="alert" className="device-notice error">{error}</p>}
   {orderId&&<p>Situação: <strong>{status==='paid'?'Pagamento confirmado':status==='pending'?'Aguardando pagamento':'Preparando/conferindo Pix'}</strong></p>}
   {warning&&<p role="status" className="device-notice">{warning}</p>}
   {failures>=3&&<p role="alert">A consulta automática foi interrompida após três falhas. Consulte o pedido em Meus pagamentos e não gere outro Pix.</p>}
-  {emv&&status!=='paid'&&<div><strong>Pix copia e cola (sandbox):</strong><p style={{overflowWrap:'anywhere'}}>{emv}</p>
+  {emv&&status!=='paid'&&<div><strong>Pix copia e cola{mode==='sandbox'?' (sandbox)':''}:</strong><p style={{overflowWrap:'anywhere'}}>{emv}</p>
    <button className="auth-secondary" onClick={()=>navigator.clipboard?.writeText(emv)} type="button">Copiar código</button></div>}
   {orderId&&<p><a href={'/checkout/retorno?pedido='+encodeURIComponent(orderId)}>Consultar situação deste pedido →</a></p>}
   {status==='paid'&&<p><a href="/minha-conta">Abrir minha conta e conferir licença →</a></p>}
