@@ -1,4 +1,4 @@
-import {getVisiblePlans,formattedPrice} from '@/lib/catalog';
+import {getVisiblePlans,formattedPrice,formattedDuration} from '@/lib/catalog';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 export const dynamic='force-dynamic';
@@ -31,6 +31,18 @@ export default async function Home({searchParams}:{searchParams:Promise<{periodo
   const replacement='<article class="am-plan '+fallbackCard.css+'">'+badge+'<span class="am-plan-icon">'+fallbackCard.symbol+'</span><h3>'+title+'</h3><strong>'+price+'</strong>'+(p?'<small>por '+selected.days+' dias</small>':'<small>Configure no painel administrativo</small>')+'<p>'+desc+'</p><ul>'+features.map(f=>'<li>✓ '+html(f)+'</li>').join('')+'</ul><a href="'+destination+'" class="am-btn '+(p?.marketing_highlight?'am-fill':'am-outline')+'">'+html(label)+' →</a></article>';
   const reg=new RegExp('<article class="am-plan '+fallbackCard.css+'">[\\s\\S]*?<\\/article>');
   content=content.replace(reg,replacement);
+ }
+ const trialPlans=plans.filter(p=>p.slug==='teste-horas'||p.slug==='teste-dias');
+ if(trialPlans.length){
+  const trialCards=trialPlans.map(p=>{
+   const title=html(p.marketing_title||(p.slug==='teste-horas'?'Teste por horas':'Teste por dias'));
+   const desc=html(p.marketing_description||'Experimente o AeroMind por um período reduzido.');
+   const features=(p.marketing_features?.length?p.marketing_features:['Monitoramento Básico','Histórico do aplicativo','Acesso com prazo definido']).slice(0,8);
+   const badge=p.marketing_badge?'<span class="am-top-label">'+html(p.marketing_badge)+'</span>':'';
+   return '<article class="am-plan am-plan-blue">'+badge+'<span class="am-plan-icon">◷</span><h3>'+title+'</h3><strong>'+html(formattedPrice(p.price_cents))+'</strong><small>por '+html(formattedDuration(p))+'</small><p>'+desc+'</p><ul>'+features.map(f=>'<li>✓ '+html(f)+'</li>').join('')+'</ul><a href="/checkout?plano='+encodeURIComponent(p.slug)+'" class="am-btn am-outline">'+html(p.marketing_cta||'Experimentar')+' →</a></article>';
+  }).join('');
+  const trialSection='<div class="am-plans-intro" id="testes"><span class="am-eyebrow">✦ TESTE AEROMIND</span><h2>Planos por horas ou dias</h2><p>Configure e experimente o monitor pelo período escolhido.</p></div><div class="am-plans-cards">'+trialCards+'</div>';
+  content=content.replace('<p class="am-price-notice">',trialSection+'<p class="am-price-notice">');
  }
  content=content.replace('Preços podem ser exibidos após configuração pelo administrador. Contratação, pagamentos e ativação de licenças continuam indisponíveis.','As licenças são liberadas somente após o pagamento Pix confirmado pelo servidor. Consulte os planos e preços publicados.');
  content=content.replace('Ainda não. Contas gratuitas já podem ser criadas para testes. Pagamentos, ativação de licenças e download ainda não estão disponíveis.','Sim. Selecione um plano publicado e faça login para pagar por Pix. O acesso é liberado apenas após confirmação da PaggPay.');
