@@ -24,6 +24,19 @@ export function isAeromindCallback(raw:string|undefined):boolean {
 export function isSandboxKeyCompatible(key:string|undefined):boolean{
  return !!key && !key.startsWith('pp_live_');
 }
+// Flag separada do checkout publico. Uma chave live nao habilita vendas sozinha.
+export const LIVE_TEST_MAX_CENTS=100;
+export function liveTestConfigured():boolean {
+ return process.env.PAGGPAY_LIVE_TEST_ENABLED==='true'
+  && process.env.PAGGPAY_MODE==='disabled'
+  && process.env.PAGGPAY_API_KEY?.startsWith('pp_live_')===true
+  && !!process.env.PAGGPAY_WEBHOOK_SECRET
+  && isAeromindCallback(process.env.PAGGPAY_WEBHOOK_URL)
+  && !!process.env.SUPABASE_SERVICE_ROLE_KEY;
+}
+export function validateLiveTestValue(amount:number):boolean{
+ return Number.isSafeInteger(amount) && amount===LIVE_TEST_MAX_CENTS;
+}
 export function sandboxConfigured():boolean{
  return process.env.PAGGPAY_MODE==='sandbox' && isSandboxKeyCompatible(process.env.PAGGPAY_API_KEY) &&
  !!process.env.PAGGPAY_WEBHOOK_SECRET && isAeromindCallback(process.env.PAGGPAY_WEBHOOK_URL) &&
@@ -79,15 +92,16 @@ export function readPaggpayPix(payload:unknown, expected:PixIdentity):VerifiedPi
   amountCents:value,code:emv,expiresAt:typeof expires==='string'&&Number.isFinite(Date.parse(expires))?expires:null};
 }
 export function paymentConfirmed(pix:VerifiedPix):boolean{return pix.status==='succeeded';}
-export async function paggpayFetch(path:string,body?:Data,timeoutMs=15_000):Promise<unknown>{
- if(!sandboxConfigured())throw new GatewayError(503,'Pix sandbox desativado');
+export async function paggpayFetch(path:string,body?:Data,timeoutMs=15_000,environment:'sandbox'|'live-test'='sandbox'):Promise<unknown>{
+ if(environment==='live-test'?!liveTestConfigured():!sandboxConfigured())
+  throw new GatewayError(503,'Pix indisponivel no ambiente solicitado');
  if(!/^\/(?:pix|transactions)(?:\/[A-Za-z0-9_%.-]+)?$/.test(path))throw new Error('Rota PaggPay não autorizada');
  const headers:Record<string,string>={Authorization:'Bearer '+process.env.PAGGPAY_API_KEY,
   'Content-Type':'application/json',Accept:'application/json'};
  if(body)headers['X-Paggpay-Webhook-Secret']=process.env.PAGGPAY_WEBHOOK_SECRET!;
  let response:Response;
  try {
-  response=await fetch('https://sandbox-api.paggpay.com/v1'+path,{
+  response=await fetch((environment==='live-test'?'https://api.paggpay.com/v1':'https://sandbox-api.paggpay.com/v1')+path,{
    method:body?'POST':'GET',headers,cache:'no-store',
    ...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(timeoutMs),
   });
@@ -95,13 +109,13 @@ export async function paggpayFetch(path:string,body?:Data,timeoutMs=15_000):Prom
  if(!response.ok)throw new GatewayError(response.status,'Resposta de erro do provedor PaggPay');
  try{return await response.json();}catch{throw new GatewayError(502,'Resposta JSON desconhecida da PaggPay');}
 }
-export async function getPaggpayPix(id:string):Promise<unknown>{
+export async function getPaggpayPix(id:string,environment:'sandbox'|'live-test'='sandbox'):Promise<unknown>{
  if(!ID_PATTERN.test(id))throw new Error('ID PaggPay inválido');
  const start=Date.now();
- try {return await paggpayFetch('/pix/'+encodeURIComponent(id),undefined,15_000);}
+ try {return await paggpayFetch('/pix/'+encodeURIComponent(id),undefined,15_000,environment);}
  catch(error){
   if(!(error instanceof GatewayError)||error.httpStatus!==404)throw error;
   const left=Math.max(1,15_000-(Date.now()-start));
-  return await paggpayFetch('/transactions/'+encodeURIComponent(id),undefined,left);
+  return await paggpayFetch('/transactions/'+encodeURIComponent(id),undefined,left,environment);
  }
 }

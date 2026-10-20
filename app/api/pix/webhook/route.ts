@@ -2,12 +2,12 @@ import {NextResponse} from 'next/server';
 import {createClient} from '@supabase/supabase-js';
 import {MAX_PIX_WEBHOOK_BYTES,parsePaggpayEvent,verifyPaggpaySignature} from '@/lib/pix/webhook';
 import {reconcileWithPaggpay,orderFields,type StoredPixOrder} from '@/lib/pix/reconcile';
-import {sandboxConfigured} from '@/lib/pix/provider';
+import {sandboxConfigured,liveTestConfigured} from '@/lib/pix/provider';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 const reply=(message:string,status:number)=>NextResponse.json({message},{status,headers:{'Cache-Control':'no-store'}});
 export async function POST(req:Request){
- if(!sandboxConfigured())return reply('Unavailable',503);
+ if(!sandboxConfigured()&&!liveTestConfigured())return reply('Unavailable',503);
  const claimedSize=Number(req.headers.get('content-length'));
  if(Number.isFinite(claimedSize)&&claimedSize>MAX_PIX_WEBHOOK_BYTES)return reply('Payload too large',413);
  const raw=await req.text();
@@ -23,6 +23,8 @@ export async function POST(req:Request){
  if(error)return reply('Database unavailable',503);
  if(!data)return reply('Unknown reference',503);
  const order=data as StoredPixOrder;
+ if(order.is_homologation?!liveTestConfigured():!sandboxConfigured())return reply('Payment mode unavailable',503);
+ if(order.is_homologation&&order.amount_cents!==100)return reply('Test amount mismatch',409);
  if(order.amount_cents!==evt.amountCents||order.provider_transaction_id&&order.provider_transaction_id!==evt.transactionId){
   return reply('Webhook details disagree with order',409);
  }
