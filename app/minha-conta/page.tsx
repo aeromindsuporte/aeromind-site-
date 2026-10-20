@@ -69,6 +69,7 @@ export default async function Conta() {
           <p><b>Plano</b><span>{current?.plan_name || 'Não contratado'}</span></p>
           <p><b>Validade</b><span>{formatDate(current?.valid_until||null)}</span></p>
           <p className="account-note">{isActive?(appReady?'Licença válida. AeroMind Monitor '+releaseName+' disponível para download.':'Licença válida. Aguarde a publicação da próxima versão do aplicativo.'):'Criar conta não ativa uma licença. Consulte as opções de contratação.'}</p>
+          {isActive&&<Link className="auth-submit auth-button-link" href="/download" style={{marginTop:16}}>Acessar aplicativo →</Link>}
         </section>
         <section className="account-card">
           <h2>Download do aplicativo</h2>

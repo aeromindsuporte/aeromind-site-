@@ -13,12 +13,14 @@
     "react": "19.1.10",
     "react-dom": "19.1.10",
     "@supabase/ssr": "0.12.7",
-    "@supabase/supabase-js": "2.118.0"
+    "@supabase/supabase-js": "2.118.0",
+    "qrcode": "^1.5.4"
   },
   "devDependencies": {
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "typescript": "^5"
+    "typescript": "^5",
+    "@types/qrcode": "^1.5.5"
   }
 }

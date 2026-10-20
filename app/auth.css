@@ -150,3 +150,77 @@ padding:13px 15px;background:#0a1731;border:1px solid #3e457c;border-radius:10px
 .account-update-item strong{font-size:14px}
 .account-update-item small{font-size:11px;color:#aabbe0}
 .account-update-item p{grid-column:1/-1;margin:0;white-space:pre-line}
+
+
+/* Checkout Pix — identidade AeroMind, sem afetar formulários legados */
+.account-root .pix-progress{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 25px}
+.account-root .pix-progress span{font-size:12px;color:#98aaca;border:1px solid #39426b;background:#12132b;border-radius:99px;padding:9px 12px}
+.account-root .pix-progress .pix-progress-active{border-color:#9951cc;background:#291744;color:#efd0ff}
+.account-root .pix-order-summary{max-width:780px;display:flex;align-items:center;gap:16px;background:linear-gradient(115deg,#21143b,#0d1932);border:1px solid #65469c;border-radius:18px;padding:21px;margin-bottom:20px;box-shadow:0 15px 36px #0004}
+.account-root .pix-summary-icon{width:53px;height:53px;flex:none;display:grid;place-items:center;background:linear-gradient(135deg,#9927dd,#43309a);border:1px solid #be78ef;border-radius:15px;font-size:26px}
+.account-root .pix-summary-info{min-width:0;flex:1}
+.account-root .pix-mini-label{font-size:10px;font-weight:850;letter-spacing:1.4px;color:#c9a4eb}
+.account-root .pix-summary-info h2{font-size:19px;margin:7px 0 4px}
+.account-root .pix-summary-info p{color:#b6c5df;font-size:13px;margin:0;line-height:1.5}
+.account-root .pix-summary-total{display:grid;gap:5px;text-align:right;white-space:nowrap}
+.account-root .pix-summary-total span{color:#aebbd2;font-size:12px}
+.account-root .pix-summary-total strong{font-size:27px}
+.account-root .pix-shell{max-width:780px;display:grid;gap:20px;background:linear-gradient(145deg,#1b1038,#0b1731 78%);border:1px solid #7145ab;border-radius:21px;padding:27px;box-shadow:0 22px 55px #0006}
+.account-root .pix-shell h2{font-size:clamp(22px,4vw,29px);line-height:1.2;margin:5px 0}
+.account-root .pix-shell p{color:#b4c2d9;font-size:14px;line-height:1.65;margin:0}
+.account-root .pix-head{display:flex;align-items:center;gap:15px}
+.account-root .pix-symbol{width:52px;height:52px;flex:none;display:grid;place-items:center;background:linear-gradient(135deg,#b12dde,#5230bc);border-radius:14px;font-size:28px}
+.account-root .pix-muted{font-size:13px!important;color:#a7b5d4!important}
+.account-root .pix-fields{display:grid;gap:16px}
+.account-root .pix-fields label{display:grid;gap:7px;color:#eee5ff;font-size:13px;font-weight:700}
+.account-root .pix-fields input{height:52px;min-width:0;width:100%;padding:12px 14px;color:#fff;background:#0a1934;border:1px solid #4c5790;border-radius:12px;font:inherit}
+.account-root .pix-fields input:focus-visible{outline:2px solid #d27ef8;outline-offset:2px}
+.account-root .pix-fields input::placeholder{color:#8799b5}
+.account-root .pix-coupon-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end}
+.account-root .pix-coupon-row button{min-height:52px;padding:10px 15px;border:1px solid #9150c8;border-radius:12px;color:#f4c5ff;background:#271543;font-weight:750;cursor:pointer}
+.account-root .pix-coupon-row button:disabled{opacity:.45;cursor:not-allowed}
+.account-root .pix-total-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:15px 0;border-top:1px solid #353c62;border-bottom:1px solid #353c62}
+.account-root .pix-total-row span{font-size:13px;color:#bdc7dd}
+.account-root .pix-total-row strong{font-size:27px;white-space:nowrap}
+.account-root .pix-primary{display:flex;justify-content:center;align-items:center;gap:8px;width:100%;min-height:54px;padding:12px 18px;border-radius:12px;border:1px solid #d77cf9;color:white!important;background:linear-gradient(105deg,#d42ae4,#8123ef);font-size:15px;font-weight:850;text-decoration:none!important;cursor:pointer;text-align:center}
+.account-root .pix-primary:disabled{opacity:.5;cursor:not-allowed}
+.account-root .pix-secondary{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:47px;padding:10px 17px;border:1px solid #7850b6;border-radius:11px;background:#1c1539;color:#f0ceff!important;text-decoration:none!important;font-size:13px;font-weight:750;cursor:pointer;text-align:center}
+.account-root .pix-secondary:disabled{opacity:.5;cursor:not-allowed}
+.account-root .pix-note{display:flex;align-items:center;gap:8px;font-size:12px;color:#adc5dc}
+.account-root .pix-feedback{padding:13px 14px;border:1px solid #9a5478;border-radius:12px;color:#ffd4e4;background:#321529;font-size:13px;line-height:1.6}
+.account-root .pix-feedback.success{border-color:#15966d;background:#063e32;color:#adffe1}
+.account-root .pix-state-pill{display:inline-flex;align-items:center;gap:6px;width:max-content;max-width:100%;border-radius:99px;padding:8px 12px;border:1px solid #805d9c;background:#2b193e;color:#dbbded;font-size:12px;font-weight:800}
+.account-root .pix-state-pill.waiting{border-color:#b48646;background:#35291a;color:#ffe2ad}
+.account-root .pix-state-pill.done{border-color:#19896b;background:#0a382e;color:#95fbd1}
+.account-root .pix-qr-layout{display:grid;grid-template-columns:minmax(220px,270px) minmax(0,1fr);align-items:center;gap:23px}
+.account-root .pix-qr-card{min-height:266px;margin:0;padding:13px;display:grid;place-items:center;background:white;border-radius:19px;box-shadow:0 16px 34px #0006}
+.account-root .pix-qr-card img{max-width:100%;display:block;height:auto;image-rendering:pixelated}
+.account-root .pix-qr-skeleton{min-height:230px;display:grid;place-items:center;text-align:center;color:#3c3860;background:#f3f1f7;border-radius:12px;padding:15px;font-size:13px}
+.account-root .pix-instructions{display:grid;gap:12px;align-content:center}
+.account-root .pix-instructions h3{font-size:20px;margin:0}
+.account-root .pix-instructions ol{color:#c8d0e4;font-size:13px;line-height:1.9;padding-left:22px;margin:0}
+.account-root .pix-expiry{color:#f9d89e;font-size:12px}
+.account-root .pix-copy-area{display:grid;gap:12px;border:1px solid #445887;border-radius:13px;padding:16px;background:#0a162c}
+.account-root .pix-copy-area code{color:#d2e0ff;font-size:12px;max-height:100px;overflow:auto;overflow-wrap:anywhere}
+.account-root .pix-success{display:grid;justify-items:center;gap:17px;text-align:center;padding:25px 4px}
+.account-root .pix-success-mark{display:grid;place-items:center;width:92px;height:92px;border-radius:50%;border:2px solid #3be1ae;color:#afffdb;background:radial-gradient(circle,#096749,#0a322c);box-shadow:0 0 30px #16b58e50;font-size:47px}
+.account-root .pix-success h2{font-size:clamp(28px,5vw,37px);letter-spacing:-.9px}
+.account-root .pix-success>p{max-width:510px}
+.account-root .pix-success-amount{width:100%;display:grid;gap:5px;padding:18px;border:1px solid #3b786c;border-radius:13px;background:#0a332d}
+.account-root .pix-success-amount span{font-size:12px;color:#a4e3cc}
+.account-root .pix-success-amount strong{font-size:28px}
+.account-root .pix-actions{width:100%;display:grid;gap:10px}
+.account-root .pix-activation-steps{display:grid;gap:12px;width:100%;text-align:left}
+.account-root .pix-activation-step{display:flex;align-items:flex-start;gap:13px;padding:15px;border:1px solid #3a5075;border-radius:13px;background:#0c1a34}
+.account-root .pix-activation-number{width:32px;height:32px;display:grid;place-items:center;background:#522987;border-radius:50%;font-weight:850;flex:none}
+.account-root .pix-activation-step strong{font-size:14px}
+.account-root .pix-activation-step p{font-size:13px;margin:5px 0 0;color:#acbdd9}
+@media(max-width:670px){
+ .account-root .pix-order-summary{padding:17px;flex-wrap:wrap}
+ .account-root .pix-summary-total{width:100%;display:flex;justify-content:space-between;align-items:center;text-align:left;padding-top:11px;border-top:1px solid #384367}
+ .account-root .pix-shell{padding:20px 16px}
+ .account-root .pix-qr-layout{grid-template-columns:1fr}
+ .account-root .pix-qr-card{width:100%;max-width:300px;margin:0 auto}
+ .account-root .pix-instructions{max-width:440px}
+}
+@media(max-width:390px){.account-root .pix-coupon-row{grid-template-columns:1fr}.account-root .pix-coupon-row button{width:100%}}
