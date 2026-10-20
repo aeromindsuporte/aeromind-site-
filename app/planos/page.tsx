@@ -2,7 +2,7 @@ import Link from 'next/link';
 import {getVisiblePlans,formattedPrice} from '@/lib/catalog';
 
 export const dynamic='force-dynamic';
-export const metadata={title:'Planos | AeroMind',description:'Consulte os planos AeroMind. Contratação e licenças ainda indisponíveis.'};
+export const metadata={title:'Planos | AeroMind',description:'Veja preços atuais dos planos AeroMind e contrate por Pix com liberação após confirmação.'};
 
 const cards=[
  {tier:'Básico' as const, css:'am-plan-blue',icon:'♙',desc:'Monitoramento essencial',features:['Interface e monitor B4','Histórico do aplicativo','Alertas básicos']},
@@ -46,7 +46,7 @@ export default async function Plans({searchParams}:{searchParams:Promise<{period
     </div>
    </section>
    <p className="am-price-notice">ℹ Criar uma conta não libera o monitor. É necessária uma licença ativa. Nenhum resultado histórico garante ganhos.</p>
-   <p className="am-price-note" style={{marginTop:20}}>Os preços e recursos são configurados no painel administrativo. O Pix ainda está em homologação.</p>
+   <p className="am-price-note" style={{marginTop:20}}>Os preços e recursos são configurados pelo administrador. Pagamentos são processados por Pix e a licença só é liberada após confirmação pelo servidor.</p>
   </main>
   <footer className="am-footer"><div className="am-shell am-footer-note">© 2026 AeroMind · Uso responsável · <Link href="/privacidade">Privacidade</Link> · <Link href="/termos">Termos de uso</Link></div></footer>
  </div></>;

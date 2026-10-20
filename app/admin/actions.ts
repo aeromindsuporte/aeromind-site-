@@ -61,13 +61,15 @@ export async function saveCatalogPlan(formData:FormData) {
   if (amount!==null && (!Number.isFinite(amount)||amount<0||amount>1000000)) redirect('/admin/planos?msg=invalid');
   const cents=amount===null?null:Math.round(amount*100);
   if (visible && (cents===null||cents===0)) redirect('/admin/planos?msg=price');
-  const {error}=await supabase.rpc('aeromind_update_catalog_plan',{
+  const {data,error}=await supabase.rpc('aeromind_update_catalog_plan',{
     p_slug:slug,p_price_cents:cents,p_visible:visible
   });
-  if(error) redirect('/admin/planos?msg=plan-error');
+  if(error||data!==true) redirect('/admin/planos?msg=plan-error');
   revalidatePath('/admin');
   revalidatePath('/planos');
   revalidatePath('/');
+  revalidatePath('/checkout');
+  revalidatePath('/admin/planos');
   redirect('/admin/planos?msg=plan-saved');
 }
 
@@ -109,7 +111,7 @@ export async function savePlanPresentation(formData:FormData){
  if(!/^(basico|pro|ultra)-(mensal|trimestral|semestral|anual)$/.test(slug)||title.length>65||description.length>240||badge.length>38||cta.length>40||features.length>8||features.some(x=>x.length>115))redirect('/admin/planos?msg=invalid');
  const {data,error}=await sb.rpc('aeromind_save_plan_presentation',{p_slug:slug,p_title:title,p_description:description,p_badge:badge,p_features:features,p_cta:cta,p_highlight:formData.get('highlight')==='on'});
  if(error||data!==true)redirect('/admin/planos?msg=plan-error');
- revalidatePath('/planos');revalidatePath('/admin/planos');redirect('/admin/planos?msg=plan-saved');
+ revalidatePath('/planos');revalidatePath('/');revalidatePath('/checkout');revalidatePath('/admin/planos');redirect('/admin/planos?msg=plan-saved');
 }
 export async function saveCoupon(formData:FormData){
  const sb=await adminClient(),code=word(formData.get('code')).toUpperCase(),discount=Number(word(formData.get('discount')));
