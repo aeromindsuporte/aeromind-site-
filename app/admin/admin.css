@@ -148,18 +148,18 @@
 
 
 /* Multi-page administrative navigation: all pages share the validated dashboard and auth gate. */
-.admin-root:not(.area-visao) .admin-overview{display:none}
-.admin-root:not(.area-visao) .admin-main-grid{display:contents}
-.admin-root:not(.area-visao) .admin-main-grid>.admin-card{display:none}
-.admin-root:not(.area-visao) .admin-content>section.admin-card{display:none}
-.admin-root:not(.area-visao) .admin-bottom-grid{display:contents}
-.admin-root:not(.area-visao) .admin-bottom-grid>.admin-card{display:none}
+.admin-root:not(.admin-commercial):not(.area-visao) .admin-overview{display:none}
+.admin-root:not(.admin-commercial):not(.area-visao) .admin-main-grid{display:contents}
+.admin-root:not(.admin-commercial):not(.area-visao) .admin-main-grid>.admin-card{display:none}
+.admin-root:not(.admin-commercial):not(.area-visao) .admin-content>section.admin-card{display:none}
+.admin-root:not(.admin-commercial):not(.area-visao) .admin-bottom-grid{display:contents}
+.admin-root:not(.admin-commercial):not(.area-visao) .admin-bottom-grid>.admin-card{display:none}
 .admin-root.area-clientes #clientes,.admin-root.area-licencas #licencas,.admin-root.area-licencas #editar-licenca,
 .admin-root.area-planos #planos,.admin-root.area-dispositivos #dispositivos,
 .admin-root.area-releases #releases,.admin-root.area-relatorios #relatorios,
 .admin-root.area-downloads #downloads,.admin-root.area-cupons #cupons,
 .admin-root.area-pagamentos #pagamentos{display:block!important;margin:0 0 17px}
-.admin-root:not(.area-visao) .admin-main-grid>.admin-card{width:100%}
+.admin-root:not(.admin-commercial):not(.area-visao) .admin-main-grid>.admin-card{width:100%}
 .admin-root.area-visao .admin-content>section.admin-card,
 .admin-root.area-visao .admin-bottom-grid{display:none}
 @media (max-width:700px){
