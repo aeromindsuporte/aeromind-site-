@@ -28,6 +28,20 @@ export default async function AdminPayments(){
    serverCredentialStatus=probe.error?'failed':'verified';
   }catch{serverCredentialStatus='failed';}
  }
+ // Teste apenas GET, executado no servidor após o login administrativo.
+ // Nem os dados retornados, nem o token, nem erros brutos são expostos.
+ type GatewayStatus='verified'|'forbidden'|'unauthorized'|'unavailable'|'not-configured';
+ let gatewayStatus:GatewayStatus='not-configured';
+ if(process.env.PAGGPAY_API_KEY?.startsWith('pp_live_')){
+  try{
+   const response=await fetch('https://api.paggpay.com/v1/transactions?page=1&per_page=1',{
+    method:'GET',headers:{Authorization:'Bearer '+process.env.PAGGPAY_API_KEY,Accept:'application/json'},
+    cache:'no-store',signal:AbortSignal.timeout(4500),
+   });
+   gatewayStatus=response.ok?'verified':response.status===401?'unauthorized':
+    response.status===403?'forbidden':'unavailable';
+  }catch{gatewayStatus='unavailable';}
+ }
  const sandboxReady=checks.every(([,ready])=>ready);
  const liveKeyPresent=process.env.PAGGPAY_API_KEY?.startsWith('pp_live_')===true;
  return <CommercialAdminShell active="/admin/pagamentos" title="Pagamentos e pedidos" description="Movimentações reais do servidor. Pedidos não confirmados nunca entram na receita.">
@@ -39,6 +53,16 @@ export default async function AdminPayments(){
    'Falha de autenticação ou autorização: confira a chave privada e as permissões do Supabase.'}
  </p>
  <p className="admin-card-explain">Verificação de leitura realizada no servidor. Nenhuma licença, cobrança, pedido ou evento é criado por este diagnóstico. Não é um teste de pagamento na PaggPay.</p>
+ </section>
+ <section className="admin-card" style={{marginBottom:16}}><h2>Conexão PaggPay — somente leitura</h2>
+ <p className={'admin-feedback '+(gatewayStatus==='verified'?'good':'bad')}>
+ {gatewayStatus==='verified'?'Conectada: a PaggPay aceitou a credencial de produção em uma consulta de leitura.':
+ gatewayStatus==='forbidden'?'Credencial sem permissão de consultar transações (HTTP 403). Confira as permissões da chave na PaggPay.':
+ gatewayStatus==='unauthorized'?'PaggPay rejeitou a autenticação (HTTP 401). Confira se a chave continua válida.':
+ gatewayStatus==='unavailable'?'Não foi possível verificar a API da PaggPay agora. Nenhuma cobrança foi criada.':
+ 'Chave PaggPay de produção não configurada.'}
+ </p>
+ <p className="admin-card-explain">Esta verificação usa GET /transactions com apenas um registro solicitado e descarta a resposta. Não cria cobranças, não consulta ou altera licenças e não habilita o checkout. Caso ambas as marcas usem a mesma conta PaggPay, os recebimentos continuam na mesma conta financeira.</p>
  </section>
  <section className="admin-card" style={{marginBottom:16}}><h2>Homologação Pix</h2>
  <p className={'admin-feedback '+(sandboxReady?'good':'bad')}>{sandboxReady?'Variáveis do sandbox preenchidas. Ainda falta testar o provedor.':'Sandbox não configurado. Nenhuma cobrança Pix está disponível no site.'}</p>
