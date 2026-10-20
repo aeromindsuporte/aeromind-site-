@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHmac} from 'node:crypto';
 import {MAX_PIX_WEBHOOK_BYTES,verifyPaggpaySignature,parsePaggpayEvent,isAeromindReference} from '../lib/pix/webhook.ts';
-import {readPaggpayPix,paymentConfirmed,isAeromindCallback,isSandboxKeyCompatible,paymentEnvironment,liveConfigured} from '../lib/pix/provider.ts';
+import {readPaggpayPix,paymentConfirmed,isAeromindCallback,isSandboxKeyCompatible,paymentEnvironment,liveConfigured,extractMatchingTransactionId} from '../lib/pix/provider.ts';
 
 const SECRET='whsec_local_fixture_not_a_credential';
 const NOW=1_792_430_000;
@@ -152,4 +152,20 @@ test('a chave live so habilita Pix com modo live, producao e callback propio',()
  } finally {
   for(const key of keys){if(previous[key]===undefined)delete process.env[key];else process.env[key]=previous[key];}
  }
+});
+
+test('reconciliacao por referencia nunca recupera transacao da Descont Saude',()=>{
+ const refA='aeromind-11111111-1111-4111-8111-111111111111';
+ const refB='11111111-1111-4111-8111-111111111111';
+ const list={data:[{id:'txn_descont_001',reference_id:refB,payment_method_type:'pix'},
+  {id:'txn_aeromind_001',reference_id:refA,payment_method_type:'pix'},
+  {id:'txn_other_001',reference_id:'outro',payment_method_type:'pix'}]};
+ assert.equal(extractMatchingTransactionId(list,refA),'txn_aeromind_001');
+ assert.equal(extractMatchingTransactionId(list,refB),'txn_descont_001');
+ assert.equal(extractMatchingTransactionId(list,'aeromind-nao-existe'),null);
+ assert.equal(extractMatchingTransactionId({data:[]},refA),null);
+});
+test('lista sem referencia exata ou com metodo nao Pix nao recupera transacao',()=>{
+ assert.equal(extractMatchingTransactionId({data:[{id:'txn_test_card',reference_id:reference,payment_method_type:'card'}]},reference),null);
+ assert.equal(extractMatchingTransactionId({data:[{id:'x',reference_id:reference}]},reference),null);
 });

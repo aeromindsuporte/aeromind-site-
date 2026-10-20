@@ -1,7 +1,7 @@
 import {NextResponse} from 'next/server';
 import {createClient as userClient} from '@/lib/supabase/server';
 import {createClient as serviceClient} from '@supabase/supabase-js';
-import {paggpayFetch,readPaggpayPix,paymentConfigured,paymentEnvironment} from '@/lib/pix/provider';
+import {GatewayError,paggpayFetch,readPaggpayPix,paymentConfigured,paymentEnvironment} from '@/lib/pix/provider';
 import {reconcileWithPaggpay,orderFields,type StoredPixOrder} from '@/lib/pix/reconcile';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -84,15 +84,24 @@ export async function POST(req:Request){
    remotePayload=await paggpayFetch('/pix',{
     reference_id:order.reference_id,value:order.amount_cents,
     description:'AeroMind '+slug,payer_name:name,payer_email:user.email||undefined,
-    payer_document_number:document,payer_pays_fee:false,
+    payer_national_registration:document,
     webhook_url:process.env.PAGGPAY_WEBHOOK_URL!,
    },45_000);
-  }catch{
-   // Timeout é resultado desconhecido. A reserva deve continuar bloqueada.
-   await admin.from('aeromind_payment_orders').update({last_payment_error:'Provedor sem resposta; verificar transação antes de nova tentativa'})
-    .eq('id',orderId).eq('status','created');
+  }catch(exc){
+   // HTTP com erro e timeout sao diagnósticos diferentes. Nenhum deles
+   // autoriza emitir um novo Pix sem consultar a transacao anterior.
+   const status=exc instanceof GatewayError?exc.httpStatus:0;
+   const diagnostic=status===422?'PaggPay recusou os dados do Pix (HTTP 422)':
+    status===403?'PaggPay não autorizou criar Pix (HTTP 403; conferir pix.create)':
+    status===401?'PaggPay recusou a chave para criar Pix (HTTP 401)':
+    status===429?'Limite de solicitações PaggPay (HTTP 429)':
+    status>=500?'PaggPay indisponível temporariamente (HTTP '+status+')':
+    status>0?'PaggPay respondeu HTTP '+status:
+    'Não foi possível concluir a comunicação com a PaggPay';
+   await admin.from('aeromind_payment_orders')
+    .update({last_payment_error:diagnostic}).eq('id',orderId).eq('status','created');
    return respond({environment:paymentEnvironment(),orderId,status:'creating',amountCents:order.amount_cents,
-    requiresSupport:true,message:'PaggPay não retornou confirmação. A reserva foi preservada para evitar duplicidade.'},202);
+    requiresSupport:true,message:diagnostic+'. O pedido ficará bloqueado até a verificação da transação, para evitar duplicidade.'},202);
   }
   let verified;
   try{verified=readPaggpayPix(remotePayload,{referenceId:order.reference_id,amountCents:order.amount_cents});}

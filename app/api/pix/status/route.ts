@@ -1,7 +1,7 @@
 import {NextResponse} from 'next/server';
 import {createClient as userClient} from '@/lib/supabase/server';
 import {createClient as serviceClient} from '@supabase/supabase-js';
-import {paymentConfigured,paymentEnvironment} from '@/lib/pix/provider';
+import {paymentConfigured,paymentEnvironment,lookupPaggpayPixByReference} from '@/lib/pix/provider';
 import {reconcileWithPaggpay,orderFields,type StoredPixOrder} from '@/lib/pix/reconcile';
 export const dynamic='force-dynamic';
 export const runtime='nodejs';
@@ -39,7 +39,37 @@ export async function GET(req:Request){
    emv:order.pix_code,expiresAt:order.pix_expires_at,requiresSupport:!!order.last_payment_error});
  }
  const age=order.pix_requested_at?Date.now()-Date.parse(order.pix_requested_at):0;
+ // Caso o POST anterior tenha falhado apos ser enviado, procurar a mesma
+ // referencia na conta da PaggPay, sem gerar outro Pix. Consulta limitada.
+ if(order.pix_requested_at && age>20_000){
+  const stale=!order.last_checked_at||Date.now()-Date.parse(order.last_checked_at)>60_000;
+  if(stale){
+   const admin=serviceClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {auth:{persistSession:false,autoRefreshToken:false}});
+   const checkBefore=new Date(Date.now()-60_000).toISOString();
+   const {data:claim,error:claimError}=await admin.from('aeromind_payment_orders')
+    .update({last_checked_at:new Date().toISOString()})
+    .eq('id',id).eq('user_id',user.id).eq('status','created')
+    .is('provider_transaction_id',null)
+    .or('last_checked_at.is.null,last_checked_at.lt.'+checkBefore)
+    .select('id').maybeSingle();
+   if(!claimError&&claim){
+    try{
+     const remoteId=await lookupPaggpayPixByReference(order.reference_id);
+     if(remoteId){
+      const remote=await reconcileWithPaggpay(admin,order,remoteId);
+      return result({status:remote.status==='succeeded'?'paid':'pending',
+       orderId:id,amountCents:order.amount_cents,emv:remote.code,expiresAt:remote.expiresAt,
+       message:remote.code?'Transação anterior recuperada na PaggPay. Não gere outra cobrança.':
+        'Transação localizada na PaggPay, mas código Pix ainda indisponível.'});
+     }
+    }catch{/* A lista pode falhar, ou a chave não ter permissão. Pedido permanece bloqueado. */}
+   }
+  }
+ }
  return result({orderId:id,status:'creating',amountCents:order.amount_cents,
-  requiresSupport:age>60_000||!!order.last_payment_error,
-  message:age>60_000?'Cobrança sem ID de transação. A equipe deve conferir com a PaggPay, sem gerar outra.':null});
+  requiresSupport:!!order.last_payment_error||age>60_000,
+  message:order.last_payment_error?order.last_payment_error+
+   '. Verificaremos se existe uma transação anterior. Não gere novo Pix.':
+   age>60_000?'Ainda não há ID de transação confirmado. Não crie outro pedido até conciliá-lo.':null});
 }

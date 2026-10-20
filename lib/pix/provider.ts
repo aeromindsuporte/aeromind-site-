@@ -42,6 +42,37 @@ export function paymentConfigured():boolean{return liveConfigured()||sandboxConf
 export function paymentEnvironment(): 'live'|'sandbox'|null {
  return liveConfigured()?'live':sandboxConfigured()?'sandbox':null;
 }
+export function extractMatchingTransactionId(listResponse:unknown,referenceId:string):string|null {
+ // Filtragem por referencia exata: a conta pode conter transacoes de outros sites.
+ const payload=record(listResponse);
+ const collection=Array.isArray(payload?.data)?payload.data:
+  Array.isArray(payload?.transactions)?payload.transactions:
+  Array.isArray(record(payload?.data)?.data)?record(payload?.data)?.data:null;
+ if(!Array.isArray(collection))return null;
+ for(const item of collection){
+  const row=record(item);
+  if(!row)continue;
+  const transaction=record(row.transaction);
+  const ref=string(row.reference_id)||string(record(row.pix)?.reference_id)||
+   string(transaction?.reference_id);
+  if(ref!==referenceId)continue;
+  const method=row.payment_method_type;
+  if(method&&method!=='pix')continue;
+  const id=string(row.id)||string(transaction?.id);
+  if(id&&ID_PATTERN.test(id))return id;
+ }
+ return null;
+}
+export async function lookupPaggpayPixByReference(referenceId:string):Promise<string|null>{
+ if(!/^aeromind-[0-9a-f-]{36}$/.test(referenceId))throw new Error('Referencia invalida');
+ // Nao solicitar criacao de Pix; no maximo duas paginas recentes da propria conta.
+ for(const page of [1,2]){
+  const response=await paggpayFetch('/transactions?page='+page+'&per_page=100',undefined,10_000);
+  const found=extractMatchingTransactionId(response,referenceId);
+  if(found)return found;
+ }
+ return null;
+}
 export class GatewayError extends Error{
  public httpStatus:number;
  constructor(httpStatus:number,message='Falha temporária ao consultar a PaggPay'){
@@ -94,7 +125,9 @@ export function readPaggpayPix(payload:unknown, expected:PixIdentity):VerifiedPi
 export function paymentConfirmed(pix:VerifiedPix):boolean{return pix.status==='succeeded';}
 export async function paggpayFetch(path:string,body?:Data,timeoutMs=15_000):Promise<unknown>{
  if(!paymentConfigured())throw new GatewayError(503,'Pix desativado.');
- if(!/^\/(?:pix|transactions)(?:\/[A-Za-z0-9_%.-]+)?$/.test(path))throw new Error('Rota PaggPay não autorizada');
+ if(!/^\/(?:pix|transactions)(?:\/[A-Za-z0-9_%.-]+)?$/.test(path)
+   && !/^\/transactions\?page=[12]&per_page=100$/.test(path))
+  throw new Error('Rota PaggPay não autorizada');
  const headers:Record<string,string>={Authorization:'Bearer '+process.env.PAGGPAY_API_KEY,
   'Content-Type':'application/json',Accept:'application/json'};
  if(body)headers['X-Paggpay-Webhook-Secret']=process.env.PAGGPAY_WEBHOOK_SECRET!;
