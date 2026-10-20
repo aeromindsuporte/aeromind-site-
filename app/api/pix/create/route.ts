@@ -7,7 +7,7 @@ export const runtime='nodejs';
 export const dynamic='force-dynamic';
 const respond=(obj:Record<string,unknown>,status=200)=>NextResponse.json(obj,{status,headers:{'Cache-Control':'no-store'}});
 const fail=(error:string,status:number)=>respond({error},status);
-const VALID_PLAN=/^(basico|pro|ultra)-(mensal|trimestral|semestral|anual)$/;
+const VALID_PLAN=/^((basico|pro|ultra)-(mensal|trimestral|semestral|anual)|teste-(horas|dias))$/;
 type Payload={plan?:unknown;payerName?:unknown;document?:unknown;coupon?:unknown};
 export async function POST(req:Request){
  if(!paymentConfigured())return fail('Pagamento Pix indisponível.',503);

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import {getVisiblePlans,formattedPrice} from '@/lib/catalog';
+import {getVisiblePlans,formattedPrice,formattedDuration} from '@/lib/catalog';
 
 export const dynamic='force-dynamic';
 export const metadata={title:'Planos | AeroMind',description:'Veja preços atuais dos planos AeroMind e contrate por Pix com liberação após confirmação.'};
@@ -16,6 +16,7 @@ export default async function Plans({searchParams}:{searchParams:Promise<{period
  const selected=choices.find(x=>x.slug===params.periodo)?.slug||'mensal';
  const days=choices.find(x=>x.slug===selected)?.days||30;
  const planData=await getVisiblePlans();
+ const trials=planData.filter(p=>p.slug==='teste-horas'||p.slug==='teste-dias');
  return <>
  <link rel="stylesheet" href="/design-v2.css"/>
  <div className="am-site">
@@ -45,6 +46,17 @@ export default async function Plans({searchParams}:{searchParams:Promise<{period
       })}
     </div>
    </section>
+   {trials.length>0&&<section className="am-plans" id="testes" style={{paddingTop:32}}>
+    <div className="am-plans-intro"><span className="am-eyebrow">✦ TESTE AEROMIND</span><h2>Experimente por horas ou dias</h2><p>Planos com validade personalizada. O acesso começa após a confirmação do pagamento.</p></div>
+    <div className="am-plans-cards">{trials.map(p=><article key={p.slug} className="am-plan am-plan-blue">
+     {(p.marketing_badge||p.marketing_highlight)&&<span className="am-top-label">{p.marketing_badge||'EXPERIMENTE'}</span>}
+     <span className="am-plan-icon">◷</span><h3>{p.marketing_title||(p.slug==='teste-horas'?'Teste por horas':'Teste por dias')}</h3>
+     <strong>{formattedPrice(p.price_cents)}</strong><small>Validade: {formattedDuration(p)}</small>
+     <p>{p.marketing_description||'Conheça os recursos do AeroMind antes de escolher um período maior.'}</p>
+     <ul>{(p.marketing_features?.length?p.marketing_features:['Monitoramento Básico','Histórico do aplicativo','Acesso por tempo definido']).map((feature,i)=><li key={i}>✓ {feature}</li>)}</ul>
+     <Link className={'am-btn '+(p.marketing_highlight?'am-fill':'am-outline')} href={'/checkout?plano='+encodeURIComponent(p.slug)}>{p.marketing_cta||'Experimentar'} →</Link>
+    </article>)}</div>
+   </section>}
    <p className="am-price-notice">ℹ Criar uma conta não libera o monitor. É necessária uma licença ativa. Nenhum resultado histórico garante ganhos.</p>
    <p className="am-price-note" style={{marginTop:20}}>Os preços e recursos são configurados pelo administrador. Pagamentos são processados por Pix e a licença só é liberada após confirmação pelo servidor.</p>
   </main>
