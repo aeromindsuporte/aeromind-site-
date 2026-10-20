@@ -34,6 +34,7 @@ export default async function PixDiagnostic(){
       result.kind==='unavailable'?'Consulta ao provedor indisponível'+(result.httpStatus?' (HTTP '+result.httpStatus+')':'')+'. Nenhuma nova cobrança deve ser gerada.':
       'Não localizada nas '+result.pagesChecked+' páginas consultadas. Isso NÃO comprova que a cobrança não existe.'}
     </p>
+    {result.kind==='found'&&<p><strong>ID na PaggPay:</strong> {result.transactionId}</p>}
    </div>)}
    <p className="admin-card-explain">Se o pedido não for localizado, confirme sua ausência na área Transações da PaggPay, usando a referência mostrada acima. Evite novas tentativas até essa conferência.</p>
    <p><Link href="/admin/pagamentos" className="admin-inline-action">← Voltar a pagamentos</Link></p>
