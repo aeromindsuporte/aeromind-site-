@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import {requireAdmin} from '@/lib/admin-access';
 import {CommercialAdminShell} from '@/components/admin/CommercialAdminShell';
 import {saveCatalogPlan,savePlanPresentation} from '@/app/admin/actions';
@@ -8,11 +9,13 @@ export default async function AdminPlans({searchParams}:{searchParams:Promise<{m
  const {data,error}=await sb.rpc('aeromind_admin_all_plans');
  const plans=(Array.isArray(data)?data:[]) as Plan[];
  return <CommercialAdminShell title="Planos e divulgação" active="/admin/planos" description="Personalize preço, título, vantagens e destaque de cada card. Alterações refletem na página de vendas.">
- {msg&&<p className={'admin-feedback '+(msg==='plan-saved'?'good':'bad')}>{msg==='plan-saved'?'Alterações salvas. Consulte a página pública.':'Falha ao salvar. Verifique os dados.'}</p>}
- <p><a className="admin-inline-action" href="/planos" target="_blank" rel="noreferrer">Ver página de vendas ↗</a></p>
+ {msg&&<p className={'admin-feedback '+(msg==='plan-saved'?'good':'bad')}>{msg==='plan-saved'?'Alterações gravadas no Supabase. Abra a página pública do período para conferir.':msg==='price'?'Informe um valor acima de R$ 0,00 para publicar o plano.':msg==='invalid'?'Revise os campos, o valor e os textos informados.':'Falha ao salvar no banco. A alteração não foi confirmada.'}</p>}
+ <p className="admin-card-explain">A página inicial mostra Mensal por padrão. Para divulgar outro período, selecione-o na vitrine ou abra o link correspondente abaixo. Preços só aparecem quando o plano está marcado para exibição.</p>
+ <p><Link className="admin-inline-action" href="/planos" target="_blank">Ver página de vendas ↗</Link> · <Link className="admin-inline-action" href="/#planos" target="_blank">Ver página inicial ↗</Link></p>
  {error&&<p className="admin-feedback bad">Falha ao consultar planos.</p>}
  <div className="admin-catalog-grid">{plans.map(p=><section className="admin-plan-item" key={p.slug}>
  <h2>{p.tier} · {p.duration_days} dias</h2>
+ <p className="admin-card-explain">{p.visible&&p.price_cents!==null&&p.price_cents>0?'Publicado':'Oculto'} · <Link className="admin-inline-action" target="_blank" href={'/planos?periodo='+({30:'mensal',90:'trimestral',180:'semestral',365:'anual'} as Record<number,string>)[p.duration_days]}>Conferir este período ↗</Link></p>
  <form action={saveCatalogPlan} className="admin-edit-grid" style={{display:'grid',gridTemplateColumns:'1fr',gap:12}}>
  <input type="hidden" name="slug" value={p.slug}/>
  <label>Preço (R$)<input type="number" name="price" min="0" step="0.01" defaultValue={p.price_cents===null?'':(p.price_cents/100).toFixed(2)}/></label>

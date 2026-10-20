@@ -22,7 +22,8 @@ export async function getVisiblePlans(): Promise<PublicPlan[]> {
   const {data,error}=await client.from('aeromind_plan_catalog')
     .select('slug,tier,duration_days,price_cents,visible,marketing_title,marketing_description,marketing_badge,marketing_features,marketing_cta,marketing_highlight')
     .eq('visible',true).not('price_cents','is',null);
-  if(error || !data) return [];
+  if(error){console.error('Erro na leitura pública do catálogo AeroMind:',error.code||'unknown');return [];}
+  if(!data) return [];
   const tiers=['Básico','Pro','Ultra'];
   return data.filter(p=>tiers.includes(p.tier)
     && [30,90,180,365].includes(p.duration_days)
