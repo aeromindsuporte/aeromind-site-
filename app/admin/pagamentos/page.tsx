@@ -5,7 +5,11 @@ import {createClient as createServiceClient} from '@supabase/supabase-js';
 export const dynamic='force-dynamic';
 type Order={id:string,created_at:string,status:string,amount_cents:number,plan_name:string,email:string};
 export default async function AdminPayments(){
- const {sb}=await requireAdmin();const [orders,summary]=await Promise.all([sb.rpc('aeromind_admin_orders'),sb.rpc('aeromind_admin_commercial_snapshot')]);
+ const {sb,role}=await requireAdmin();const [orders,summary]=await Promise.all([sb.rpc('aeromind_admin_orders'),sb.rpc('aeromind_admin_commercial_snapshot')]);
+ const testPreview=role==='owner'
+  ? await sb.from('aeromind_payment_orders').select('status,amount_cents')
+    .eq('is_homologation',true).limit(1).maybeSingle()
+  : null;
  const list=(Array.isArray(orders.data)?orders.data:[]) as Order[],s=summary.data||{};
  const checks=[
   ['Modo sandbox habilitado',process.env.PAGGPAY_MODE==='sandbox'],
@@ -64,6 +68,20 @@ export default async function AdminPayments(){
  </p>
  <p className="admin-card-explain">Esta verificação usa GET /transactions com apenas um registro solicitado e descarta a resposta. Não cria cobranças, não consulta ou altera licenças e não habilita o checkout. Caso ambas as marcas usem a mesma conta PaggPay, os recebimentos continuam na mesma conta financeira.</p>
  </section>
+ {role==='owner'&&<section className="admin-card" style={{marginBottom:16}}><h2>Preparação do teste real — teto R$ 1,00</h2>
+ <p className="admin-card-explain">Esta área é visível somente ao proprietário. É uma prévia de segurança; abrir ou atualizar a página nunca emite um Pix.</p>
+ <div style={{display:'grid',gap:10,marginTop:16}}>
+ <div><strong>Valor máximo autorizado:</strong> R$ 1,00 (100 centavos)</div>
+ <div><strong>Quantidade permitida:</strong> uma única cobrança</div>
+ <div><strong>Pagador:</strong> proprietário do AeroMind</div>
+ <div><strong>Licença de teste:</strong> 1 dia do plano Básico, somente após pagamento verificado</div>
+ <div><strong>Pedido no banco:</strong> {testPreview?.error?'Consulta indisponível':testPreview?.data?
+   testPreview.data.status==='paid'?'Pagamento confirmado':testPreview.data.amount_cents>100?
+   'Inconsistência: valor acima do teto':'Já existe uma reserva — não criar outra':'Nenhuma cobrança reservada'}</div>
+ </div>
+ <p role="status" className="admin-feedback bad" style={{marginTop:16}}>Emissão ainda bloqueada. O código de pagamento real está em revisão separada e o checkout público permanece desativado.</p>
+ <p className="admin-card-explain">O valor pago por você não poderá ultrapassar R$ 1,00. Se houver taxa adicional para o pagador ou se o valor mínimo aceito pela PaggPay for superior, o teste deve ser cancelado.</p>
+ </section>}
  <section className="admin-card" style={{marginBottom:16}}><h2>Homologação Pix</h2>
  <p className={'admin-feedback '+(sandboxReady?'good':'bad')}>{sandboxReady?'Variáveis do sandbox preenchidas. Ainda falta testar o provedor.':'Sandbox não configurado. Nenhuma cobrança Pix está disponível no site.'}</p>
  {liveKeyPresent&&<p className="admin-feedback bad">Há uma chave PaggPay de produção cadastrada. Ela não pode ser usada para testar o sandbox; o checkout permanece desativado até a configuração e homologação corretas.</p>}
