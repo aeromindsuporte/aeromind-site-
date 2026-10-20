@@ -83,6 +83,11 @@ export default async function AdminPayments(){
  <p role="status" className="admin-feedback bad" style={{marginTop:16}}>Emissão ainda bloqueada. O código de pagamento real está em revisão separada e o checkout público permanece desativado.</p>
  <p className="admin-card-explain">O valor pago por você não poderá ultrapassar R$ 1,00. Se houver taxa adicional para o pagador ou se o valor mínimo aceito pela PaggPay for superior, o teste deve ser cancelado.</p>
  </section>}
+ {role==='owner'&&<section className="admin-card" style={{marginBottom:16}}>
+ <h2>Falhas na geração de Pix</h2>
+ <p className="admin-card-explain">Para pedidos que não receberam código Pix, use o diagnóstico em modo somente leitura. A verificação não cria cobrança, não muda licenças e não permite emitir outro Pix automaticamente.</p>
+ <p><a className="admin-inline-action" href="/admin/pix-diagnostico">Consultar tentativas na PaggPay →</a></p>
+ </section>}
  <section className="admin-card" style={{marginBottom:16}}><h2>Status do checkout Pix</h2>
  <p className={'admin-feedback '+(liveReady?'good':'bad')}>
  {liveReady?'Pix de produção habilitado para clientes autenticados. Pedidos só ativam licença após confirmação verificada.':'Pix comercial desativado. A presença de chave live não ativa vendas automaticamente.'}

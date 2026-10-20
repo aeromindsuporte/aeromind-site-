@@ -1,7 +1,7 @@
 import {NextResponse} from 'next/server';
 import {createClient as userClient} from '@/lib/supabase/server';
 import {createClient as serviceClient} from '@supabase/supabase-js';
-import {paggpayFetch,readPaggpayPix,paymentConfigured,paymentEnvironment} from '@/lib/pix/provider';
+import {paggpayFetch,readPaggpayPix,paymentConfigured,paymentEnvironment,GatewayError} from '@/lib/pix/provider';
 import {reconcileWithPaggpay,orderFields,type StoredPixOrder} from '@/lib/pix/reconcile';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -84,15 +84,28 @@ export async function POST(req:Request){
    remotePayload=await paggpayFetch('/pix',{
     reference_id:order.reference_id,value:order.amount_cents,
     description:'AeroMind '+slug,payer_name:name,payer_email:user.email||undefined,
-    payer_document_number:document,payer_pays_fee:false,
+    payer_national_registration:document,payer_pays_fee:false,
     webhook_url:process.env.PAGGPAY_WEBHOOK_URL!,
    },45_000);
-  }catch{
-   // Timeout é resultado desconhecido. A reserva deve continuar bloqueada.
-   await admin.from('aeromind_payment_orders').update({last_payment_error:'Provedor sem resposta; verificar transação antes de nova tentativa'})
+  }catch(cause){
+   // HTTP 4xx explícitos significam recusa da requisição. Timeout, 429 e 5xx
+   // são indeterminados: jamais reemitir Pix sem consultar o provedor.
+   const rejected=cause instanceof GatewayError&&[400,401,403,404,422].includes(cause.httpStatus);
+   const code=cause instanceof GatewayError?cause.httpStatus:0;
+   if(rejected){
+    await admin.from('aeromind_payment_orders').update({
+     status:'failed',last_payment_error:'PaggPay rejeitou a requisição (HTTP '+code+'). Nenhuma confirmação de cobrança foi recebida.',
+    }).eq('id',orderId).eq('status','created').is('provider_transaction_id',null);
+    return respond({environment:paymentEnvironment(),orderId,status:'failed',amountCents:order.amount_cents,
+     requiresSupport:true,message:code===403?'A chave PaggPay não permite criar Pix (HTTP 403). Confira a permissão pix.create.':
+      code===422||code===400?'PaggPay recusou os dados da cobrança (HTTP '+code+'). Confira nome, CPF/CNPJ e o valor mínimo da conta.':
+      code===401?'A chave PaggPay não foi aceita para emissão (HTTP 401).':
+      'PaggPay recusou a requisição de criação (HTTP '+code+').'},200);
+   }
+   await admin.from('aeromind_payment_orders').update({last_payment_error:'Resposta indeterminada da PaggPay; verificar transação antes de qualquer nova tentativa'})
     .eq('id',orderId).eq('status','created');
    return respond({environment:paymentEnvironment(),orderId,status:'creating',amountCents:order.amount_cents,
-    requiresSupport:true,message:'PaggPay não retornou confirmação. A reserva foi preservada para evitar duplicidade.'},202);
+    requiresSupport:true,message:'Não foi possível confirmar a criação do Pix. A reserva foi mantida para impedir duplicidade.'},202);
   }
   let verified;
   try{verified=readPaggpayPix(remotePayload,{referenceId:order.reference_id,amountCents:order.amount_cents});}

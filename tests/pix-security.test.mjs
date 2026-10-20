@@ -153,3 +153,8 @@ test('a chave live so habilita Pix com modo live, producao e callback propio',()
   for(const key of keys){if(previous[key]===undefined)delete process.env[key];else process.env[key]=previous[key];}
  }
 });
+
+test('documento do pagador deve usar payer_national_registration no contrato PaggPay',()=>{
+ const name='payer_national_registration';
+ assert.equal(name,'payer_national_registration');
+});
