@@ -1,7 +1,7 @@
 import {NextResponse} from 'next/server';
 import {createClient as userClient} from '@/lib/supabase/server';
 import {createClient as serviceClient} from '@supabase/supabase-js';
-import {paggpayFetch,readPaggpayPix,paymentConfigured,paymentEnvironment,GatewayError} from '@/lib/pix/provider';
+import {paggpayFetch,readPaggpayPix,paymentConfigured,paymentEnvironment,GatewayError,MIN_PIX_CENTS} from '@/lib/pix/provider';
 import {reconcileWithPaggpay,orderFields,type StoredPixOrder} from '@/lib/pix/reconcile';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -52,6 +52,7 @@ export async function POST(req:Request){
   if(latestError||!latest)return fail('Falha ao consultar pedido reservado.',503);
   order=latest as StoredPixOrder;
   if(order.status==='paid')return respond({orderId,status:'paid',amountCents:order.amount_cents});
+  if(order.amount_cents<MIN_PIX_CENTS)return fail('Valor mínimo para Pix: R$ 2,00. Confira o preço ou o desconto aplicado.',400);
   // Se uma transação já existe, nunca solicitar outro POST.
   if(order.provider_transaction_id){
    try{

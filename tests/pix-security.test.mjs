@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHmac} from 'node:crypto';
 import {MAX_PIX_WEBHOOK_BYTES,verifyPaggpaySignature,parsePaggpayEvent,isAeromindReference} from '../lib/pix/webhook.ts';
-import {readPaggpayPix,paymentConfirmed,isAeromindCallback,isSandboxKeyCompatible,paymentEnvironment,liveConfigured} from '../lib/pix/provider.ts';
+import {readPaggpayPix,paymentConfirmed,isAeromindCallback,isSandboxKeyCompatible,paymentEnvironment,liveConfigured,MIN_PIX_CENTS} from '../lib/pix/provider.ts';
 
 const SECRET='whsec_local_fixture_not_a_credential';
 const NOW=1_792_430_000;
@@ -154,3 +154,5 @@ test('a chave live so habilita Pix com modo live, producao e callback propio',()
  }
 });
 
+
+test('o menor valor Pix autorizado para criação é 200 centavos',()=>{assert.equal(MIN_PIX_CENTS,200);});

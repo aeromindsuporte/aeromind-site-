@@ -6,6 +6,7 @@ export type PixIdentity = {referenceId:string;amountCents:number;transactionId?:
 const record=(value:unknown):Data|null=>value && typeof value==='object' && !Array.isArray(value)?value as Data:null;
 const string=(value:unknown):string|null=>typeof value==='string' && value.length>0?value:null;
 export const PIX_GATEWAY_TIMEOUT_MS=45_000;
+export const MIN_PIX_CENTS=200;
 export const ID_PATTERN=/^[A-Za-z0-9_-]{6,128}$/;
 /** Nao enviar uma cobranca AeroMind ao endpoint da Descont' Saude. */
 export function isAeromindCallback(raw:string|undefined):boolean {
@@ -97,6 +98,8 @@ export async function paggpayFetch(path:string,body?:Data,timeoutMs=15_000):Prom
  if(!/^\/(?:pix|transactions)(?:\/[A-Za-z0-9_%.-]+)?$/.test(path))throw new Error('Rota PaggPay não autorizada');
  const headers:Record<string,string>={Authorization:'Bearer '+process.env.PAGGPAY_API_KEY,
   'Content-Type':'application/json',Accept:'application/json'};
+ if(body&&path==='/pix'&&(!Number.isSafeInteger(body.value)||Number(body.value)<MIN_PIX_CENTS))
+  throw new GatewayError(400,'Valor Pix abaixo do mínimo de R$ 2,00');
  if(body)headers['X-Paggpay-Webhook-Secret']=process.env.PAGGPAY_WEBHOOK_SECRET!;
  let response:Response;
  try {
