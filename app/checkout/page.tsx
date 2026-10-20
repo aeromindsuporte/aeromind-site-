@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import {redirect} from 'next/navigation';
 import {createClient} from '@/lib/supabase/server';
 import {getVisiblePlans,formattedPrice,formattedDuration,isTrialPlan} from '@/lib/catalog';
 import {PixCheckoutForm} from '@/components/checkout/PixCheckoutForm';
@@ -6,7 +7,10 @@ import {paymentConfigured,paymentEnvironment} from '@/lib/pix/provider';
 export const dynamic='force-dynamic';
 export const metadata={title:'Checkout | AeroMind'};
 export default async function Checkout({searchParams}:{searchParams:Promise<{plano?:string}>}){
- const {plano}=await searchParams,slug=String(plano||'').slice(0,60),plans=await getVisiblePlans(),plan=plans.find(p=>p.slug===slug);
+ const {plano}=await searchParams,slug=String(plano||'').slice(0,60);
+ // Checkout acessado diretamente não deve exibir um aviso legado/desativado.
+ if(!slug)redirect('/planos');
+ const plans=await getVisiblePlans(),plan=plans.find(p=>p.slug===slug);
  const sb=await createClient(),{data:{user}}=await sb.auth.getUser();
  const staff=user?await sb.from('aeromind_staff').select('role').eq('user_id',user.id).maybeSingle():null;
  const gatewayReady=paymentConfigured(),gatewayMode=paymentEnvironment();
