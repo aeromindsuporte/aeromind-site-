@@ -4,8 +4,30 @@ import {isSandboxKeyCompatible} from '@/lib/pix/provider';
 import {createClient as createServiceClient} from '@supabase/supabase-js';
 export const dynamic='force-dynamic';
 type Order={id:string,created_at:string,status:string,amount_cents:number,plan_name:string,email:string};
-export default async function AdminPayments(){
- const {sb}=await requireAdmin();const [orders,summary]=await Promise.all([sb.rpc('aeromind_admin_orders'),sb.rpc('aeromind_admin_commercial_snapshot')]);
+export default async function AdminPayments({searchParams}:{searchParams:Promise<{teste?:string}>}){
+ const {sb}=await requireAdmin();
+ const {teste}=await searchParams;
+ // Apenas consulta a lista de transacoes com limite de 1. Nunca cria Pix,
+ // transfere valores, retorna dados de clientes ou expõe a chave na pagina.
+ let gatewayTest:'idle'|'ok'|'unauthorized'|'scope'|'unavailable'|'network'='idle';
+ if(teste==='paggpay'){
+  const key=process.env.PAGGPAY_API_KEY;
+  if(process.env.VERCEL_ENV!=='production'||!key||!key.startsWith('pp_live_')){
+   gatewayTest='unavailable';
+  }else{
+   try{
+    const response=await fetch('https://api.paggpay.com/v1/transactions?page=1&per_page=1',{
+     method:'GET',
+     headers:{Authorization:'Bearer '+key,Accept:'application/json'},
+     cache:'no-store',
+     redirect:'error',
+     signal:AbortSignal.timeout(8000),
+    });
+    gatewayTest=response.ok?'ok':response.status===401?'unauthorized':response.status===403?'scope':'network';
+   }catch{gatewayTest='network';}
+  }
+ }
+ const [orders,summary]=await Promise.all([sb.rpc('aeromind_admin_orders'),sb.rpc('aeromind_admin_commercial_snapshot')]);
  const list=(Array.isArray(orders.data)?orders.data:[]) as Order[],s=summary.data||{};
  const checks=[
   ['Modo sandbox habilitado',process.env.PAGGPAY_MODE==='sandbox'],
@@ -39,6 +61,17 @@ export default async function AdminPayments(){
    'Falha de autenticação ou autorização: confira a chave privada e as permissões do Supabase.'}
  </p>
  <p className="admin-card-explain">Verificação de leitura realizada no servidor. Nenhuma licença, cobrança, pedido ou evento é criado por este diagnóstico. Não é um teste de pagamento na PaggPay.</p>
+ </section>
+ <section className="admin-card" style={{marginBottom:16}}><h2>Teste de conexão PaggPay (somente leitura)</h2>
+ <p className="admin-card-explain">Consulta uma única posição da lista de transações na API oficial de produção para verificar autenticação. Não gera QR Code, não cria Pix, não movimenta dinheiro e não mostra transações nem credenciais.</p>
+ <p><a className="admin-inline-action" href="/admin/pagamentos?teste=paggpay">Testar conexão com a PaggPay →</a></p>
+ {gatewayTest!=='idle'&&<p role="status" className={'admin-feedback '+(gatewayTest==='ok'?'good':'bad')} style={{marginTop:17}}>
+  {gatewayTest==='ok'?'Conexão autenticada com sucesso. A chave permite consultar transações; nenhum pagamento foi criado.':
+   gatewayTest==='unauthorized'?'A PaggPay recusou a autenticação. Verifique o estado da credencial no provedor.':
+   gatewayTest==='scope'?'A chave foi recusada para esta consulta (permissão insuficiente). Isso não comprova se ela serve para gerar Pix.':
+   gatewayTest==='unavailable'?'O teste exige uma chave live configurada no ambiente Production.':
+   'Não foi possível concluir a conexão. O provedor pode estar temporariamente indisponível; nenhuma cobrança foi criada.'}
+ </p>}
  </section>
  <section className="admin-card" style={{marginBottom:16}}><h2>Homologação Pix</h2>
  <p className={'admin-feedback '+(sandboxReady?'good':'bad')}>{sandboxReady?'Variáveis do sandbox preenchidas. Ainda falta testar o provedor.':'Sandbox não configurado. Nenhuma cobrança Pix está disponível no site.'}</p>
