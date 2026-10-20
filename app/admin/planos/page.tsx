@@ -9,7 +9,8 @@ export default async function AdminPlans({searchParams}:{searchParams:Promise<{m
  const {data,error}=await sb.rpc('aeromind_admin_all_plans');
  const plans=(Array.isArray(data)?data:[]) as Plan[];
  return <CommercialAdminShell title="Planos e divulgação" active="/admin/planos" description="Personalize preço, título, vantagens e destaque de cada card. Alterações refletem na página de vendas.">
- {msg&&<p className={'admin-feedback '+(msg==='plan-saved'?'good':'bad')}>{msg==='plan-saved'?'Alterações gravadas no Supabase. Abra a página pública do período para conferir.':msg==='price'?'Informe um valor acima de R$ 0,00 para publicar o plano.':msg==='invalid'?'Revise os campos, o valor e os textos informados.':'Falha ao salvar no banco. A alteração não foi confirmada.'}</p>}
+ {msg&&<p className={'admin-feedback '+(msg==='plan-saved'?'good':'bad')}>{msg==='plan-saved'?'Alterações gravadas no Supabase. Abra a página pública do período para conferir.':msg==='price'?'Informe no mínimo R$ 2,00 para publicar um plano pago por Pix.':msg==='invalid'?'Revise os campos, o valor e os textos informados.':'Falha ao salvar no banco. A alteração não foi confirmada.'}</p>}
+ <p className="admin-card-explain">O valor mínimo para publicar qualquer plano com pagamento Pix é R$ 2,00. Os planos de teste podem continuar ocultos e sem preço.</p>
  <p className="admin-card-explain">A página inicial mostra Mensal por padrão. Para divulgar outro período, selecione-o na vitrine ou abra o link correspondente abaixo. Preços só aparecem quando o plano está marcado para exibição.</p>
  <p><Link className="admin-inline-action" href="/planos" target="_blank">Ver página de vendas ↗</Link> · <Link className="admin-inline-action" href="/#planos" target="_blank">Ver página inicial ↗</Link></p>
  {error&&<p className="admin-feedback bad">Falha ao consultar planos.</p>}
