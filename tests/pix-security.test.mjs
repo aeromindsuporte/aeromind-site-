@@ -153,3 +153,4 @@ test('a chave live so habilita Pix com modo live, producao e callback propio',()
   for(const key of keys){if(previous[key]===undefined)delete process.env[key];else process.env[key]=previous[key];}
  }
 });
+

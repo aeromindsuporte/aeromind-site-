@@ -118,3 +118,49 @@ export async function getPaggpayPix(id:string):Promise<unknown>{
   return await paggpayFetch('/transactions/'+encodeURIComponent(id),undefined,left);
  }
 }
+
+/**
+ * Consulta somente de leitura, SEM criar cobrança. A resposta bruta jamais
+ * deve ser mostrada, registrada em logs ou enviada para o navegador.
+ * Escanear as páginas consultadas não prova que uma cobrança não existe.
+ */
+export async function locatePixByReference(referenceId:string,amountCents:number)
+ :Promise<{kind:'found'|'not-found-in-sample'|'unavailable',status?:string,transactionId?:string,pagesChecked:number,httpStatus?:number}>{
+ if(!/^aeromind-[0-9a-f-]{36}$/.test(referenceId)||!Number.isInteger(amountCents)||amountCents<=0)
+  throw new Error('Referência inválida');
+ if(!liveConfigured())return {kind:'unavailable',pagesChecked:0};
+ let pagesChecked=0;
+ for(let page=1;page<=3;page++){
+  let response:Response;
+  try{
+   response=await fetch('https://api.paggpay.com/v1/transactions?page='+page+'&per_page=100',{
+    method:'GET',
+    headers:{Authorization:'Bearer '+process.env.PAGGPAY_API_KEY,Accept:'application/json'},
+    cache:'no-store',redirect:'error',signal:AbortSignal.timeout(10_000)
+   });
+  }catch{return {kind:'unavailable',pagesChecked};}
+  if(!response.ok)return {kind:'unavailable',pagesChecked,httpStatus:response.status};
+  let envelope:unknown;
+  try{envelope=await response.json();}catch{return {kind:'unavailable',pagesChecked};}
+  const root=record(envelope);
+  const items=root?.data;
+  if(!Array.isArray(items))return {kind:'unavailable',pagesChecked};
+  pagesChecked++;
+  for(const candidate of items){
+   const t=record(candidate);
+   const pix=record(t?.pix);
+   const ref=string(pix?.reference_id)||string(t?.reference_id);
+   if(ref!==referenceId)continue;
+   // Apenas um dado criptograficamente vinculado por valor, referência e moeda
+   // pode ser considerado. Nunca aceitar correspondência por nome/CPF.
+   try{
+    const valid=readPaggpayPix(t,{referenceId,amountCents});
+    return {kind:'found',status:valid.status,transactionId:valid.transactionId,pagesChecked};
+   }catch{return {kind:'unavailable',pagesChecked};}
+  }
+  if(items.length<100)break;
+  const meta=record(root?.meta);
+  if(typeof meta?.last_page==='number'&&page>=meta.last_page)break;
+ }
+ return {kind:'not-found-in-sample',pagesChecked};
+}

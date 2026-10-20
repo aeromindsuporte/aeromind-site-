@@ -64,7 +64,7 @@ export function PixCheckoutForm({slug,baseCents,mode}:{slug:string,baseCents:num
   <strong>Valor do pedido: {money(preview??baseCents)}</strong>
   <button className="auth-submit" type="button" disabled={loading||!!orderId||payerName.trim().length<3||![11,14].includes(document.replace(/\D/g,'').length)} onClick={pay}>{loading?'Preparando cobrança...':mode==='live'?'Gerar Pix para pagamento':'Gerar Pix de teste'}</button>
   {error&&<p role="alert" className="device-notice error">{error}</p>}
-  {orderId&&<p>Situação: <strong>{status==='paid'?'Pagamento confirmado':status==='pending'?'Aguardando pagamento':'Preparando/conferindo Pix'}</strong></p>}
+  {orderId&&<p>Situação: <strong>{status==='paid'?'Pagamento confirmado':status==='pending'?'Aguardando pagamento':status==='failed'?'Falha na solicitação Pix':'Preparando/conferindo Pix'}</strong></p>}
   {warning&&<p role="status" className="device-notice">{warning}</p>}
   {failures>=3&&<p role="alert">A consulta automática foi interrompida após três falhas. Consulte o pedido em Meus pagamentos e não gere outro Pix.</p>}
   {emv&&status!=='paid'&&<div><strong>Pix copia e cola{mode==='sandbox'?' (sandbox)':''}:</strong><p style={{overflowWrap:'anywhere'}}>{emv}</p>
