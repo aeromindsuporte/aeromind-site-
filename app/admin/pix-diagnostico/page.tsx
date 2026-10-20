@@ -13,9 +13,11 @@ export default async function PixDiagnostic(){
   .not('pix_requested_at','is',null).is('provider_transaction_id',null)
   .order('created_at',{ascending:false}).limit(3);
  const orders=(data||[]) as Order[];
+ type Lookup=Awaited<ReturnType<typeof locatePixByReference>>;
  const checks=await Promise.all(orders.map(async order=>({
   order,
-  result:await locatePixByReference(order.reference_id,order.amount_cents).catch(()=>({kind:'unavailable' as const,pagesChecked:0}))
+  result:await locatePixByReference(order.reference_id,order.amount_cents)
+    .catch(():Lookup=>({kind:'unavailable',pagesChecked:0}))
  })));
  return <CommercialAdminShell active="/admin/pagamentos" title="Diagnóstico Pix" description="Verificação de transações sem nova cobrança">
   <section className="admin-card">
