@@ -18,6 +18,6 @@ export default async function AdminPlans({searchParams}:{searchParams:Promise<{m
   description="Um painel mais simples para configurar, publicar e divulgar seus planos.">
   {feedback&&<p className={'admin-feedback '+(msg==='plan-saved'?'good':'bad')} role="status">{feedback}</p>}
   {error?<p className="admin-feedback bad">O catálogo não pôde ser carregado. Atualize a página ou confira o Supabase. Não foram feitas alterações.</p>:
-   <PlansCatalogEditor plans={plans} initialEdit={editar}/>}
+   <PlansCatalogEditor plans={plans} initialEdit={editar} flash={msg}/>}
  </CommercialAdminShell>;
 }
