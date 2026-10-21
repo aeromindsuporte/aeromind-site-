@@ -11,7 +11,7 @@ export default async function AdminPlans({searchParams}:{searchParams:Promise<{m
  const {data,error}=await sb.rpc('aeromind_admin_all_plans');
  const plans=(Array.isArray(data)?data:[]) as Plan[];
  const feedback=msg==='plan-saved'?'Alterações salvas no Supabase. Os novos dados já estão disponíveis nas páginas de vendas.':
-  msg==='price'?'É necessário definir pelo menos R$ 2,00 para publicar um plano.':
+  msg==='price'?'Para publicar, use R$ 2,00 ou mais no Pix. Para um teste gratuito, marque “Teste gratuito (sem Pix)” e publique por R$ 0,00.':
   msg==='invalid'?'Confira o preço, a duração e os textos informados. Nenhuma alteração foi aplicada.':
   msg?'Não foi possível salvar. Confira o plano e tente novamente.':'';
  return <CommercialAdminShell title="Planos e divulgação" active="/admin/planos"
