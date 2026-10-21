@@ -164,11 +164,12 @@ export async function savePlanEditor(formData:FormData){
   redirect('/admin/planos?msg=invalid');
  }
  const rawPrice=word(formData.get('price')).replace(',','.');
- const price=rawPrice===''?null:Number(rawPrice);
+ const isTrial=slug==='teste-horas'||slug==='teste-dias';
+ const freeTrial=isTrial&&formData.get('free_trial')==='on';
+ const price=freeTrial?0:(rawPrice===''?null:Number(rawPrice));
  const cents=price===null?null:Math.round(price*100);
  const visible=formData.get('visible')==='on';
  const rawQuantity=word(formData.get('quantity'));
- const isTrial=slug==='teste-horas'||slug==='teste-dias';
  const quantity=isTrial?Number(rawQuantity):null;
  const title=word(formData.get('title'));
  const description=word(formData.get('description'));
@@ -179,20 +180,36 @@ export async function savePlanEditor(formData:FormData){
  const unpricedLabel=word(formData.get('unpriced_label'));
  if((price!==null&&(!Number.isFinite(price)||price<0||price>1000000||
   Math.abs(price*100-Math.round(price*100))>0.001))||
-  (visible&&(cents===null||(cents<200&&!(isTrial&&cents===0))))||
+  (visible&&(cents===null||(cents<200&&!freeTrial)))||
+  (isTrial&&cents===0&&!freeTrial&&visible)||
   (isTrial&&(!Number.isInteger(quantity)||quantity===null||quantity<1||
     quantity>(slug==='teste-horas'?72:30)))||
   title.length>65||description.length>240||badge.length>38||cta.length>40||durationCaption.length>80||unpricedLabel.length>40||
   features.length>8||features.some(f=>f.length>115)){
    redirect('/admin/planos?msg=invalid&editar='+encodeURIComponent(slug));
  }
- const {data,error}=await sb.rpc('aeromind_save_plan_editor_v2',{
+ let data:boolean|null=null, error:{code?:string}|null=null;
+ try{
+  const result=await sb.rpc('aeromind_save_plan_editor_v2',{
   p_slug:slug,p_price_cents:cents,p_visible:visible,p_trial_quantity:quantity,
   p_title:title,p_description:description,p_badge:badge,p_features:features,
   p_cta:cta,p_highlight:formData.get('highlight')==='on',
   p_duration_caption:durationCaption,p_unpriced_label:unpricedLabel
- });
- if(error||data!==true)redirect('/admin/planos?msg=plan-error&editar='+encodeURIComponent(slug));
+  });
+  data=result.data as boolean|null;
+  error=result.error;
+ }catch{
+  redirect('/admin/planos?msg=plan-connection&editar='+encodeURIComponent(slug));
+ }
+ if(error||data!==true){
+  // Mostramos apenas códigos de categoria seguros; nunca detalhes internos do banco.
+  const reason=error?.code==='42501'?'plan-permission':
+   error?.code==='PGRST202'?'plan-schema':
+   error?.code==='23514'||error?.code==='22023'||error?.code==='23502'?'plan-validation':
+   data===false?'plan-missing':'plan-error';
+  console.error('aeromind_plan_save_failed',{code:error?.code||'NO_RESULT',slug});
+  redirect('/admin/planos?msg='+reason+'&editar='+encodeURIComponent(slug));
+ }
  revalidatePath('/admin/planos');revalidatePath('/');revalidatePath('/planos');revalidatePath('/checkout');
  redirect('/admin/planos?msg=plan-saved&editar='+encodeURIComponent(slug));
 }

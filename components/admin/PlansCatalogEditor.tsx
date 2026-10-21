@@ -205,7 +205,7 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
        </section>
        <section hidden={tab!=='price'} className="pv2-panel">
         <h3>Preço e cobrança</h3><p>Valor cobrado nos novos pedidos deste plano.</p>
-        {trial(draft)&&<label className="pv2-checkbox"><input type="checkbox" checked={freeTrial}
+        {trial(draft)&&<label className="pv2-checkbox"><input type="checkbox" name="free_trial" checked={freeTrial}
           onChange={e=>{setFreeTrial(e.target.checked);setPrice(e.target.checked?'0.00':'');}}/>
           <span><strong>Teste gratuito (sem Pix)</strong>
            <small>R$ 0,00 — clientes novos com e-mail confirmado poderão ativar uma única vez. Não cria cobranças.</small></span></label>}
@@ -214,7 +214,7 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
         <label>Texto quando o plano estiver sem preço<input name="unpriced_label" value={draft.marketing_unpriced_label||''}
          maxLength={40} placeholder="Sem preço" onChange={e=>update({marketing_unpriced_label:e.target.value})}/></label>
         <p>Essa mensagem é usada no catálogo administrativo enquanto o plano está sem preço. Não substitui o valor real exigido para publicar ou cobrar.</p>
-        <div className="pv2-info"><strong>Pix mínimo: R$ 2,00.</strong> Os testes gratuitos custam R$ 0,00 e não usam a PaggPay. Planos pagos exigem pelo menos R$ 2,00.</div>
+        <div className="pv2-info"><strong>{freeTrial?'Teste gratuito selecionado — R$ 0,00':'Pix mínimo: R$ 2,00'}</strong> {freeTrial?'Ao salvar, esse teste será configurado por R$ 0,00, sem cobrança ou Pix.':'Marque “Teste gratuito (sem Pix)” para disponibilizar um teste sem pagamento. Planos pagos exigem pelo menos R$ 2,00.'}</div>
         <p>Os preços de pedidos e licenças já contratados não mudam com esta edição.</p>
        </section>
        <section hidden={tab!=='license'} className="pv2-panel">
@@ -250,7 +250,9 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
         <label className="pv2-checkbox"><input type="checkbox" name="visible" checked={draft.visible}
          onChange={e=>update({visible:e.target.checked})}/><span><strong>Publicar plano</strong>
           <small>Plano pago gera Pix; teste gratuito exige conta e e-mail confirmado, sem pagamento.</small></span></label>
-        <div className="pv2-info">{draft.visible?'Publicado depois de salvar':'Oculto depois de salvar'}</div>
+        <div className="pv2-info">{draft.visible?(trial(draft)&&freeTrial?'Teste grátis: publicado sem Pix após salvar':'Publicado depois de salvar'):'Oculto depois de salvar'}</div>
+        {trial(draft)&&draft.visible&&!freeTrial&&!price&&
+         <div className="pv2-info" role="alert">Para publicar gratuitamente, abra a aba Preço e marque “Teste gratuito (sem Pix)”.</div>}
         <Link className="pv2-textlink" href={publicUrl(draft)} target="_blank" rel="noreferrer">Ver página de vendas ↗</Link>
        </section>
       </div>
