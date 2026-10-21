@@ -163,13 +163,16 @@ export async function savePlanEditor(formData:FormData){
  if(!/^((basico|pro|ultra)-(mensal|trimestral|semestral|anual)|teste-(horas|dias))$/.test(slug)){
   redirect('/admin/planos?msg=invalid');
  }
+ const isTrial=slug==='teste-horas'||slug==='teste-dias';
+ // A modalidade gratuita é explícita. O backend define R$0,00, independentemente
+ // do valor visível no input, para não depender da sincronização das abas React.
+ const freeTrial=isTrial&&formData.get('free_trial')==='on';
  const rawPrice=word(formData.get('price')).replace(',','.');
- const price=rawPrice===''?null:Number(rawPrice);
+ const price=freeTrial?0:rawPrice===''?null:Number(rawPrice);
  const cents=price===null?null:Math.round(price*100);
  const visible=formData.get('visible')==='on';
  const rawQuantity=word(formData.get('quantity'));
- const isTrial=slug==='teste-horas'||slug==='teste-dias';
- const quantity=isTrial?Number(rawQuantity):null;
+ const quantity=isTrial&&rawQuantity!==''?Number(rawQuantity):null;
  const title=word(formData.get('title'));
  const description=word(formData.get('description'));
  const badge=word(formData.get('badge'));
@@ -177,6 +180,12 @@ export async function savePlanEditor(formData:FormData){
  const features=word(formData.get('features')).split('\n').map(x=>x.trim()).filter(Boolean);
  const durationCaption=word(formData.get('duration_caption'));
  const unpricedLabel=word(formData.get('unpriced_label'));
+ if(visible&&isTrial&&price===null){
+  redirect('/admin/planos?msg=free-select&editar='+encodeURIComponent(slug));
+ }
+ if(visible&&!isTrial&&(cents===null||cents<200)){
+  redirect('/admin/planos?msg=price&editar='+encodeURIComponent(slug));
+ }
  if((price!==null&&(!Number.isFinite(price)||price<0||price>1000000||
   Math.abs(price*100-Math.round(price*100))>0.001))||
   (visible&&(cents===null||(cents<200&&!(isTrial&&cents===0))))||
@@ -192,7 +201,15 @@ export async function savePlanEditor(formData:FormData){
   p_cta:cta,p_highlight:formData.get('highlight')==='on',
   p_duration_caption:durationCaption,p_unpriced_label:unpricedLabel
  });
- if(error||data!==true)redirect('/admin/planos?msg=plan-error&editar='+encodeURIComponent(slug));
+ if(error||data!==true){
+  // Não revelar SQL nem dados pessoais ao cliente. Diferenciar apenas classes
+  // de erro para permitir correção no próprio painel.
+  const code=error?.code;
+  console.error('[aeromind:plan-editor] Erro no salvamento',{slug,code:code||'no-result'});
+  const message=code==='42501'?'no-permission':
+   code==='23514'||code==='22023'?'invalid':'plan-error';
+  redirect('/admin/planos?msg='+message+'&editar='+encodeURIComponent(slug));
+ }
  revalidatePath('/admin/planos');revalidatePath('/');revalidatePath('/planos');revalidatePath('/checkout');
  redirect('/admin/planos?msg=plan-saved&editar='+encodeURIComponent(slug));
 }
