@@ -11,6 +11,7 @@ export default async function Checkout({searchParams}:{searchParams:Promise<{pla
  // Checkout acessado diretamente não deve exibir um aviso legado/desativado.
  if(!slug)redirect('/planos');
  const plans=await getVisiblePlans(),plan=plans.find(p=>p.slug===slug);
+ if(plan&&isTrialPlan(plan)&&plan.price_cents===0)redirect('/teste-gratis?plano='+encodeURIComponent(slug));
  const sb=await createClient(),{data:{user}}=await sb.auth.getUser();
  const staff=user?await sb.from('aeromind_staff').select('role').eq('user_id',user.id).maybeSingle():null;
  const gatewayReady=paymentConfigured(),gatewayMode=paymentEnvironment();

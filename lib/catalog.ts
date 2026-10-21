@@ -33,11 +33,12 @@ export async function getVisiblePlans(): Promise<PublicPlan[]> {
       (p.slug==='teste-horas'&&p.duration_days===1&&Number.isInteger(p.trial_quantity)&&p.trial_quantity>=1&&p.trial_quantity<=72)||
       (p.slug==='teste-dias'&&p.duration_days===2&&Number.isInteger(p.trial_quantity)&&p.trial_quantity>=1&&p.trial_quantity<=30))
     && Number.isInteger(p.price_cents)
-    && p.price_cents>0
+    && (p.price_cents>=200||(p.slug.startsWith('teste-')&&p.price_cents===0))
     && p.visible===true) as PublicPlan[];
 }
 
 export function formattedPrice(cents:number):string {
+  if(cents===0)return 'Grátis';
   return (cents/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 }
 

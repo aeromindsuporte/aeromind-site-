@@ -40,7 +40,7 @@ export default async function Home({searchParams}:{searchParams:Promise<{periodo
    const desc=html(descriptionOf(p));
    const features=benefitsOf(p).slice(0,8);
    const badge=p.marketing_badge?'<span class="am-top-label">'+html(p.marketing_badge)+'</span>':'';
-   return '<article class="am-plan am-plan-blue">'+badge+'<span class="am-plan-icon">◷</span><h3>'+title+'</h3><strong>'+html(formattedPrice(p.price_cents))+'</strong><small>'+html(durationLabelOf(p))+'</small><p>'+desc+'</p><ul>'+features.map(f=>'<li>✓ '+html(f)+'</li>').join('')+'</ul><a href="/checkout?plano='+encodeURIComponent(p.slug)+'" class="am-btn am-outline">'+html(p.marketing_cta||'Experimentar')+' →</a></article>';
+   return '<article class="am-plan am-plan-blue">'+badge+'<span class="am-plan-icon">◷</span><h3>'+title+'</h3><strong>'+html(formattedPrice(p.price_cents))+'</strong><small>'+html(durationLabelOf(p))+'</small><p>'+desc+'</p><ul>'+features.map(f=>'<li>✓ '+html(f)+'</li>').join('')+'</ul><a href="'+(p.price_cents===0?'/teste-gratis?plano=':'/checkout?plano=')+encodeURIComponent(p.slug)+'" class="am-btn am-outline">'+html(p.marketing_cta||'Experimentar')+' →</a></article>';
   }).join('');
   const trialSection='<div class="am-plans-intro" id="testes"><span class="am-eyebrow">✦ TESTE AEROMIND</span><h2>Planos por horas ou dias</h2><p>Configure e experimente o monitor pelo período escolhido.</p></div><div class="am-plans-cards">'+trialCards+'</div>';
   content=content.replace('<p class="am-price-notice">',trialSection+'<p class="am-price-notice">');
