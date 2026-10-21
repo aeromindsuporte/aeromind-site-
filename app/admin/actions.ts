@@ -179,7 +179,7 @@ export async function savePlanEditor(formData:FormData){
  const unpricedLabel=word(formData.get('unpriced_label'));
  if((price!==null&&(!Number.isFinite(price)||price<0||price>1000000||
   Math.abs(price*100-Math.round(price*100))>0.001))||
-  (visible&&(cents===null||cents<200))||
+  (visible&&(cents===null||(cents<200&&!(isTrial&&cents===0))))||
   (isTrial&&(!Number.isInteger(quantity)||quantity===null||quantity<1||
     quantity>(slug==='teste-horas'?72:30)))||
   title.length>65||description.length>240||badge.length>38||cta.length>40||durationCaption.length>80||unpricedLabel.length>40||
@@ -204,7 +204,7 @@ export async function toggleCatalogPlan(formData:FormData){
  const {data,error}=await sb.rpc('aeromind_admin_all_plans');
  const plan=(Array.isArray(data)?data:[]).find((p:{slug:string})=>p.slug===slug);
  if(error||!plan)redirect('/admin/planos?msg=plan-error');
- if(next&&(!Number.isInteger(plan.price_cents)||plan.price_cents<200))
+ if(next&&(!Number.isInteger(plan.price_cents)||(plan.price_cents<200&&!(String(plan.slug).startsWith('teste-')&&plan.price_cents===0))))
   redirect('/admin/planos?msg=price&editar='+encodeURIComponent(slug));
  const {data:updated,error:saveError}=await sb.rpc('aeromind_save_plan_editor_v2',{
   p_slug:slug,p_price_cents:plan.price_cents,p_visible:next,
