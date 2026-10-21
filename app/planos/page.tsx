@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import {getVisiblePlans,formattedPrice,formattedDuration} from '@/lib/catalog';
+import {benefitsOf,descriptionOf,durationLabelOf} from '@/lib/plan-display';
 
 export const dynamic='force-dynamic';
 export const metadata={title:'Planos | AeroMind',description:'Veja preços atuais dos planos AeroMind e contrate por Pix com liberação após confirmação.'};
@@ -39,8 +40,8 @@ export default async function Plans({searchParams}:{searchParams:Promise<{period
         {(plan?.marketing_badge||plan?.marketing_highlight)&&<span className="am-top-label">{plan?.marketing_badge||'EM DESTAQUE'}</span>}
         <span className="am-plan-icon">{card.icon}</span><h3>{plan?.marketing_title||card.tier}</h3>
         <strong>{plan?formattedPrice(plan.price_cents):'Em definição'}</strong>
-        <small>{plan?'Valor por '+days+' dias':'Preço não publicado'}</small>
-        <p>{plan?.marketing_description||card.desc}</p><ul>{(plan?.marketing_features?.length?plan.marketing_features:card.features).map((feature,i)=><li key={i}>✓ {feature}</li>)}</ul>
+        <small>{plan?durationLabelOf(plan):'Preço não publicado'}</small>
+        <p>{plan?descriptionOf(plan):card.desc}</p><ul>{(plan?benefitsOf(plan):card.features).map((feature,i)=><li key={i}>✓ {feature}</li>)}</ul>
         {plan?<Link href={'/checkout?plano='+encodeURIComponent(plan.slug)} className={'am-btn '+(plan.marketing_highlight?'am-fill':'am-outline')}>{plan.marketing_cta||'Escolher plano'} →</Link>:<span className="am-btn am-outline" aria-disabled="true">Indisponível</span>}
         </article>
       })}
@@ -51,9 +52,9 @@ export default async function Plans({searchParams}:{searchParams:Promise<{period
     <div className="am-plans-cards">{trials.map(p=><article key={p.slug} className="am-plan am-plan-blue">
      {(p.marketing_badge||p.marketing_highlight)&&<span className="am-top-label">{p.marketing_badge||'EXPERIMENTE'}</span>}
      <span className="am-plan-icon">◷</span><h3>{p.marketing_title||(p.slug==='teste-horas'?'Teste por horas':'Teste por dias')}</h3>
-     <strong>{formattedPrice(p.price_cents)}</strong><small>Validade: {formattedDuration(p)}</small>
-     <p>{p.marketing_description||'Conheça os recursos do AeroMind antes de escolher um período maior.'}</p>
-     <ul>{(p.marketing_features?.length?p.marketing_features:['Monitoramento Básico','Histórico do aplicativo','Acesso por tempo definido']).map((feature,i)=><li key={i}>✓ {feature}</li>)}</ul>
+     <strong>{formattedPrice(p.price_cents)}</strong><small>{durationLabelOf(p)}</small>
+     <p>{descriptionOf(p)}</p>
+     <ul>{benefitsOf(p).map((feature,i)=><li key={i}>✓ {feature}</li>)}</ul>
      <Link className={'am-btn '+(p.marketing_highlight?'am-fill':'am-outline')} href={'/checkout?plano='+encodeURIComponent(p.slug)}>{p.marketing_cta||'Experimentar'} →</Link>
     </article>)}</div>
    </section>}
