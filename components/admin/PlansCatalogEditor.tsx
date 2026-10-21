@@ -35,7 +35,7 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
  const [price,setPrice]=useState(initial?.price_cents===null?'':initial?(initial.price_cents!/100).toFixed(2):'');
  const [freeTrial,setFreeTrial]=useState(Boolean(initial&&trial(initial)&&initial.price_cents===0));
  const [features,setFeatures]=useState(initial?benefitsOf(initial).join('\n'):'');
- const [tab,setTab]=useState<Tab>('general');
+ const [tab,setTab]=useState<Tab>(initialEdit&&['price','invalid','plan-validation'].includes(flash||'')?'price':'general');
  const [newOpen,setNewOpen]=useState(false);
  const [copyOpen,setCopyOpen]=useState(false);
  const [copyTarget,setCopyTarget]=useState('');
@@ -170,8 +170,14 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
      <button type="button" className="pv2-close" onClick={close} aria-label="Fechar editor">×</button></header>
     {flash&&draft.slug===initialEdit&&<div className={'pv2-flash '+(flash==='plan-saved'?'success':'error')} role="status">
      {flash==='plan-saved'?'Plano salvo com sucesso. A vitrine pública já pode mostrar a alteração.':
-      flash==='price'?'Para publicar é necessário definir preço de pelo menos R$ 2,00.':
-      'Não foi possível salvar. Revise os dados e tente novamente.'}
+      flash==='price'?'Para publicar um plano pago, informe pelo menos R$ 2,00. Para um teste gratuito, marque a opção sem Pix na aba Preço.':
+      flash==='invalid'?'Confira duração, preço e o modo gratuito. O teste sem Pix deve estar marcado e ter valor R$ 0,00.':
+      flash==='plan-validation'?'Uma regra do banco impediu o salvamento. Confira a duração, o preço e os limites dos textos.':
+      flash==='plan-permission'?'Sua sessão não tem permissão para salvar. Entre novamente na conta administradora com e-mail confirmado.':
+      flash==='plan-schema'?'O serviço do Supabase ainda está atualizando. Atualize a página e tente novamente.':
+      flash==='plan-connection'?'A conexão com o Supabase falhou. Verifique sua internet e tente novamente.':
+      flash==='plan-missing'?'O plano não foi encontrado. Feche o editor, recarregue a página e selecione o plano outra vez.':
+      'O servidor não confirmou o salvamento. Nenhuma alteração foi aplicada.'}
     </div>}
     {copyOpen?<div className="pv2-copy">
      <h3>Copiar divulgação</h3>
