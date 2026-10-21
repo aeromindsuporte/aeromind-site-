@@ -175,19 +175,22 @@ export async function savePlanEditor(formData:FormData){
  const badge=word(formData.get('badge'));
  const cta=word(formData.get('cta'));
  const features=word(formData.get('features')).split('\n').map(x=>x.trim()).filter(Boolean);
+ const durationCaption=word(formData.get('duration_caption'));
+ const unpricedLabel=word(formData.get('unpriced_label'));
  if((price!==null&&(!Number.isFinite(price)||price<0||price>1000000||
   Math.abs(price*100-Math.round(price*100))>0.001))||
   (visible&&(cents===null||cents<200))||
   (isTrial&&(!Number.isInteger(quantity)||quantity===null||quantity<1||
     quantity>(slug==='teste-horas'?72:30)))||
-  title.length>65||description.length>240||badge.length>38||cta.length>40||
+  title.length>65||description.length>240||badge.length>38||cta.length>40||durationCaption.length>80||unpricedLabel.length>40||
   features.length>8||features.some(f=>f.length>115)){
    redirect('/admin/planos?msg=invalid&editar='+encodeURIComponent(slug));
  }
- const {data,error}=await sb.rpc('aeromind_save_plan_editor',{
+ const {data,error}=await sb.rpc('aeromind_save_plan_editor_v2',{
   p_slug:slug,p_price_cents:cents,p_visible:visible,p_trial_quantity:quantity,
   p_title:title,p_description:description,p_badge:badge,p_features:features,
-  p_cta:cta,p_highlight:formData.get('highlight')==='on'
+  p_cta:cta,p_highlight:formData.get('highlight')==='on',
+  p_duration_caption:durationCaption,p_unpriced_label:unpricedLabel
  });
  if(error||data!==true)redirect('/admin/planos?msg=plan-error&editar='+encodeURIComponent(slug));
  revalidatePath('/admin/planos');revalidatePath('/');revalidatePath('/planos');revalidatePath('/checkout');
@@ -203,12 +206,13 @@ export async function toggleCatalogPlan(formData:FormData){
  if(error||!plan)redirect('/admin/planos?msg=plan-error');
  if(next&&(!Number.isInteger(plan.price_cents)||plan.price_cents<200))
   redirect('/admin/planos?msg=price&editar='+encodeURIComponent(slug));
- const {data:updated,error:saveError}=await sb.rpc('aeromind_save_plan_editor',{
+ const {data:updated,error:saveError}=await sb.rpc('aeromind_save_plan_editor_v2',{
   p_slug:slug,p_price_cents:plan.price_cents,p_visible:next,
   p_trial_quantity:plan.slug==='teste-horas'||plan.slug==='teste-dias'?plan.trial_quantity:null,
   p_title:plan.marketing_title||'',p_description:plan.marketing_description||'',
   p_badge:plan.marketing_badge||'',p_features:plan.marketing_features||[],
-  p_cta:plan.marketing_cta||'',p_highlight:!!plan.marketing_highlight
+  p_cta:plan.marketing_cta||'',p_highlight:!!plan.marketing_highlight,
+  p_duration_caption:plan.marketing_duration_caption||'',p_unpriced_label:plan.marketing_unpriced_label||''
  });
  if(saveError||updated!==true)redirect('/admin/planos?msg=plan-error');
  revalidatePath('/admin/planos');revalidatePath('/');revalidatePath('/planos');revalidatePath('/checkout');

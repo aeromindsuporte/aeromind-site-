@@ -1,4 +1,5 @@
 import {getVisiblePlans,formattedPrice,formattedDuration} from '@/lib/catalog';
+import {benefitsOf,descriptionOf,durationLabelOf} from '@/lib/plan-display';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 export const dynamic='force-dynamic';
@@ -24,11 +25,11 @@ export default async function Home({searchParams}:{searchParams:Promise<{periodo
   const p=plans.find(x=>x.tier===tier&&x.duration_days===selected.days);
   const title=html(p?.marketing_title||tier),desc=html(p?.marketing_description||fallbackCard.description);
   const price=p?html(formattedPrice(p.price_cents)):'Não publicado';
-  const features=(p?.marketing_features?.length?p.marketing_features:[...fallbackCard.benefits]).slice(0,8);
+  const features=p?benefitsOf(p).slice(0,8):[...fallbackCard.benefits];
   const badge=p?.marketing_badge?'<span class="am-top-label">'+html(p.marketing_badge)+'</span>':p?.marketing_highlight?'<span class="am-top-label">EM DESTAQUE</span>':'';
   const label=p?.marketing_cta||'Ver planos';
   const destination=p?'/checkout?plano='+encodeURIComponent(p.slug):'/planos?periodo='+selected.slug;
-  const replacement='<article class="am-plan '+fallbackCard.css+'">'+badge+'<span class="am-plan-icon">'+fallbackCard.symbol+'</span><h3>'+title+'</h3><strong>'+price+'</strong>'+(p?'<small>por '+selected.days+' dias</small>':'<small>Configure no painel administrativo</small>')+'<p>'+desc+'</p><ul>'+features.map(f=>'<li>✓ '+html(f)+'</li>').join('')+'</ul><a href="'+destination+'" class="am-btn '+(p?.marketing_highlight?'am-fill':'am-outline')+'">'+html(label)+' →</a></article>';
+  const replacement='<article class="am-plan '+fallbackCard.css+'">'+badge+'<span class="am-plan-icon">'+fallbackCard.symbol+'</span><h3>'+title+'</h3><strong>'+price+'</strong>'+(p?'<small>'+html(durationLabelOf(p))+'</small>':'<small>Configure no painel administrativo</small>')+'<p>'+desc+'</p><ul>'+features.map(f=>'<li>✓ '+html(f)+'</li>').join('')+'</ul><a href="'+destination+'" class="am-btn '+(p?.marketing_highlight?'am-fill':'am-outline')+'">'+html(label)+' →</a></article>';
   const reg=new RegExp('<article class="am-plan '+fallbackCard.css+'">[\\s\\S]*?<\\/article>');
   content=content.replace(reg,replacement);
  }
@@ -36,10 +37,10 @@ export default async function Home({searchParams}:{searchParams:Promise<{periodo
  if(trialPlans.length){
   const trialCards=trialPlans.map(p=>{
    const title=html(p.marketing_title||(p.slug==='teste-horas'?'Teste por horas':'Teste por dias'));
-   const desc=html(p.marketing_description||'Experimente o AeroMind por um período reduzido.');
-   const features=(p.marketing_features?.length?p.marketing_features:['Monitoramento Básico','Histórico do aplicativo','Acesso com prazo definido']).slice(0,8);
+   const desc=html(descriptionOf(p));
+   const features=benefitsOf(p).slice(0,8);
    const badge=p.marketing_badge?'<span class="am-top-label">'+html(p.marketing_badge)+'</span>':'';
-   return '<article class="am-plan am-plan-blue">'+badge+'<span class="am-plan-icon">◷</span><h3>'+title+'</h3><strong>'+html(formattedPrice(p.price_cents))+'</strong><small>por '+html(formattedDuration(p))+'</small><p>'+desc+'</p><ul>'+features.map(f=>'<li>✓ '+html(f)+'</li>').join('')+'</ul><a href="/checkout?plano='+encodeURIComponent(p.slug)+'" class="am-btn am-outline">'+html(p.marketing_cta||'Experimentar')+' →</a></article>';
+   return '<article class="am-plan am-plan-blue">'+badge+'<span class="am-plan-icon">◷</span><h3>'+title+'</h3><strong>'+html(formattedPrice(p.price_cents))+'</strong><small>'+html(durationLabelOf(p))+'</small><p>'+desc+'</p><ul>'+features.map(f=>'<li>✓ '+html(f)+'</li>').join('')+'</ul><a href="/checkout?plano='+encodeURIComponent(p.slug)+'" class="am-btn am-outline">'+html(p.marketing_cta||'Experimentar')+' →</a></article>';
   }).join('');
   const trialSection='<div class="am-plans-intro" id="testes"><span class="am-eyebrow">✦ TESTE AEROMIND</span><h2>Planos por horas ou dias</h2><p>Configure e experimente o monitor pelo período escolhido.</p></div><div class="am-plans-cards">'+trialCards+'</div>';
   content=content.replace('<p class="am-price-notice">',trialSection+'<p class="am-price-notice">');

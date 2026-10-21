@@ -13,6 +13,8 @@ export type PublicPlan = {
   marketing_features?:string[]|null;
   marketing_cta?:string|null;
   marketing_highlight?:boolean|null;
+  marketing_duration_caption?:string|null;
+  marketing_unpriced_label?:string|null;
 };
 
 export async function getVisiblePlans(): Promise<PublicPlan[]> {
@@ -21,7 +23,7 @@ export async function getVisiblePlans(): Promise<PublicPlan[]> {
   if (!url || !key) return [];
   const client=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
   const {data,error}=await client.from('aeromind_plan_catalog')
-    .select('slug,tier,duration_days,trial_quantity,price_cents,visible,marketing_title,marketing_description,marketing_badge,marketing_features,marketing_cta,marketing_highlight')
+    .select('slug,tier,duration_days,trial_quantity,price_cents,visible,marketing_title,marketing_description,marketing_badge,marketing_features,marketing_cta,marketing_highlight,marketing_duration_caption,marketing_unpriced_label')
     .eq('visible',true).not('price_cents','is',null);
   if(error){console.error('Erro na leitura pública do catálogo AeroMind:',error.code||'unknown');return [];}
   if(!data) return [];

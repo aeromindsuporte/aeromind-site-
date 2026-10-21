@@ -4,20 +4,22 @@ import {useEffect,useMemo,useState} from 'react';
 import Link from 'next/link';
 import {useFormStatus} from 'react-dom';
 import {savePlanEditor,toggleCatalogPlan} from '@/app/admin/actions';
+import {benefitsOf,descriptionOf,durationOf,durationLabelOf,noPriceLabelOf,titleOf} from '@/lib/plan-display';
 
 export type Plan = {
  slug:string;tier:string;duration_days:number;trial_quantity:number|null;
  price_cents:number|null;visible:boolean;marketing_title:string|null;
  marketing_description:string|null;marketing_badge:string|null;
  marketing_features:string[]|null;marketing_cta:string|null;marketing_highlight:boolean;
+ marketing_duration_caption:string|null;marketing_unpriced_label:string|null;
 };
 type Tab='general'|'price'|'license'|'marketing'|'status';
 type Filter='all'|'trials'|'commercial'|'published'|'hidden'|'featured';
 const periods:Record<number,string>={30:'Mensal',90:'Trimestral',180:'Semestral',365:'Anual'};
 const money=(cents:number|null)=>cents===null?'Sem preço':(cents/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const trial=(p:Plan)=>p.slug.startsWith('teste-');
-const name=(p:Plan)=>p.marketing_title||(p.slug==='teste-horas'?'Teste por horas':p.slug==='teste-dias'?'Teste por dias':p.tier+' '+(periods[p.duration_days]||''));
-const duration=(p:Plan)=>p.slug==='teste-horas'?(p.trial_quantity||1)+' hora(s)':p.slug==='teste-dias'?(p.trial_quantity||1)+' dia(s)':p.duration_days+' dias';
+const name=(p:Plan)=>titleOf(p);
+const duration=(p:Plan)=>durationOf(p);
 const symbol=(p:Plan)=>p.slug==='teste-horas'?'◷':p.slug==='teste-dias'?'▦':p.tier==='Ultra'?'♜':p.tier==='Pro'?'◈':'✦';
 const publicUrl=(p:Plan)=>trial(p)?'/planos#testes':'/planos?periodo='+({30:'mensal',90:'trimestral',180:'semestral',365:'anual'} as Record<number,string>)[p.duration_days];
 function SaveButton(){
@@ -31,7 +33,7 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
  const [sort,setSort]=useState('group');
  const [draft,setDraft]=useState<Plan|null>(initial);
  const [price,setPrice]=useState(initial?.price_cents===null?'':initial?(initial.price_cents!/100).toFixed(2):'');
- const [features,setFeatures]=useState((initial?.marketing_features||[]).join('\n'));
+ const [features,setFeatures]=useState(initial?benefitsOf(initial).join('\n'):'');
  const [tab,setTab]=useState<Tab>('general');
  const [newOpen,setNewOpen]=useState(false);
  const [copyOpen,setCopyOpen]=useState(false);
@@ -68,7 +70,7 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
  function open(p:Plan,section:Tab='general'){
   setDraft({...p,marketing_features:[...(p.marketing_features||[])]});
   setPrice(p.price_cents===null?'':(p.price_cents/100).toFixed(2));
-  setFeatures((p.marketing_features||[]).join('\n'));setTab(section);setNewOpen(false);setCopyOpen(false);
+  setFeatures(benefitsOf(p).join('\n'));setTab(section);setNewOpen(false);setCopyOpen(false);
  }
  function close(){setDraft(null);setCopyOpen(false);}
  function update(changes:Partial<Plan>){setDraft(p=>p?{...p,...changes}:null);}
@@ -124,11 +126,10 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
     </div>
     <div className={'pv2-plan-icon '+(trial(p)?'trial':p.tier.toLowerCase()==='pro'?'pro':p.tier==='Ultra'?'ultra':'basic')}>{symbol(p)}</div>
     <h3>{name(p)}</h3>
-    <p className="pv2-card-desc">{p.marketing_description||('Licença '+p.tier+' por '+duration(p))}</p>
-    <div className="pv2-price"><strong>{money(p.price_cents)}</strong><span>por {duration(p)}</span></div>
+    <p className="pv2-card-desc">{descriptionOf(p)}</p>
+    <div className="pv2-price"><strong>{p.price_cents===null?noPriceLabelOf(p):money(p.price_cents)}</strong><span>{durationLabelOf(p)}</span></div>
     <div className="pv2-features">
-     {(p.marketing_features?.length?p.marketing_features.slice(0,3):
-      [duration(p)+' de acesso','Plano '+p.tier,'Pagamento Pix se publicado']).map((f,i)=>
+     {benefitsOf(p).slice(0,3).map((f,i)=>
       <span key={i}><b>✓</b>{f}</span>)}
     </div>
     <div className="pv2-card-actions">
@@ -193,14 +194,20 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
          <input type="number" name="quantity" min={1} step={1} max={draft.slug==='teste-horas'?72:30}
           required value={draft.trial_quantity??1} onChange={e=>update({trial_quantity:Number(e.target.value)})}/></label>:
          <><input type="hidden" name="quantity" value=""/><label>Duração comercial<input readOnly value={duration(draft)}/></label></>}
-        <label>Título comercial<input name="title" value={draft.marketing_title||''} maxLength={65}
+        <label>Título comercial<input name="title" value={draft.marketing_title??''} maxLength={65}
          placeholder={name({...draft,marketing_title:null})} onChange={e=>update({marketing_title:e.target.value})}/></label>
+        <label>Legenda mostrada abaixo do preço<input name="duration_caption" value={draft.marketing_duration_caption||''} maxLength={80}
+         placeholder={'por '+duration(draft)} onChange={e=>update({marketing_duration_caption:e.target.value})}/></label>
+        <div className="pv2-info">O texto é personalizado, mas a validade contratada continua sendo {duration(draft)}. Não use uma legenda que prometa prazo diferente.</div>
         <div className="pv2-info">Todas as abas serão salvas juntas quando você tocar em “Salvar alterações”.</div>
        </section>
        <section hidden={tab!=='price'} className="pv2-panel">
         <h3>Preço e cobrança</h3><p>Valor cobrado nos novos pedidos deste plano.</p>
         <label>Preço (R$)<input type="number" name="price" step="0.01" min={0} inputMode="decimal"
          placeholder="Ex.: 29,90" value={price} onChange={e=>setPrice(e.target.value)}/></label>
+        <label>Texto quando o plano estiver sem preço<input name="unpriced_label" value={draft.marketing_unpriced_label||''}
+         maxLength={40} placeholder="Sem preço" onChange={e=>update({marketing_unpriced_label:e.target.value})}/></label>
+        <p>Essa mensagem é usada no catálogo administrativo enquanto o plano está sem preço. Não substitui o valor real exigido para publicar ou cobrar.</p>
         <div className="pv2-info"><strong>Pix mínimo: R$ 2,00.</strong> Não é possível publicar um plano abaixo desse valor.</div>
         <p>Os preços de pedidos e licenças já contratados não mudam com esta edição.</p>
        </section>
@@ -213,20 +220,24 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
        </section>
        <section hidden={tab!=='marketing'} className="pv2-panel">
         <h3>Divulgação do card</h3><p>Textos que aparecem na página inicial e na página de planos.</p>
-        <label>Descrição<input name="description" value={draft.marketing_description||''} maxLength={240}
-         onChange={e=>update({marketing_description:e.target.value})} placeholder="Descrição breve do plano"/></label>
+        <label>Descrição<input name="description" value={draft.marketing_description??''} maxLength={240}
+         onChange={e=>update({marketing_description:e.target.value})} placeholder={descriptionOf({...draft,marketing_description:null})}/></label>
         <label>Selo<input name="badge" maxLength={38} value={draft.marketing_badge||''}
          onChange={e=>update({marketing_badge:e.target.value})} placeholder="Ex.: Mais popular"/></label>
-        <label>Benefícios (até 8, um por linha)<textarea name="features" rows={6} value={features} maxLength={1000}
+        <label>Benefícios anunciados (até 8, um por linha)<textarea name="features" rows={6} value={features} maxLength={1000}
          onChange={e=>setFeatures(e.target.value)} placeholder="Histórico de resultados&#10;Alertas no aplicativo"/></label>
+        <div className="pv2-info">Edite ou apague os textos de exemplo. Estes benefícios são anúncios; as permissões reais das funções do aplicativo precisam de integração técnica própria.</div>
         <label>Texto do botão<input name="cta" maxLength={40} value={draft.marketing_cta||''}
          onChange={e=>update({marketing_cta:e.target.value})} placeholder="Escolher plano"/></label>
         <label className="pv2-checkbox"><input name="highlight" type="checkbox" checked={draft.marketing_highlight}
          onChange={e=>update({marketing_highlight:e.target.checked})}/><span><strong>Destacar card</strong>
           <small>Selo de destaque no site público</small></span></label>
-        <div className="pv2-preview"><span>PRÉVIA</span><h4>{name(draft)}</h4>
-         <strong>{price?money(Math.round(Number(price)*100)):'Sem preço'}</strong>
-         <p>{draft.marketing_description||'Descrição do plano para seus clientes.'}</p></div>
+        <div className="pv2-preview"><span>PRÉVIA DO CARD</span><h4>{name(draft)}</h4>
+         <strong>{price?money(Math.round(Number(price)*100)):noPriceLabelOf(draft)}</strong>
+         <small>{durationLabelOf(draft)}</small>
+         <p>{descriptionOf(draft)}</p>
+         <ul className="pv2-preview-features">{features.split('\n').map(x=>x.trim()).filter(Boolean).slice(0,8).map((x,i)=><li key={i}>✓ {x}</li>)}</ul>
+        </div>
        </section>
        <section hidden={tab!=='status'} className="pv2-panel">
         <h3>Publicação</h3><p>Controle a visibilidade do plano no site.</p>
