@@ -16,7 +16,7 @@ export type Plan = {
 type Tab='general'|'price'|'license'|'marketing'|'status';
 type Filter='all'|'trials'|'commercial'|'published'|'hidden'|'featured';
 const periods:Record<number,string>={30:'Mensal',90:'Trimestral',180:'Semestral',365:'Anual'};
-const money=(cents:number|null)=>cents===null?'Sem preço':(cents/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const money=(cents:number|null)=>cents===null?'Sem preço':cents===0?'Grátis':(cents/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const trial=(p:Plan)=>p.slug.startsWith('teste-');
 const name=(p:Plan)=>titleOf(p);
 const duration=(p:Plan)=>durationOf(p);
@@ -33,6 +33,7 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
  const [sort,setSort]=useState('group');
  const [draft,setDraft]=useState<Plan|null>(initial);
  const [price,setPrice]=useState(initial?.price_cents===null?'':initial?(initial.price_cents!/100).toFixed(2):'');
+ const [freeTrial,setFreeTrial]=useState(Boolean(initial&&trial(initial)&&initial.price_cents===0));
  const [features,setFeatures]=useState(initial?benefitsOf(initial).join('\n'):'');
  const [tab,setTab]=useState<Tab>('general');
  const [newOpen,setNewOpen]=useState(false);
@@ -70,6 +71,7 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
  function open(p:Plan,section:Tab='general'){
   setDraft({...p,marketing_features:[...(p.marketing_features||[])]});
   setPrice(p.price_cents===null?'':(p.price_cents/100).toFixed(2));
+  setFreeTrial(trial(p)&&p.price_cents===0);
   setFeatures(benefitsOf(p).join('\n'));setTab(section);setNewOpen(false);setCopyOpen(false);
  }
  function close(){setDraft(null);setCopyOpen(false);}
@@ -203,12 +205,16 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
        </section>
        <section hidden={tab!=='price'} className="pv2-panel">
         <h3>Preço e cobrança</h3><p>Valor cobrado nos novos pedidos deste plano.</p>
+        {trial(draft)&&<label className="pv2-checkbox"><input type="checkbox" checked={freeTrial}
+          onChange={e=>{setFreeTrial(e.target.checked);setPrice(e.target.checked?'0.00':'');}}/>
+          <span><strong>Teste gratuito (sem Pix)</strong>
+           <small>R$ 0,00 — clientes novos com e-mail confirmado poderão ativar uma única vez. Não cria cobranças.</small></span></label>}
         <label>Preço (R$)<input type="number" name="price" step="0.01" min={0} inputMode="decimal"
-         placeholder="Ex.: 29,90" value={price} onChange={e=>setPrice(e.target.value)}/></label>
+         placeholder="Ex.: 29,90" value={price} readOnly={freeTrial} onChange={e=>setPrice(e.target.value)}/></label>
         <label>Texto quando o plano estiver sem preço<input name="unpriced_label" value={draft.marketing_unpriced_label||''}
          maxLength={40} placeholder="Sem preço" onChange={e=>update({marketing_unpriced_label:e.target.value})}/></label>
         <p>Essa mensagem é usada no catálogo administrativo enquanto o plano está sem preço. Não substitui o valor real exigido para publicar ou cobrar.</p>
-        <div className="pv2-info"><strong>Pix mínimo: R$ 2,00.</strong> Não é possível publicar um plano abaixo desse valor.</div>
+        <div className="pv2-info"><strong>Pix mínimo: R$ 2,00.</strong> Os testes gratuitos custam R$ 0,00 e não usam a PaggPay. Planos pagos exigem pelo menos R$ 2,00.</div>
         <p>Os preços de pedidos e licenças já contratados não mudam com esta edição.</p>
        </section>
        <section hidden={tab!=='license'} className="pv2-panel">
@@ -233,7 +239,7 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
          onChange={e=>update({marketing_highlight:e.target.checked})}/><span><strong>Destacar card</strong>
           <small>Selo de destaque no site público</small></span></label>
         <div className="pv2-preview"><span>PRÉVIA DO CARD</span><h4>{name(draft)}</h4>
-         <strong>{price?money(Math.round(Number(price)*100)):noPriceLabelOf(draft)}</strong>
+         <strong>{price!==''?money(Math.round(Number(price)*100)):noPriceLabelOf(draft)}</strong>
          <small>{durationLabelOf(draft)}</small>
          <p>{descriptionOf(draft)}</p>
          <ul className="pv2-preview-features">{features.split('\n').map(x=>x.trim()).filter(Boolean).slice(0,8).map((x,i)=><li key={i}>✓ {x}</li>)}</ul>
@@ -243,7 +249,7 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
         <h3>Publicação</h3><p>Controle a visibilidade do plano no site.</p>
         <label className="pv2-checkbox"><input type="checkbox" name="visible" checked={draft.visible}
          onChange={e=>update({visible:e.target.checked})}/><span><strong>Publicar plano</strong>
-          <small>O plano aparece nas páginas de vendas e pode gerar Pix.</small></span></label>
+          <small>Plano pago gera Pix; teste gratuito exige conta e e-mail confirmado, sem pagamento.</small></span></label>
         <div className="pv2-info">{draft.visible?'Publicado depois de salvar':'Oculto depois de salvar'}</div>
         <Link className="pv2-textlink" href={publicUrl(draft)} target="_blank" rel="noreferrer">Ver página de vendas ↗</Link>
        </section>
