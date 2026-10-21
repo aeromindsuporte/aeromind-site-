@@ -103,3 +103,5 @@
 
 .pv2-flash{margin:12px 16px 0;padding:12px 14px;border-radius:10px;font-size:12px;line-height:1.6;border:1px solid #a34c6d;background:#341727;color:#ffd5e3}
 .pv2-flash.success{border-color:#20886a;background:#09342d;color:#a6ffdf}
+
+.pv2-preview-features{display:grid;gap:8px;padding:0;margin:2px 0 0;list-style:none;color:#e1daef;font-size:12px}.pv2-preview-features li{line-height:1.5}.pv2-preview small{font-size:12px;color:#b6c6ea}
