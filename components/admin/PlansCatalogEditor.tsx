@@ -1,6 +1,6 @@
 
 'use client';
-import {useMemo,useState} from 'react';
+import {useEffect,useMemo,useState} from 'react';
 import Link from 'next/link';
 import {useFormStatus} from 'react-dom';
 import {savePlanEditor,toggleCatalogPlan} from '@/app/admin/actions';
@@ -24,7 +24,7 @@ function SaveButton(){
  const {pending}=useFormStatus();
  return <button className="pv2-save" type="submit" disabled={pending}>{pending?'Salvando…':'Salvar alterações'}</button>;
 }
-export function PlansCatalogEditor({plans,initialEdit}:{plans:Plan[];initialEdit?:string}){
+export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initialEdit?:string;flash?:string}){
  const initial=plans.find(p=>p.slug===initialEdit)||null;
  const [query,setQuery]=useState('');
  const [filter,setFilter]=useState<Filter>('all');
@@ -36,6 +36,16 @@ export function PlansCatalogEditor({plans,initialEdit}:{plans:Plan[];initialEdit
  const [newOpen,setNewOpen]=useState(false);
  const [copyOpen,setCopyOpen]=useState(false);
  const [copyTarget,setCopyTarget]=useState('');
+ useEffect(()=>{
+  if(!draft&&!newOpen)return;
+  const previous=document.body.style.overflow;
+  document.body.style.overflow='hidden';
+  const onKey=(event:KeyboardEvent)=>{
+   if(event.key==='Escape'){setDraft(null);setNewOpen(false);setCopyOpen(false);}
+  };
+  window.addEventListener('keydown',onKey);
+  return ()=>{document.body.style.overflow=previous;window.removeEventListener('keydown',onKey);};
+ },[!!draft,newOpen]);
  const visible=plans.filter(p=>p.visible).length;
  const filtered=useMemo(()=>{
   const term=query.trim().toLocaleLowerCase('pt-BR');
@@ -155,6 +165,11 @@ export function PlansCatalogEditor({plans,initialEdit}:{plans:Plan[];initialEdit
     <header className="pv2-drawer-head"><div><span className="pv2-eyebrow">EDITAR PLANO</span>
      <h2>{name(draft)}</h2><p>{duration(draft)} · {draft.tier}</p></div>
      <button type="button" className="pv2-close" onClick={close} aria-label="Fechar editor">×</button></header>
+    {flash&&draft.slug===initialEdit&&<div className={'pv2-flash '+(flash==='plan-saved'?'success':'error')} role="status">
+     {flash==='plan-saved'?'Plano salvo com sucesso. A vitrine pública já pode mostrar a alteração.':
+      flash==='price'?'Para publicar é necessário definir preço de pelo menos R$ 2,00.':
+      'Não foi possível salvar. Revise os dados e tente novamente.'}
+    </div>}
     {copyOpen?<div className="pv2-copy">
      <h3>Copiar divulgação</h3>
      <p>Escolha outro modelo. Seus preços e publicação serão preservados. Os textos serão copiados no editor, mas só terão efeito após salvar.</p>
