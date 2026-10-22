@@ -27,13 +27,15 @@ export async function replyAsStaff(data:FormData){
  if(!uuid(id)||message.length<2)redirect('/admin/suporte?erro=dados');
  const {error}=await sb.from('aeromind_support_messages').insert({ticket_id:id,author_id:user.id,content:message});
  if(error)redirect('/admin/suporte?ticket='+id+'&erro=enviar');
- await sb.from('aeromind_support_tickets').update({status:'in_progress',updated_at:new Date().toISOString()}).eq('id',id);
+ const {error:statusError}=await sb.from('aeromind_support_tickets').update({status:'in_progress',updated_at:new Date().toISOString()}).eq('id',id);
+ if(statusError)redirect('/admin/suporte?ticket='+id+'&erro=status');
  revalidatePath('/suporte');revalidatePath('/admin/suporte');redirect('/admin/suporte?ticket='+id);
 }
 export async function changeSupportStatus(data:FormData){
  const sb=await createClient();const {data:{user}}=await sb.auth.getUser();if(!user)redirect('/entrar');
  const {data:staff}=await sb.from('aeromind_staff').select('role').eq('user_id',user.id).maybeSingle();if(!staff)redirect('/minha-conta');
  const id=data.get('ticket'),status=String(data.get('status')||'');if(!uuid(id)||!['open','in_progress','resolved'].includes(status))redirect('/admin/suporte');
- await sb.from('aeromind_support_tickets').update({status,updated_at:new Date().toISOString()}).eq('id',id);
+ const {error:statusError}=await sb.from('aeromind_support_tickets').update({status,updated_at:new Date().toISOString()}).eq('id',id);
+ if(statusError)redirect('/admin/suporte?ticket='+id+'&erro=status');
  revalidatePath('/admin/suporte');redirect('/admin/suporte?ticket='+id);
 }

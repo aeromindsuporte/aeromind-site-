@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
  isLicenseCurrentlyValid,effectiveLicenseStatus,labelForLicenseStatus,
- formatLicenseExpiryBrazil
+ formatLicenseExpiryBrazil,dateInputBrazil
 } from '../lib/license-status.ts';
 const expiry='2026-11-20T02:59:59.000Z'; // 19/11/2026, 23:59:59 (Brasília)
 const ms=Date.parse(expiry);
@@ -46,4 +46,11 @@ test('data é desambiguada com mês por extenso e horário de Brasília',()=>{
  assert.match(formatLicenseExpiryBrazil(expiry),/horário de Brasília/);
  assert.equal(formatLicenseExpiryBrazil(null),'—');
  assert.equal(formatLicenseExpiryBrazil('bad'),'—');
+});
+
+test('campo de data no admin usa data do Brasil, não a data UTC',()=>{
+ assert.equal(dateInputBrazil('2026-11-20T02:59:59.000Z'),'2026-11-19');
+ assert.equal(dateInputBrazil('2026-10-22T15:00:00.000Z'),'2026-10-22');
+ assert.equal(dateInputBrazil(null),'');
+ assert.equal(dateInputBrazil('invalid'),'');
 });

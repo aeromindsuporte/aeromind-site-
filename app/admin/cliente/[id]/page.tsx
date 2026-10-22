@@ -3,7 +3,7 @@ import Link from 'next/link';
 import {requireAdmin} from '@/lib/admin-access';
 import {CommercialAdminShell} from '@/components/admin/CommercialAdminShell';
 import {saveLicense,saveDeviceLimit,revokeAdminDevice} from '@/app/admin/actions';
-import {effectiveLicenseStatus,formatLicenseExpiryBrazil,labelForLicenseStatus} from '@/lib/license-status';
+import {dateInputBrazil,effectiveLicenseStatus,formatLicenseExpiryBrazil,labelForLicenseStatus} from '@/lib/license-status';
 export const dynamic='force-dynamic';
 type License={id:string,plan_name:string,status:string,valid_until:string|null,max_devices:number};
 type Device={id:string,device_name:string,status:string,last_seen_at:string|null};
@@ -27,7 +27,7 @@ export default async function CustomerPage({params,searchParams}:{params:Promise
  <form action={saveLicense} className="admin-edit-grid"><input type="hidden" name="email" value={customer.email}/><input type="hidden" name="customer_id" value={id}/>
  <label>Plano<select name="tier" defaultValue={license?.plan_name||'Pro'}><option>Básico</option><option>Pro</option><option>Ultra</option></select></label>
  <label>Situação<select name="status" defaultValue={license?.status||'pending'}><option value="pending">Pendente</option><option value="active">Ativa</option><option value="suspended">Suspensa</option><option value="expired">Expirada</option><option value="revoked">Revogada</option></select></label>
- <label>Validade<input name="valid_until" type="date" defaultValue={license?.valid_until?.slice(0,10)||''}/></label>
+ <label>Validade<input name="valid_until" type="date" defaultValue={dateInputBrazil(license?.valid_until)}/></label>
  <label className="admin-full">Motivo da alteração<textarea name="note" rows={2} maxLength={500} placeholder="Observação administrativa"/></label>
  <div className="admin-form-foot"><button>Salvar licença deste cliente</button></div></form>
  <hr style={{margin:'24px 0',opacity:.22}}/><h3>Aparelhos permitidos</h3>
