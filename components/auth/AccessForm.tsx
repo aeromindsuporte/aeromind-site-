@@ -20,6 +20,8 @@ export function AccessForm({ mode, next = '/minha-conta' }: { mode: Mode; next?:
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
+  const [whatsapp,setWhatsapp]=useState('');
+  const [marketing,setMarketing]=useState(false);
   const [whatsapp,setWhatsapp] = useState('');
   const [marketingConsent,setMarketingConsent] = useState(false);
   const [password, setPassword] = useState('');
@@ -39,6 +41,8 @@ export function AccessForm({ mode, next = '/minha-conta' }: { mode: Mode; next?:
     if(mode==='signup'&&!number){setErrorMessage('Informe um WhatsApp válido com DDD brasileiro.');return;}
     if (mode === 'signup' && password !== confirm) { setErrorMessage('As senhas não coincidem.'); return; }
     if (password.length < 10) { setErrorMessage('A senha precisa de pelo menos 10 caracteres.'); return; }
+    const digits=whatsapp.replace(/\D/g,'');
+    if(mode==='signup'&&!/^[1-9][0-9]{9,10}$/.test(digits)){setErrorMessage('Informe um WhatsApp válido com DDD.');return;}
     setPending(true);
     try {
       const supabase = createClient();
@@ -69,6 +73,7 @@ export function AccessForm({ mode, next = '/minha-conta' }: { mode: Mode; next?:
        <span>Autorizo receber novidades e ofertas pelo WhatsApp (opcional; posso desativar depois).</span></label>
       <p className="auth-legal">O número será usado para identificação e atendimento. Não está verificado até futura confirmação por código.</p>
     </>}
+    {mode==='signup'&&<><label>WhatsApp com DDD <input type="tel" inputMode="tel" autoComplete="tel-national" maxLength={16} required placeholder="(11) 99999-9999" value={whatsapp} onChange={e=>setWhatsapp(e.target.value)} /></label><label className="auth-legal"><input type="checkbox" checked={marketing} onChange={e=>setMarketing(e.target.checked)}/> Aceito receber novidades e ofertas pelo WhatsApp (opcional).</label></>}
     <label>E-mail <span className="auth-input"><span aria-hidden="true">✉</span><input type="email" name="email" autoComplete="email" required maxLength={320} placeholder="seu@email.com" value={email} onChange={e => setEmail(e.target.value)} /></span></label>
     <label>Senha <span className="auth-input"><span aria-hidden="true">♙</span><input type={visible ? 'text' : 'password'} name="password" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} required minLength={10} placeholder={mode === 'signup' ? 'Mínimo de 10 caracteres' : 'Digite sua senha'} value={password} onChange={e => setPassword(e.target.value)} /><button type="button" className="auth-see" aria-label={visible ? 'Ocultar senha' : 'Mostrar senha'} onClick={() => setVisible(!visible)}>{visible ? 'Ocultar' : 'Mostrar'}</button></span></label>
     {mode === 'signup' && <label>Confirme a senha <input type={visible ? 'text' : 'password'} autoComplete="new-password" minLength={10} required placeholder="Repita sua senha" value={confirm} onChange={e => setConfirm(e.target.value)} /></label>}
