@@ -224,3 +224,14 @@ padding:13px 15px;background:#0a1731;border:1px solid #3e457c;border-radius:10px
  .account-root .pix-instructions{max-width:440px}
 }
 @media(max-width:390px){.account-root .pix-coupon-row{grid-template-columns:1fr}.account-root .pix-coupon-row button{width:100%}}
+
+/* Cadastro e edição do WhatsApp em telas pequenas */
+.auth-checkbox-row{display:flex!important;flex-direction:row!important;gap:10px!important;align-items:flex-start!important;color:#bfcee5;font-size:12px!important;font-weight:400!important;line-height:1.5}
+.auth-checkbox-row input{flex:none;width:19px;height:19px;margin:0;accent-color:#b62dea}
+.account-whatsapp-form{display:grid;gap:12px;margin:14px 0}
+.account-whatsapp-form>label:not(.account-consent){display:grid;gap:7px;color:#d6e0f2;font-size:12px}
+.account-whatsapp-form input[type=tel]{width:100%;min-width:0;border:1px solid #536090;border-radius:9px;background:#0e1932;color:#fff;min-height:45px;padding:11px}
+.account-consent{display:flex;gap:10px;align-items:flex-start;color:#c0cde6;font-size:12px;line-height:1.5}
+.account-consent input{width:18px;height:18px;flex:none;accent-color:#ad36ef}
+.account-whatsapp-form .auth-submit{margin-top:2px}
+.account-whatsapp-error{color:#ffb2c9;font-size:12px}.account-whatsapp-ok{color:#7cf4c5;font-size:12px}
