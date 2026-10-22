@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { SignOutButton } from '@/components/auth/SignOutButton';
+import {AccountWhatsApp} from '@/components/account/AccountWhatsApp';
 import {formatLicenseExpiryBrazil,isLicenseCurrentlyValid,labelForLicenseStatus} from '@/lib/license-status';
 
 export const dynamic = 'force-dynamic';
@@ -23,7 +24,7 @@ export default async function Conta() {
   if (error || !user) redirect('/entrar?next=%2Fminha-conta');
 
   const [profileResult,licenseResult,validResult,staffResult] = await Promise.all([
-    client.from('profiles').select('display_name').eq('id',user.id).maybeSingle(),
+    client.from('profiles').select('display_name,whatsapp_e164,whatsapp_marketing_opt_in').eq('id',user.id).maybeSingle(),
     client.from('licenses').select('id,plan_name,status,valid_until,created_at')
       .eq('user_id',user.id).order('created_at',{ascending:false}).limit(10),
     client.rpc('aeromind_has_active_license'),
@@ -56,6 +57,9 @@ export default async function Conta() {
           <h2>Dados da conta</h2>
           <p><b>E-mail</b> <span>{user.email}</span></p>
           <p><b>E-mail confirmado</b><span>{user.email_confirmed_at?'Sim':'Pendente'}</span></p>
+          <h3>WhatsApp para contato</h3>
+          <AccountWhatsApp initial={profileResult.data?.whatsapp_e164||null}
+            marketing={profileResult.data?.whatsapp_marketing_opt_in===true}/>
           <p className="account-note">Seus dados são protegidos. Cada cliente visualiza somente a própria conta.</p>
         </section>
         <section className="account-card">
