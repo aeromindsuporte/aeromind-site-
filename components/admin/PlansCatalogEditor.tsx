@@ -35,7 +35,9 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
  const [price,setPrice]=useState(initial?.price_cents===null?'':initial?(initial.price_cents!/100).toFixed(2):'');
  const [freeTrial,setFreeTrial]=useState(Boolean(initial&&trial(initial)&&initial.price_cents===0));
  const [features,setFeatures]=useState(initial?benefitsOf(initial).join('\n'):'');
- const [tab,setTab]=useState<Tab>(initialEdit&&['price','invalid','plan-validation'].includes(flash||'')?'price':'general');
+ const [tab,setTab]=useState<Tab>(flash==='plan-duration'?'general':
+  flash==='plan-text'||flash==='plan-benefits'?'marketing':
+  initialEdit&&['price','invalid','plan-validation','plan-price'].includes(flash||'')?'price':'general');
  const [newOpen,setNewOpen]=useState(false);
  const [copyOpen,setCopyOpen]=useState(false);
  const [copyTarget,setCopyTarget]=useState('');
@@ -171,7 +173,11 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
     {flash&&draft.slug===initialEdit&&<div className={'pv2-flash '+(flash==='plan-saved'?'success':'error')} role="status">
      {flash==='plan-saved'?'Plano salvo com sucesso. A vitrine pública já pode mostrar a alteração.':
       flash==='price'?'Para publicar um plano pago, informe pelo menos R$ 2,00. Para um teste gratuito, marque a opção sem Pix na aba Preço.':
-      flash==='invalid'?'Confira duração, preço e o modo gratuito. O teste sem Pix deve estar marcado e ter valor R$ 0,00.':
+      flash==='plan-price'?'Preço inválido. Para publicar grátis, marque “Teste gratuito (sem Pix)” ou informe pelo menos R$ 2,00 no plano pago.':
+      flash==='plan-duration'?'Duração inválida. Escolha de 1 a 72 horas ou de 1 a 30 dias, conforme o teste.':
+      flash==='plan-benefits'?'Revise a divulgação: são permitidos até 8 benefícios de 115 caracteres cada.':
+      flash==='plan-text'?'Um texto ultrapassou o limite permitido. Encurte o título, a descrição, a legenda ou o botão.':
+      flash==='invalid'?'O modelo enviado não é válido. Feche o editor e selecione um plano existente.':
       flash==='plan-validation'?'Uma regra do banco impediu o salvamento. Confira a duração, o preço e os limites dos textos.':
       flash==='plan-permission'?'Sua sessão não tem permissão para salvar. Entre novamente na conta administradora com e-mail confirmado.':
       flash==='plan-schema'?'O serviço do Supabase ainda está atualizando. Atualize a página e tente novamente.':
@@ -192,32 +198,45 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
        aria-current={tab===key?'page':undefined} className={tab===key?'current':''}>{label}</button>)}
      </nav>
      <form action={savePlanEditor} className="pv2-form" key={draft.slug}>
+      {/* Dados de todas as abas: sempre enviados, inclusive no celular. */}
       <input type="hidden" name="slug" value={draft.slug}/>
+      <input type="hidden" name="quantity" value={trial(draft)?String(draft.trial_quantity??''):''}/>
+      <input type="hidden" name="free_trial" value={freeTrial?'on':''}/>
+      <input type="hidden" name="price" value={freeTrial?'0.00':price}/>
+      <input type="hidden" name="visible" value={draft.visible?'on':''}/>
+      <input type="hidden" name="highlight" value={draft.marketing_highlight?'on':''}/>
+      <input type="hidden" name="title" value={draft.marketing_title??''}/>
+      <input type="hidden" name="duration_caption" value={draft.marketing_duration_caption??''}/>
+      <input type="hidden" name="description" value={draft.marketing_description??''}/>
+      <input type="hidden" name="badge" value={draft.marketing_badge??''}/>
+      <input type="hidden" name="features" value={features}/>
+      <input type="hidden" name="cta" value={draft.marketing_cta??''}/>
+      <input type="hidden" name="unpriced_label" value={draft.marketing_unpriced_label??''}/>
       <div className="pv2-form-body">
        <section hidden={tab!=='general'} className="pv2-panel">
         <h3>Informações gerais</h3><p>Dados do plano utilizados na contratação.</p>
         <label>Categoria<input readOnly value={draft.tier}/></label>
         <label>Identificador do plano<input readOnly value={draft.slug}/></label>
         {trial(draft)?<label>Duração em {draft.slug==='teste-horas'?'horas (1 a 72)':'dias (1 a 30)'}
-         <input type="number" name="quantity" min={1} step={1} max={draft.slug==='teste-horas'?72:30}
-          required value={draft.trial_quantity??1} onChange={e=>update({trial_quantity:Number(e.target.value)})}/></label>:
-         <><input type="hidden" name="quantity" value=""/><label>Duração comercial<input readOnly value={duration(draft)}/></label></>}
-        <label>Título comercial<input name="title" value={draft.marketing_title??''} maxLength={65}
+         <input type="number"  min={1} step={1} max={draft.slug==='teste-horas'?72:30}
+          value={draft.trial_quantity??1} onChange={e=>update({trial_quantity:Number(e.target.value)})}/></label>:
+         <><span className="pv2-info">O período comercial é fixo para este modelo.</span><label>Duração comercial<input readOnly value={duration(draft)}/></label></>}
+        <label>Título comercial<input  value={draft.marketing_title??''} maxLength={65}
          placeholder={name({...draft,marketing_title:null})} onChange={e=>update({marketing_title:e.target.value})}/></label>
-        <label>Legenda mostrada abaixo do preço<input name="duration_caption" value={draft.marketing_duration_caption||''} maxLength={80}
+        <label>Legenda mostrada abaixo do preço<input  value={draft.marketing_duration_caption||''} maxLength={80}
          placeholder={'por '+duration(draft)} onChange={e=>update({marketing_duration_caption:e.target.value})}/></label>
         <div className="pv2-info">O texto é personalizado, mas a validade contratada continua sendo {duration(draft)}. Não use uma legenda que prometa prazo diferente.</div>
         <div className="pv2-info">Todas as abas serão salvas juntas quando você tocar em “Salvar alterações”.</div>
        </section>
        <section hidden={tab!=='price'} className="pv2-panel">
         <h3>Preço e cobrança</h3><p>Valor cobrado nos novos pedidos deste plano.</p>
-        {trial(draft)&&<label className="pv2-checkbox"><input type="checkbox" name="free_trial" checked={freeTrial}
+        {trial(draft)&&<label className="pv2-checkbox"><input type="checkbox"  checked={freeTrial}
           onChange={e=>{setFreeTrial(e.target.checked);setPrice(e.target.checked?'0.00':'');}}/>
           <span><strong>Teste gratuito (sem Pix)</strong>
            <small>R$ 0,00 — clientes novos com e-mail confirmado poderão ativar uma única vez. Não cria cobranças.</small></span></label>}
-        <label>Preço (R$)<input type="number" name="price" step="0.01" min={0} inputMode="decimal"
+        <label>Preço (R$)<input type="number"  step="0.01" min={0} inputMode="decimal"
          placeholder="Ex.: 29,90" value={price} readOnly={freeTrial} onChange={e=>setPrice(e.target.value)}/></label>
-        <label>Texto quando o plano estiver sem preço<input name="unpriced_label" value={draft.marketing_unpriced_label||''}
+        <label>Texto quando o plano estiver sem preço<input  value={draft.marketing_unpriced_label||''}
          maxLength={40} placeholder="Sem preço" onChange={e=>update({marketing_unpriced_label:e.target.value})}/></label>
         <p>Essa mensagem é usada no catálogo administrativo enquanto o plano está sem preço. Não substitui o valor real exigido para publicar ou cobrar.</p>
         <div className="pv2-info"><strong>{freeTrial?'Teste gratuito selecionado — R$ 0,00':'Pix mínimo: R$ 2,00'}</strong> {freeTrial?'Ao salvar, esse teste será configurado por R$ 0,00, sem cobrança ou Pix.':'Marque “Teste gratuito (sem Pix)” para disponibilizar um teste sem pagamento. Planos pagos exigem pelo menos R$ 2,00.'}</div>
@@ -232,16 +251,16 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
        </section>
        <section hidden={tab!=='marketing'} className="pv2-panel">
         <h3>Divulgação do card</h3><p>Textos que aparecem na página inicial e na página de planos.</p>
-        <label>Descrição<input name="description" value={draft.marketing_description??''} maxLength={240}
+        <label>Descrição<input  value={draft.marketing_description??''} maxLength={240}
          onChange={e=>update({marketing_description:e.target.value})} placeholder={descriptionOf({...draft,marketing_description:null})}/></label>
-        <label>Selo<input name="badge" maxLength={38} value={draft.marketing_badge||''}
+        <label>Selo<input  maxLength={38} value={draft.marketing_badge||''}
          onChange={e=>update({marketing_badge:e.target.value})} placeholder="Ex.: Mais popular"/></label>
-        <label>Benefícios anunciados (até 8, um por linha)<textarea name="features" rows={6} value={features} maxLength={1000}
+        <label>Benefícios anunciados (até 8, um por linha)<textarea  rows={6} value={features} maxLength={1000}
          onChange={e=>setFeatures(e.target.value)} placeholder="Histórico de resultados&#10;Alertas no aplicativo"/></label>
         <div className="pv2-info">Edite ou apague os textos de exemplo. Estes benefícios são anúncios; as permissões reais das funções do aplicativo precisam de integração técnica própria.</div>
-        <label>Texto do botão<input name="cta" maxLength={40} value={draft.marketing_cta||''}
+        <label>Texto do botão<input  maxLength={40} value={draft.marketing_cta||''}
          onChange={e=>update({marketing_cta:e.target.value})} placeholder="Escolher plano"/></label>
-        <label className="pv2-checkbox"><input name="highlight" type="checkbox" checked={draft.marketing_highlight}
+        <label className="pv2-checkbox"><input  type="checkbox" checked={draft.marketing_highlight}
          onChange={e=>update({marketing_highlight:e.target.checked})}/><span><strong>Destacar card</strong>
           <small>Selo de destaque no site público</small></span></label>
         <div className="pv2-preview"><span>PRÉVIA DO CARD</span><h4>{name(draft)}</h4>
@@ -253,7 +272,7 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
        </section>
        <section hidden={tab!=='status'} className="pv2-panel">
         <h3>Publicação</h3><p>Controle a visibilidade do plano no site.</p>
-        <label className="pv2-checkbox"><input type="checkbox" name="visible" checked={draft.visible}
+        <label className="pv2-checkbox"><input type="checkbox"  checked={draft.visible}
          onChange={e=>update({visible:e.target.checked})}/><span><strong>Publicar plano</strong>
           <small>Plano pago gera Pix; teste gratuito exige conta e e-mail confirmado, sem pagamento.</small></span></label>
         <div className="pv2-info">{draft.visible?(trial(draft)&&freeTrial?'Teste grátis: publicado sem Pix após salvar':'Publicado depois de salvar'):'Oculto depois de salvar'}</div>
