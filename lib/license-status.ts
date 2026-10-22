@@ -47,3 +47,19 @@ export function formatLicenseExpiryBrazil(value:string|null|undefined):string{
  }).format(date);
  return fmtDate+', às '+fmtTime+' (horário de Brasília)';
 }
+
+
+// Valores de <input type="date"> são locais; não recorte o ISO UTC,
+// pois 19/11 às 23:59 (Brasília) corresponde a 20/11 em UTC.
+export function dateInputBrazil(utcValue:string|null|undefined):string{
+ if(!utcValue)return '';
+ const d=new Date(utcValue);
+ if(!Number.isFinite(d.getTime()))return '';
+ const parts=new Intl.DateTimeFormat('en-US',{
+  timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'
+ }).formatToParts(d);
+ const year=parts.find(x=>x.type==='year')?.value;
+ const month=parts.find(x=>x.type==='month')?.value;
+ const day=parts.find(x=>x.type==='day')?.value;
+ return year&&month&&day?year+'-'+month+'-'+day:'';
+}
