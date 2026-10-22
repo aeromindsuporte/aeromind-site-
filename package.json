@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run test:pix && npm run test:plans && npm run test:licenses && next build",
+    "build": "npm run test:pix && npm run test:plans && npm run test:licenses && npm run test:admin && next build",
     "test:pix": "node --experimental-strip-types --test tests/pix-security.test.mjs",
     "start": "next start",
     "test:plans": "node --experimental-strip-types --test tests/plan-editor.test.mjs",
-    "test:licenses": "node --experimental-strip-types --test tests/license-expiry.test.mjs"
+    "test:licenses": "node --experimental-strip-types --test tests/license-expiry.test.mjs",
+    "test:admin": "node --test tests/admin-structure.test.mjs"
   },
   "dependencies": {
     "next": "15.5.28",
