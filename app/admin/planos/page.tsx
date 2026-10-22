@@ -13,6 +13,10 @@ export default async function AdminPlans({searchParams}:{searchParams:Promise<{m
  const feedback=msg==='plan-saved'?'Alterações salvas no Supabase. Os novos dados já estão disponíveis nas páginas de vendas.':
   msg==='price'?'Para publicar, use R$ 2,00 ou mais no Pix. Para um teste gratuito, marque “Teste gratuito (sem Pix)” e publique por R$ 0,00.':
   msg==='invalid'?'Dados inválidos. Para publicar gratuitamente, escolha um plano de teste, marque “Teste gratuito (sem Pix)” na aba Preço e confira a duração.':
+  msg==='plan-price'?'Preço inválido: teste grátis exige R$ 0,00; planos pagos têm Pix mínimo de R$ 2,00.':
+  msg==='plan-duration'?'Duração inválida: de 1 a 72 horas ou de 1 a 30 dias.':
+  msg==='plan-benefits'?'Limite de benefícios: até 8 linhas com 115 caracteres cada.':
+  msg==='plan-text'?'Texto grande demais. Encurte título, descrição, selo, legenda ou botão do plano.':
   msg==='plan-validation'?'O banco rejeitou uma regra do plano. Confira duração, preço, campos de divulgação e o modo Teste gratuito.':
   msg==='plan-permission'?'Sua sessão não possui permissão para editar planos. Faça login novamente com uma conta administradora confirmada.':
   msg==='plan-schema'?'As funções do Supabase estão sendo atualizadas. Atualize a página e tente novamente após alguns instantes.':
