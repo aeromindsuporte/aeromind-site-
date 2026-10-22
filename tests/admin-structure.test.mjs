@@ -32,7 +32,7 @@ test('operações de edição seguem protegidas e usam dados do Supabase',()=>{
  for(const [file,term] of assertions)assert.ok(source(file).includes(term),file+' sem integração '+term);
 });
 test('telas de clientes e edição evitam deslocamento UTC da validade',()=>{
- assert.ok(source('app/admin/cliente/[id]/page.tsx').includes('dateInputBrazil(license?.valid_until)'));
+ assert.ok(source('app/admin/cliente/[id]/page.tsx').includes('dateInputBrazil(current?.valid_until)'));
  assert.ok(source('app/admin/licencas/page.tsx').includes('formatLicenseExpiryBrazil'));
 });
 test('painel financeiro não apresenta teste obsoleto abaixo do Pix mínimo',()=>{
