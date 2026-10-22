@@ -5,6 +5,9 @@ export function normalizeWhatsAppBR(input:string):string|null{
  const trimmed=input.trim();
  if(!trimmed)return null;
  const digits=trimmed.replace(/\D/g,'');
+ // Com DDI explícito, rejeitar números internacionais em vez de reinterpretar
+ // o código estrangeiro como parte de um telefone brasileiro.
+ if(trimmed.startsWith('+')&&!digits.startsWith('55'))return null;
  const local=digits.startsWith('55')&&(digits.length===12||digits.length===13)?digits.slice(2):digits;
  const formatted='+55'+local;
  return whatsappPattern.test(formatted)?formatted:null;
