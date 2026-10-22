@@ -65,7 +65,11 @@ export default async function Admin({searchParams,activeSection='visao'}:{search
  if(userError||!user)redirect('/entrar?next=%2Fadmin');
  const {data:staff,error:staffError}=await supabase.from('aeromind_staff').select('role').eq('user_id',user.id).maybeSingle();
  if(staffError||!staff) redirect('/minha-conta');
- const [result,deviceResult]=await Promise.all([supabase.rpc('aeromind_admin_overview'),supabase.rpc('aeromind_admin_devices')]);
+ const [result,deviceResult,revenueResult]=await Promise.all([
+   supabase.rpc('aeromind_admin_overview'),
+   supabase.rpc('aeromind_admin_devices'),
+   supabase.rpc('aeromind_admin_commercial_snapshot')
+ ]);
  const inventory=(deviceResult.data??{}) as {devices?:AdminDevice[];releases?:AdminRelease[]};
  const devices=Array.isArray(inventory.devices)?inventory.devices:[];
  const releases=Array.isArray(inventory.releases)?inventory.releases:[];
@@ -112,11 +116,12 @@ export default async function Admin({searchParams,activeSection='visao'}:{search
         <div className="admin-title-row"><div><span className="admin-eyebrow">PAINEL ADMINISTRATIVO · AEROMIND</span><h1>Visão geral</h1><p>Acompanhe clientes, planos e licenças em um só lugar.</p></div><div className="admin-no-revenue">◎ Informações atuais do Supabase</div></div>
         {msg&&messages[msg]&&<p className={'admin-feedback '+(msg.includes('saved')?'good':'bad')} role="status">{messages[msg]}</p>}
         {result.error&&<p className="admin-feedback bad" role="alert">Não foi possível consultar os indicadores. Atualize a página antes de realizar alterações.</p>}
+        {revenueResult.error&&<p className="admin-feedback bad" role="alert">Receita indisponível no momento. Não é possível confirmar o valor financeiro.</p>}
         <div className="admin-stats">
           <MiniStat icon="♙" label="Total de clientes" value={canDisplay?data.users_total:'—'} tone="purple" sub={canDisplay?data.users_confirmed+' confirmados':'Indisponível'} />
           <MiniStat icon="⚿" label="Licenças ativas" value={canDisplay?data.licenses_active:'—'} tone="green" sub="Validade verificada"/>
           <MiniStat icon="◷" label="Licenças expiradas" value={canDisplay?data.licenses_expired:'—'} tone="yellow" sub={data.licenses_expiring_7d+' vencem em 7 dias'}/>
-          <MiniStat icon="▥" label="Receita" value="—" tone="blue" sub="Pagamentos não integrados"/>
+          <MiniStat icon="▥" label="Receita confirmada" value={!revenueResult.error?(Number(revenueResult.data?.revenue_cents||0)/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'—'} tone="blue" sub="Somente pedidos confirmados"/>
         </div>
       </section>
       <div className="admin-main-grid">
