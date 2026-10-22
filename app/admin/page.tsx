@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { saveLicense, saveCatalogPlan, revokeAdminDevice, saveDeviceLimit } from './actions';
 import './admin.css';
 import { ReleaseUploader } from '@/components/admin/ReleaseUploader';
+import {effectiveLicenseStatus,labelForLicenseStatus} from '@/lib/license-status';
 
 export const dynamic='force-dynamic';
 export const metadata={title:'Painel Administrativo | AeroMind', robots:{index:false,follow:false}};
@@ -47,9 +48,7 @@ const messages:Record<string,string>={
 };
 const asDate=(s?:string|null)=>s?new Date(s).toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'}):'—';
 const displayMoney=(n:number|null)=>n===null?'Em definição':(n/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-const statusLabel=(s:string,expires:string|null)=>s==='active' && expires && new Date(expires).getTime()<=Date.now()?'Vencida':({
- active:'Ativa',pending:'Pendente',expired:'Expirada',suspended:'Suspensa',revoked:'Revogada'
-} as Record<string,string>)[s]||s;
+const statusLabel=(s:string,expires:string|null)=>labelForLicenseStatus(s,expires);
 const period=(days:number)=>({30:'Mensal',90:'Trimestral',180:'Semestral',365:'Anual'} as Record<number,string>)[days] || days+' dias';
 function MiniStat({icon,label,value,tone,sub}:{icon:string;label:string;value:string|number;tone:string;sub:string}) {
  return <div className={'admin-stat '+tone}>
@@ -124,7 +123,7 @@ export default async function Admin({searchParams,activeSection='visao'}:{search
         <section id="licencas" className="admin-card admin-wide">
           <SectionHead title="Últimas licenças" note="Dados reais · até 100 registros"/>
           <div className="admin-table-scroll"><table><thead><tr><th>Cliente</th><th>Plano</th><th>Status</th><th>Cadastro</th><th>Validade</th><th>Ação</th></tr></thead><tbody>
-          {data.licenses.length?data.licenses.slice(0,10).map(l=><tr key={l.id}><td className="admin-email">{l.email}</td><td>{l.plan_name}</td><td><span className={'admin-pill status-'+l.status}>{statusLabel(l.status,l.valid_until)}</span></td><td>{asDate(l.created_at)}</td><td>{asDate(l.valid_until)}</td><td><a className="admin-inline-action" href={'/admin/cliente/localizar?email='+encodeURIComponent(l.email)}>Gerenciar ↗</a></td></tr>):<tr><td colSpan={6} className="admin-empty">Nenhuma licença criada até agora.</td></tr>}
+          {data.licenses.length?data.licenses.slice(0,10).map(l=><tr key={l.id}><td className="admin-email">{l.email}</td><td>{l.plan_name}</td><td><span className={'admin-pill status-'+(effectiveLicenseStatus(l.status,l.valid_until)==='overdue'?'expired':l.status)}>{statusLabel(l.status,l.valid_until)}</span></td><td>{asDate(l.created_at)}</td><td>{asDate(l.valid_until)}</td><td><a className="admin-inline-action" href={'/admin/cliente/localizar?email='+encodeURIComponent(l.email)}>Gerenciar ↗</a></td></tr>):<tr><td colSpan={6} className="admin-empty">Nenhuma licença criada até agora.</td></tr>}
           </tbody></table></div>
         </section>
         <section className="admin-card admin-side"><SectionHead title="Resumo de planos" note="Licenças registradas"/>
