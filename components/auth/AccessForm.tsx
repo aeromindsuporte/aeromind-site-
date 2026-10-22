@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import {normalizeWhatsAppBR} from '@/lib/whatsapp';
 import { createClient } from '@/lib/supabase/browser';
 
 type Mode = 'login' | 'signup';
@@ -19,6 +20,8 @@ export function AccessForm({ mode, next = '/minha-conta' }: { mode: Mode; next?:
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
+  const [whatsapp,setWhatsapp] = useState('');
+  const [marketingConsent,setMarketingConsent] = useState(false);
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [visible, setVisible] = useState(false);
@@ -32,6 +35,8 @@ export function AccessForm({ mode, next = '/minha-conta' }: { mode: Mode; next?:
     event.preventDefault();
     if (pending) return;
     setErrorMessage(''); setNotice('');
+    const number=mode==='signup'?normalizeWhatsAppBR(whatsapp):null;
+    if(mode==='signup'&&!number){setErrorMessage('Informe um WhatsApp válido com DDD brasileiro.');return;}
     if (mode === 'signup' && password !== confirm) { setErrorMessage('As senhas não coincidem.'); return; }
     if (password.length < 10) { setErrorMessage('A senha precisa de pelo menos 10 caracteres.'); return; }
     setPending(true);
@@ -47,7 +52,7 @@ export function AccessForm({ mode, next = '/minha-conta' }: { mode: Mode; next?:
       } else {
         const { data, error } = await supabase.auth.signUp({
           email: email.trim(), password,
-          options: { emailRedirectTo: window.location.origin + '/auth/callback', data: { full_name: name.trim().slice(0,120) } }
+          options: { emailRedirectTo: window.location.origin + '/auth/callback', data: { full_name: name.trim().slice(0,120),whatsapp_e164:number,whatsapp_marketing_opt_in:marketingConsent } }
         });
         if (error) { setErrorMessage(friendlyError(error.message)); return; }
         if (data.session) { router.replace('/minha-conta'); router.refresh(); }
@@ -58,6 +63,12 @@ export function AccessForm({ mode, next = '/minha-conta' }: { mode: Mode; next?:
   }
   return <form onSubmit={submit} className="auth-form">
     {mode === 'signup' && <label>Nome <input type="text" autoComplete="name" maxLength={120} required placeholder="Como podemos chamar você?" value={name} onChange={e => setName(e.target.value)} /></label>}
+    {mode==='signup'&&<>
+      <label>WhatsApp com DDD <input type="tel" required autoComplete="tel" inputMode="tel" placeholder="(11) 99999-9999" maxLength={24} value={whatsapp} onChange={e=>setWhatsapp(e.target.value)}/></label>
+      <label className="auth-checkbox-row"><input type="checkbox" checked={marketingConsent} onChange={e=>setMarketingConsent(e.target.checked)}/>
+       <span>Autorizo receber novidades e ofertas pelo WhatsApp (opcional; posso desativar depois).</span></label>
+      <p className="auth-legal">O número será usado para identificação e atendimento. Não está verificado até futura confirmação por código.</p>
+    </>}
     <label>E-mail <span className="auth-input"><span aria-hidden="true">✉</span><input type="email" name="email" autoComplete="email" required maxLength={320} placeholder="seu@email.com" value={email} onChange={e => setEmail(e.target.value)} /></span></label>
     <label>Senha <span className="auth-input"><span aria-hidden="true">♙</span><input type={visible ? 'text' : 'password'} name="password" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} required minLength={10} placeholder={mode === 'signup' ? 'Mínimo de 10 caracteres' : 'Digite sua senha'} value={password} onChange={e => setPassword(e.target.value)} /><button type="button" className="auth-see" aria-label={visible ? 'Ocultar senha' : 'Mostrar senha'} onClick={() => setVisible(!visible)}>{visible ? 'Ocultar' : 'Mostrar'}</button></span></label>
     {mode === 'signup' && <label>Confirme a senha <input type={visible ? 'text' : 'password'} autoComplete="new-password" minLength={10} required placeholder="Repita sua senha" value={confirm} onChange={e => setConfirm(e.target.value)} /></label>}
