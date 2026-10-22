@@ -3,6 +3,7 @@ import Link from 'next/link';
 import {requireAdmin} from '@/lib/admin-access';
 import {CommercialAdminShell} from '@/components/admin/CommercialAdminShell';
 import {saveLicense,saveDeviceLimit,revokeAdminDevice} from '@/app/admin/actions';
+import {effectiveLicenseStatus,formatLicenseExpiryBrazil,labelForLicenseStatus} from '@/lib/license-status';
 export const dynamic='force-dynamic';
 type License={id:string,plan_name:string,status:string,valid_until:string|null,max_devices:number};
 type Device={id:string,device_name:string,status:string,last_seen_at:string|null};
@@ -12,11 +13,17 @@ export default async function CustomerPage({params,searchParams}:{params:Promise
  const {sb}=await requireAdmin();const {data,error}=await sb.rpc('aeromind_admin_customer',{p_user_id:id});
  if(error||!data)notFound();
  const customer=data as Customer,license=customer.licenses?.[0],{msg}=await searchParams;
+ const now=Date.now();
+ const licenseLabel=labelForLicenseStatus(license?.status,license?.valid_until,now);
+ const overdue=effectiveLicenseStatus(license?.status,license?.valid_until,now)==='overdue';
  return <CommercialAdminShell active="/admin/clientes" title={customer.display_name||'Gerenciar cliente'} description={customer.email}>
  <p><Link href="/admin/clientes">← Voltar aos clientes</Link></p>
  {msg&&<p className={'admin-feedback '+(msg==='license-saved'||msg==='limit-saved'||msg==='device-revoked'?'good':'bad')}>{msg==='license-saved'?'Licença salva.':msg==='limit-saved'?'Limite alterado.':msg==='device-revoked'?'Aparelho revogado.':'Verifique os dados e tente novamente.'}</p>}
- <section className="admin-stats">{[['Licença',license?.status||'Nenhuma'],['Links APK',customer.requests_total||0],['Pedidos',customer.orders_total||0],['Chamados',customer.tickets_total||0]].map(([name,value])=><div className="admin-stat" key={name}><div className="admin-stat-body"><span>{name}</span><strong>{value}</strong></div></div>)}</section>
- <section className="admin-card"><h2>Licença e acesso</h2><p className="admin-card-explain">Você está gerenciando apenas este cliente. Ações são auditadas.</p>
+ <section className="admin-stats">{[['Licença',licenseLabel],['Links APK',customer.requests_total||0],['Pedidos',customer.orders_total||0],['Chamados',customer.tickets_total||0]].map(([name,value])=><div className="admin-stat" key={name}><div className="admin-stat-body"><span>{name}</span><strong>{value}</strong></div></div>)}</section>
+ <section className="admin-card"><h2>Licença e acesso</h2>
+ <p className="admin-card-explain">Você está gerenciando apenas este cliente. Ações são auditadas.</p>
+ <p className="admin-card-explain"><strong>Status atual: {licenseLabel}</strong> · Vencimento: {formatLicenseExpiryBrazil(license?.valid_until)}</p>
+ {overdue&&<p className="admin-feedback bad" role="status">A licença está vencida e o acesso é bloqueado pelo servidor, mesmo que o registro histórico tenha o status técnico “active”. Para renovar, informe nova validade futura e salve.</p>}
  <form action={saveLicense} className="admin-edit-grid"><input type="hidden" name="email" value={customer.email}/><input type="hidden" name="customer_id" value={id}/>
  <label>Plano<select name="tier" defaultValue={license?.plan_name||'Pro'}><option>Básico</option><option>Pro</option><option>Ultra</option></select></label>
  <label>Situação<select name="status" defaultValue={license?.status||'pending'}><option value="pending">Pendente</option><option value="active">Ativa</option><option value="suspended">Suspensa</option><option value="expired">Expirada</option><option value="revoked">Revogada</option></select></label>

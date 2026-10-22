@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { SignOutButton } from '@/components/auth/SignOutButton';
+import {formatLicenseExpiryBrazil,isLicenseCurrentlyValid,labelForLicenseStatus} from '@/lib/license-status';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Minha conta | AeroMind' };
@@ -12,10 +13,6 @@ type License = {
   status:'pending'|'active'|'expired'|'suspended'|'revoked';
   valid_until:string|null;
   created_at:string;
-};
-const labels: Record<License['status'],string> = {
-  pending:'Aguardando ativação',active:'Ativa',expired:'Expirada',
-  suspended:'Suspensa',revoked:'Revogada'
 };
 function formatDate(value:string|null) {
   return value ? new Date(value).toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'}) : '—';
@@ -33,14 +30,14 @@ export default async function Conta() {
     client.from('aeromind_staff').select('role').eq('user_id',user.id).maybeSingle()
   ]);
   const licenses=(licenseResult.data||[]) as License[];
+  const serverNow=Date.now();
   const isActive=validResult.data===true && !validResult.error;
-  const valid=isActive?licenses.find(l=>l.status==='active' && !!l.valid_until && new Date(l.valid_until).getTime()>Date.now()):undefined;
+  const valid=isActive?licenses.find(l=>isLicenseCurrentlyValid(l.status,l.valid_until,serverNow)):undefined;
   const current=valid || licenses[0];
   const published=isActive?await client.from('aeromind_app_releases').select('version_name').eq('status','published').order('version_code',{ascending:false}).limit(1).maybeSingle():null;
   const releaseName=published?.data?.version_name?.split('-')[0]||'';
   const appReady=!!releaseName && !published?.error;
-  const displayStatus=valid ? 'Ativa' : current?.status==='active' ? 'Vencida'
-    : current ? labels[current.status] : 'Nenhuma licença ativa';
+  const displayStatus=valid ? 'Ativa' : labelForLicenseStatus(current?.status,current?.valid_until,serverNow);
   const name=profileResult.data?.display_name || 'Cliente AeroMind';
   const isStaff=Boolean(staffResult.data?.role) && !staffResult.error;
 
@@ -67,8 +64,9 @@ export default async function Conta() {
             <span aria-hidden="true">{isActive?'✓':'◷'}</span> {displayStatus}
           </div>
           <p><b>Plano</b><span>{current?.plan_name || 'Não contratado'}</span></p>
-          <p><b>Validade</b><span>{formatDate(current?.valid_until||null)}</span></p>
-          <p className="account-note">{isActive?(appReady?'Licença válida. AeroMind Monitor '+releaseName+' disponível para download.':'Licença válida. Aguarde a publicação da próxima versão do aplicativo.'):'Criar conta não ativa uma licença. Consulte as opções de contratação.'}</p>
+          <p><b>Vencimento</b><span>{formatLicenseExpiryBrazil(current?.valid_until)}</span></p>
+          <p className="account-note">A licença expira automaticamente no horário indicado. O servidor verifica a validade antes de liberar o aplicativo e os downloads.</p>
+          <p className="account-note">{isActive?(appReady?'Licença válida. AeroMind Monitor '+releaseName+' disponível para download.':'Licença válida. Aguarde a publicação da próxima versão do aplicativo.'):displayStatus==='Vencida'?'Seu prazo terminou. Renove sua licença para continuar utilizando o AeroMind Monitor.':'Consulte as opções de contratação para habilitar seu acesso.'}</p>
           {isActive&&<Link className="auth-submit auth-button-link" href="/download" style={{marginTop:16}}>Acessar aplicativo →</Link>}
         </section>
         <section className="account-card">
@@ -98,7 +96,7 @@ export default async function Conta() {
         <div className="account-history-rows">
           {licenses.map((l)=><div className="account-history-row" key={l.id}>
             <strong>{l.plan_name}</strong>
-            <span>{l.status==='active' && !!l.valid_until && new Date(l.valid_until).getTime()<=Date.now()?'Vencida':labels[l.status]}</span>
+            <span>{labelForLicenseStatus(l.status,l.valid_until,serverNow)}</span>
             <small>Cadastro: {formatDate(l.created_at)} · Validade: {formatDate(l.valid_until)}</small>
           </div>)}
         </div>
