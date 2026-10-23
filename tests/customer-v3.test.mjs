@@ -49,3 +49,16 @@ test('UI responsiva em celular e abas com seleção acessível',()=>{
  assert.ok(component.includes('role="tablist"'));
  assert.ok(component.includes('aria-selected'));
 });
+
+
+test('WhatsApp tem permissão de gravação por coluna, RLS e confirmação real de update',()=>{
+ const sql=read('supabase/migrations/20261023212000_profile_whatsapp_update_grants.sql');
+ const editor=read('components/account/AccountWhatsApp.tsx');
+ assert.match(sql,/grant update\s*\([\s\S]*whatsapp_e164[\s\S]*whatsapp_marketing_opt_in[\s\S]*whatsapp_opt_in_at[\s\S]*updated_at[\s\S]*\) on table public\.profiles to authenticated/);
+ assert.ok(!/grant update on table public\.profiles to authenticated/.test(sql));
+ assert.match(editor,/\.eq\('id',user\.id\)\.select\('id'\)\.maybeSingle\(\)/);
+ assert.match(editor,/if\(!data\)/);
+ assert.match(editor,/Sua sessão expirou/);
+ assert.match(editor,/23514/);
+ assert.match(editor,/42501/);
+});
