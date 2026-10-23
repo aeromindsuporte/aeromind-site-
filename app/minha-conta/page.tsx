@@ -23,12 +23,13 @@ export default async function Conta() {
   const {data:{user},error} = await client.auth.getUser();
   if (error || !user) redirect('/entrar?next=%2Fminha-conta');
 
-  const [profileResult,licenseResult,validResult,staffResult] = await Promise.all([
+  const [profileResult,licenseResult,validResult,staffResult,notificationsResult] = await Promise.all([
     client.from('profiles').select('display_name,whatsapp_e164,whatsapp_marketing_opt_in').eq('id',user.id).maybeSingle(),
     client.from('licenses').select('id,plan_name,status,valid_until,created_at')
       .eq('user_id',user.id).order('created_at',{ascending:false}).limit(10),
     client.rpc('aeromind_has_active_license'),
-    client.from('aeromind_staff').select('role').eq('user_id',user.id).maybeSingle()
+    client.from('aeromind_staff').select('role').eq('user_id',user.id).maybeSingle(),
+    client.from('aeromind_notification_deliveries').select('id,expires_at').eq('user_id',user.id).is('read_at',null).limit(1000)
   ]);
   const licenses=(licenseResult.data||[]) as License[];
   const serverNow=Date.now();
@@ -41,6 +42,8 @@ export default async function Conta() {
   const displayStatus=valid ? 'Ativa' : labelForLicenseStatus(current?.status,current?.valid_until,serverNow);
   const name=profileResult.data?.display_name || 'Cliente AeroMind';
   const isStaff=Boolean(staffResult.data?.role) && !staffResult.error;
+  const unreadNotifications=(notificationsResult.data||[]).filter(
+    x=>!x.expires_at||new Date(x.expires_at).getTime()>serverNow).length;
 
   return <main className="account-root">
     <header className="account-header">
@@ -89,6 +92,13 @@ export default async function Conta() {
           <Link href="/suporte" className="auth-secondary auth-button-link">Abrir central de atendimento →</Link>
         </section>
       </div>
+      <section className="account-card account-notification-entry" style={{margin:'18px 0',borderColor:'#7845be'}}>
+        <h2>♧ Notificações AeroMind {unreadNotifications>0?'· '+unreadNotifications+' nova(s)':''}</h2>
+        <p className="account-note">Confira avisos importantes, atualizações e mensagens do Radar Ao Vivo.</p>
+        <Link className="auth-submit auth-button-link" href="/notificacoes">
+          Abrir minhas notificações →
+        </Link>
+      </section>
       {isStaff && <section className="account-card account-admin-entry">
         <div className="account-admin-eyebrow">ACESSO ADMINISTRATIVO</div>
         <h2>Painel de gestão AeroMind</h2>
