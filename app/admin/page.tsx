@@ -5,6 +5,7 @@ import { saveLicense, saveCatalogPlan, revokeAdminDevice, saveDeviceLimit } from
 import './admin.css';
 import { ReleaseUploader } from '@/components/admin/ReleaseUploader';
 import {effectiveLicenseStatus,labelForLicenseStatus} from '@/lib/license-status';
+import {AdminAlertsRefresh} from '@/components/admin/AdminAlertsRefresh';
 
 export const dynamic='force-dynamic';
 export const metadata={title:'Painel Administrativo | AeroMind', robots:{index:false,follow:false}};
@@ -105,7 +106,7 @@ export default async function Admin({searchParams,activeSection='visao'}:{search
    return color[i]+' '+from+'% '+to+'%';
  });
  const chartGradient=sum?'conic-gradient('+chartColors.join(',')+')':'conic-gradient(#2d3458 0% 100%)';
- return <div className={'admin-root area-'+activeSection}>
+ return <div className={'admin-root area-'+activeSection}><AdminAlertsRefresh/>
   <header className="admin-top">
     <Link href="/" className="admin-top-brand"><img src="/images/aeromind-mark.svg" width="42" height="42" alt=""/>AeroMind <span>ADMIN</span></Link>
     <div className="admin-top-right"><span className="admin-live"><i/>Dados reais</span><div className="admin-user"><span className="admin-avatar">A</span><div><strong>AeroMind Suporte</strong><small>{staff.role==='owner'?'Proprietário':'Administrador'}</small></div></div><Link href="/minha-conta" className="admin-account-link">Minha conta ↗</Link></div>
