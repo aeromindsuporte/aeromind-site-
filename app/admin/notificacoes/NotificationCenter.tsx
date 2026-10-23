@@ -190,13 +190,16 @@ export function NotificationCenter({campaigns,stats,customers,readCounts}:{
        onChange={e=>update('scheduled_at',e.target.value?new Date(e.target.value).toISOString():null)}/>
       <em>O agendamento usa a hora do seu celular/computador e será executado automaticamente pelo servidor.</em>
     </label>
+    <div className="nc-secondary-tools">
+      <button type="button" className="nc-button nc-ghost" disabled={pending}
+       onClick={()=>persist('template')}>☆ Salvar como modelo</button>
+      <button type="button" className="nc-button nc-ghost" disabled={pending||!form.scheduled_at}
+       onClick={()=>persist('scheduled')}>◷ Agendar envio</button>
+    </div>
     <div className="nc-toolbar">
       <button type="button" className="nc-button nc-save" disabled={pending}
        onClick={()=>persist('draft')}>▣ Salvar</button>
-      <button type="button" className="nc-button nc-ghost" disabled={pending}
-       onClick={()=>persist('template')}>☆ Modelo</button>
-      <button type="button" className="nc-button nc-ghost" disabled={pending||!form.scheduled_at}
-       onClick={()=>persist('scheduled')}>◷ Agendar</button>
+      <button type="button" className="nc-button nc-ghost" onClick={()=>document.getElementById('nc-live-preview')?.scrollIntoView({behavior:'smooth',block:'center'})}>◉ Pré-visualizar</button>
       <button type="button" className="nc-button nc-send" disabled={pending}
        onClick={()=>persist('draft',true)}>{pending?'Processando...':'➤ Enviar agora'}</button>
     </div>
@@ -249,7 +252,7 @@ export function NotificationCenter({campaigns,stats,customers,readCounts}:{
        </div>}
       </div>
     </section>
-    <section className="nc-panel nc-preview">
+    <section className="nc-panel nc-preview" id="nc-live-preview">
       <div className="nc-panel-heading"><span className="nc-heading-icon" aria-hidden="true">◉</span><h2>Pré-visualização da notificação</h2></div>
       <div className="nc-preview-tabs" role="group" aria-label="Visualização da mensagem">
         {(['site','app','push'] as const).map(t=><button key={t} type="button" className={preview===t?'active':''}
