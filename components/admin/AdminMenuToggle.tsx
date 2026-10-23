@@ -20,6 +20,9 @@ export function AdminMenuToggle(){
    }
   };
   const nav=document.getElementById('admin-navigation');
+  if(open&&window.matchMedia(MOBILE_QUERY).matches){
+   nav?.querySelector<HTMLButtonElement>('.admin-sidebar-close')?.focus({preventScroll:true});
+  }
   const onNavClick=(event:MouseEvent)=>{
    if((event.target as HTMLElement)?.closest('a,.admin-sidebar-close'))setOpen(false);
   };
@@ -40,6 +43,6 @@ export function AdminMenuToggle(){
     <span className="admin-menu-label">{open?'Fechar':'Menu'}</span>
   </button>
   {open&&<button type="button" className="admin-menu-overlay"
-    aria-label="Fechar menu administrativo" onClick={()=>setOpen(false)}/>}
+    aria-label="Fechar menu administrativo" onClick={()=>{setOpen(false);trigger.current?.focus();}}/>}
  </>;
 }
