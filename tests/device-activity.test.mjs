@@ -40,7 +40,10 @@ test('customer card and support include device histories and requests',()=>{
 });
 test('admin menu includes notification counter',()=>{
  const shell=read('components/admin/CommercialAdminShell.tsx');
+ const homepage=read('app/admin/page.tsx');
  assert.match(shell,/Movimentações/);
  assert.match(shell,/DevicePendingCount/);
  assert.match(shell,/reviewed_at/);
+ assert.match(homepage,/unreadDeviceAlerts/);
+ assert.match(homepage,/Abrir central de movimentações/);
 });
