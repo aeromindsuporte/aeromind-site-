@@ -208,3 +208,10 @@
 .device-activity-actions button{border-color:#8a5aaf;background:#2b1d49}
 .device-activity-done{font-size:12px;color:#91edc8}
 @media(max-width:690px){.device-activity-item{flex-direction:column;align-items:stretch;gap:14px}.device-activity-actions{max-width:none;justify-content:flex-start}.device-activity-actions a,.device-activity-actions button{min-height:43px}}
+
+
+/* Cabeçalho de administração: atalho visual para notificações */
+.admin-top-actions{display:flex;align-items:center;gap:12px}
+.admin-notification-bell{display:grid;place-items:center;width:42px;height:42px;border:1px solid #466297;border-radius:12px;color:#c9a8ff!important;background:#101b3a;font-size:23px;text-decoration:none;box-shadow:0 3px 10px #0004}
+.admin-notification-bell:hover{border-color:#ab63ff;box-shadow:0 0 13px #8a48f74d}
+@media(max-width:500px){.admin-top-actions{gap:7px}.admin-notification-bell{width:37px;height:37px;font-size:20px}}
