@@ -185,3 +185,26 @@
  .admin-commercial .admin-row-actions a{min-height:36px}
  .admin-commercial .admin-title-row h1{overflow-wrap:anywhere}
 }
+
+
+/* Movimentações de aparelhos: somente elementos novos, sem alterar tabelas existentes */
+.admin-sidebar nav a .admin-alert-badge{display:inline-flex;align-items:center;justify-content:center;margin-left:8px;padding:2px 7px;border:1px solid #ff7bbb;border-radius:999px;color:#fff;background:#a21c66;font-size:11px;line-height:1.2;font-weight:800}
+.device-activity-filters{display:flex;gap:9px;flex-wrap:wrap;margin:18px 0 22px}
+.device-activity-filter{display:inline-flex;align-items:center;min-height:38px;padding:9px 13px;border:1px solid #3d517c;border-radius:12px;background:#142341;color:#d9e8ff;text-decoration:none;font-size:12px;font-weight:650}
+.device-activity-filter.active{border-color:#d271ff;background:#452367;color:#fff}
+.device-activity-list{display:grid;gap:12px}
+.device-activity-item{display:flex;align-items:center;justify-content:space-between;gap:20px;min-width:0;border:1px solid #31446f;border-radius:14px;padding:16px;background:linear-gradient(110deg,#0e1932,#10132b)}
+.device-activity-item.new{border-color:#b647dc;box-shadow:inset 3px 0 0 #c83bf5}
+.device-activity-main{min-width:0;flex:1}
+.device-activity-heading{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:9px}
+.device-activity-heading strong{color:#f5eafa;font-size:15px}
+.device-activity-heading small{font-size:11px;color:#adc0dc}
+.device-activity-new{color:#ffd5f7;background:#5d225a;border:1px solid #c4529b;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800}
+.device-activity-main p{font-size:12px;line-height:1.5;margin:5px 0;color:#c7d5ec;overflow-wrap:anywhere}
+.device-activity-main small{font-size:11px;color:#8fa7ce}
+.device-activity-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;align-items:center;max-width:330px}
+.device-activity-actions form{margin:0}
+.device-activity-actions a,.device-activity-actions button{display:inline-flex;align-items:center;justify-content:center;min-height:39px;border:1px solid #526da5;background:#172c50;border-radius:9px;padding:8px 12px;text-decoration:none;color:#e7f1ff;font-size:12px;cursor:pointer}
+.device-activity-actions button{border-color:#8a5aaf;background:#2b1d49}
+.device-activity-done{font-size:12px;color:#91edc8}
+@media(max-width:690px){.device-activity-item{flex-direction:column;align-items:stretch;gap:14px}.device-activity-actions{max-width:none;justify-content:flex-start}.device-activity-actions a,.device-activity-actions button{min-height:43px}}
