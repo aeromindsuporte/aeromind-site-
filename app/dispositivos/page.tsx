@@ -34,7 +34,7 @@ export default async function Devices({searchParams}:{searchParams:Promise<{stat
   </header><section className="account-container">
    <span className="auth-eyebrow">▣ CONTROLE DE ACESSO</span>
    <h1>Meus <em>dispositivos</em></h1>
-   <p className="account-lead">Veja e revogue os aparelhos vinculados à sua licença.</p>
+   <p className="account-lead">Veja e revogue os aparelhos vinculados à sua licença.</p><p><Link className="auth-secondary auth-button-link" href="/suporte?categoria=dispositivo&assunto=Solicita%C3%A7%C3%A3o%20de%20troca%20de%20aparelho">Solicitar troca ou ajuda com aparelho →</Link></p>
    <div className="device-capacity">
      <div className="device-capacity-top"><strong>{active.length} ativo(s) · {reserved.length} de {maxDevices} vagas</strong><span>{license?'Licença ativa':'Licença não ativa'}</span></div>
      <div className="device-bar" role="progressbar" aria-label="Dispositivos ativos" aria-valuemax={maxDevices} aria-valuemin={0} aria-valuenow={Math.min(maxDevices,reserved.length)}>
