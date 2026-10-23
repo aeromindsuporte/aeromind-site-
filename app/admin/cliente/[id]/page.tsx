@@ -17,6 +17,8 @@ type Audit={action:string,old_status:string|null,new_status:string,note:string|n
 type Renewal={duration_days:number,previous_expiry:string|null,new_expiry:string,plan_name:string,note:string|null,created_at:string};
 type Note={category:string,body:string,created_at:string};
 type Ticket={id:string,subject:string,category:string,status:string,created_at:string,updated_at:string};
+type DeviceActivity={id:number;event_type:string;device_name:string|null;device_id:string|null;detail:string|null;ticket_id:string|null;actor_id:string|null;occurred_at:string;reviewed_at:string|null};
+const deviceEventLabels:Record<string,string>={registered:'Aparelho solicitado',reactivated:'Novo vínculo solicitado',authorized:'Aparelho autorizado',revoked:'Acesso revogado',support_request:'Pedido de troca / suporte'};
 type Customer={id:string,email:string,display_name:string|null,confirmed:boolean,created_at:string,
  last_sign_in_at:string|null,whatsapp:string|null,whatsapp_marketing_opt_in:boolean,
  licenses:License[],devices:Device[],orders:Order[],notes:Note[],license_audit:Audit[],renewals:Renewal[],
@@ -47,6 +49,10 @@ export default async function CustomerPage({params,searchParams}:{
  const {data,error}=await sb.rpc('aeromind_admin_customer_v3',{p_user_id:id});
  if(error||!data)notFound();
  const c=data as Customer;
+ const activityResult=await sb.from('aeromind_device_activity')
+   .select('id,event_type,device_name,device_id,detail,ticket_id,actor_id,occurred_at,reviewed_at')
+   .eq('user_id',id).order('occurred_at',{ascending:false}).limit(100);
+ const deviceActivity=(activityResult.data||[]) as DeviceActivity[];
  const licenses=c.licenses||[],devices=c.devices||[],orders=c.orders||[],notes=c.notes||[];
  const audit=c.license_audit||[],renewals=c.renewals||[],tickets=c.tickets||[];
  const now=Date.now();
@@ -154,6 +160,17 @@ export default async function CustomerPage({params,searchParams}:{
     <tbody>{devices.map(d=><tr key={d.id}><td>{d.device_name}</td><td>{dateTime(d.registered_at)}</td><td>{dateTime(d.last_seen_at)}</td>
      <td>{d.status}</td><td>{d.status!=='revoked'?<form action={revokeAdminDevice}><input type="hidden" name="device_id" value={d.id}/><input type="hidden" name="customer_id" value={id}/><button className="cv3-danger">Revogar</button></form>:'—'}</td></tr>)}
      {!devices.length&&<tr><td colSpan={5}>Nenhum aparelho vinculado.</td></tr>}</tbody></table></div></section>
+   <section className="cv3-card"><h2>Histórico de movimentações dos aparelhos</h2>
+    <p className="cv3-muted">Autorizações, revogações e solicitações de troca vinculadas a este cliente. Cada movimentação é registrada automaticamente.</p>
+    {activityResult.error&&<p role="alert" className="admin-feedback bad">Não foi possível consultar o histórico de aparelhos.</p>}
+    {!activityResult.error&&deviceActivity.length?deviceActivity.map(a=><div className="cv3-timeline" key={a.id}>
+      <small>{dateTime(a.occurred_at)} · {a.actor_id===id?'Cliente':a.actor_id?'Equipe AeroMind':'Sistema'} · {a.reviewed_at?'Verificado':'Não verificado'}</small>
+      <strong>{deviceEventLabels[a.event_type]||'Movimentação registrada'}</strong>
+      <p>{a.device_name||a.detail||'Solicitação sobre dispositivo'}{a.device_name&&a.detail?' · '+a.detail:''}</p>
+      {a.ticket_id&&<Link href={'/admin/suporte?ticket='+a.ticket_id} className="cv3-textlink">Abrir chamado relacionado →</Link>}
+    </div>):!activityResult.error?<p className="cv3-muted">Ainda não foram registradas movimentações para este cliente.</p>:null}
+    <Link href="/admin/movimentacoes" className="cv3-textlink">Ver central de movimentações →</Link>
+   </section>
   </div>},
   {id:'history',label:'Histórico e notas',content:<div className="cv3-stack">
    <section className="cv3-card"><h2>Adicionar observação interna</h2>

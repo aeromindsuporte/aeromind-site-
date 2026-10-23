@@ -6,7 +6,7 @@ const uuid=(x:unknown)=>typeof x==='string'&&/^[0-9a-f]{8}-[0-9a-f-]{27,36}$/i.t
 export async function createSupportTicket(data:FormData){
  const sb=await createClient();const {data:{user}}=await sb.auth.getUser();if(!user)redirect('/entrar?next=%2Fsuporte');
  const subject=String(data.get('subject')||'').trim().slice(0,140),text=String(data.get('message')||'').trim().slice(0,3000),category=String(data.get('category')||'geral');
- if(subject.length<5||text.length<2||!['geral','acesso','licenca','instalacao','pagamento'].includes(category))redirect('/suporte?erro=dados');
+ if(subject.length<5||text.length<2||!['geral','acesso','licenca','instalacao','pagamento','dispositivo'].includes(category))redirect('/suporte?erro=dados');
  const {data:ticket,error}=await sb.from('aeromind_support_tickets').insert({user_id:user.id,subject,category}).select('id').single();
  if(error||!ticket)redirect('/suporte?erro=criar');
  const {error:msgError}=await sb.from('aeromind_support_messages').insert({ticket_id:ticket.id,author_id:user.id,content:text});
