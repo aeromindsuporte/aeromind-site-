@@ -80,10 +80,18 @@ export function NotificationCenter({campaigns,stats,customers,readCounts}:{
    });
    document.getElementById('notification-editor')?.scrollIntoView({behavior:'smooth',block:'start',inline:'nearest'});
  };
+ const runSafely=(action:()=>Promise<void>)=>{
+  startTransition(async()=>{
+   try{await action();}
+   catch{
+    setFeedback({ok:false,text:'Não foi possível concluir a operação. Sua mensagem foi mantida no editor; verifique a conexão ou entre novamente.'});
+   }
+  });
+ };
  const persist=(mode:'draft'|'template'|'scheduled',sendImmediately=false)=>{
   if(sendImmediately&&!window.confirm('Enviar esta notificação agora para o público selecionado? Essa ação não pode ser desfeita.'))return;
   setFeedback(null);
-  startTransition(async()=>{
+  runSafely(async()=>{
    const data:NotificationInput={...form,id:editingId||undefined,status:mode,scheduled_at:mode==='scheduled'?form.scheduled_at:null};
    const saved=await saveNotification(data);
    if(!saved.ok||!saved.id){setFeedback({ok:false,text:saved.message});return;}
@@ -100,14 +108,14 @@ export function NotificationCenter({campaigns,stats,customers,readCounts}:{
  const sendRow=(c:NotificationCampaign)=>{
    if(!window.confirm('Enviar agora: '+c.title+'? Destinatários elegíveis receberão esta mensagem no site.'))return;
    setFeedback(null);
-   startTransition(async()=>{
+   runSafely(async()=>{
     const result=await sendSavedNotification(c.id);
     setFeedback({ok:result.ok,text:result.message});
     router.refresh();
    });
  };
  const duplicateRow=(c:NotificationCampaign)=>{
-  startTransition(async()=>{
+  runSafely(async()=>{
    const copy:NotificationInput={title:c.title+' (cópia)',body:c.body,category:c.category,
     audience_type:c.audience_type,audience_tier:c.audience_tier,audience_user_id:c.audience_user_id,
     priority:c.priority,validity_minutes:c.validity_minutes,cta_label:c.cta_label,cta_path:c.cta_path,
@@ -120,7 +128,7 @@ export function NotificationCenter({campaigns,stats,customers,readCounts}:{
  };
  const cancelRow=(c:NotificationCampaign)=>{
   if(!window.confirm('Cancelar o agendamento desta notificação? Ela voltará aos rascunhos.'))return;
-  startTransition(async()=>{
+  runSafely(async()=>{
    const result=await cancelScheduledNotification(c.id);
    setFeedback({ok:result.ok,text:result.message});router.refresh();
   });
