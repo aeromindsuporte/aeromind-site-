@@ -29,6 +29,7 @@ const sections=[
   {href:'/admin/planos',icon:'◈',label:'Planos'},
   {href:'/admin/dispositivos',icon:'▯',label:'Dispositivos'},
   {href:'/admin/movimentacoes',icon:'♧',label:'Movimentações'},
+  {href:'/admin/notificacoes',icon:'♧',label:'Notificações'},
   {href:'/admin/releases',icon:'⇧',label:'Atualizações'},
   {href:'/admin/downloads',icon:'⇩',label:'Downloads'},
   {href:'/admin/cupons',icon:'◇',label:'Cupons'},
@@ -126,6 +127,11 @@ export default async function Admin({searchParams,activeSection='visao'}:{search
           <MiniStat icon="⚿" label="Licenças ativas" value={canDisplay?data.licenses_active:'—'} tone="green" sub="Validade verificada"/>
           <MiniStat icon="◷" label="Licenças expiradas" value={canDisplay?data.licenses_expired:'—'} tone="yellow" sub={data.licenses_expiring_7d+' vencem em 7 dias'}/>
           <MiniStat icon="▥" label="Receita confirmada" value={!revenueResult.error?(Number(revenueResult.data?.revenue_cents||0)/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'—'} tone="blue" sub="Somente pedidos confirmados"/>
+        </div>
+        <div className="admin-card" style={{marginTop:16,display:'flex',justifyContent:'space-between',alignItems:'center',gap:14,flexWrap:'wrap'}}>
+        <div><strong style={{color:'#e8dbff'}}>♧ Central de Comunicação</strong>
+        <p className="admin-card-explain" style={{marginBottom:0}}>Crie, edite e envie avisos aos usuários do AeroMind pelo site.</p></div>
+        <Link className="admin-inline-action" href="/admin/notificacoes">Abrir Central de Notificações →</Link>
         </div>
         <div className="admin-card" style={{marginTop:16,display:'flex',justifyContent:'space-between',alignItems:'center',gap:14,flexWrap:'wrap'}}>
          <div><strong style={{color:'#f4dbff'}}>♧ Monitoramento de aparelhos</strong>
