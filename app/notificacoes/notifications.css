@@ -1,0 +1,24 @@
+
+.ni-page{min-height:100vh}.ni-container{max-width:960px}
+.ni-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin:18px 0}
+.ni-stats div{display:grid;gap:7px;border-radius:13px;border:1px solid #444884;background:linear-gradient(120deg,#181438,#0b1b32);padding:17px}
+.ni-stats small{font-size:12px;color:#adc2e8}.ni-stats strong{font-size:26px;color:#f1e8ff}
+.ni-filters{display:flex;gap:9px;margin:19px 0}
+.ni-filters a{border:1px solid #394d88;color:#bdd5ef;background:#101b35;border-radius:10px;padding:10px 17px;font-size:12px;font-weight:700}
+.ni-filters a.active{border-color:#b86bff;color:#fff;background:#46206c;box-shadow:0 0 12px #9f48f636}
+.ni-list{display:grid;gap:13px}.ni-card{border:1px solid #334979;background:linear-gradient(127deg,#101932,#090f27);border-radius:15px;padding:19px;overflow-wrap:anywhere}
+.ni-card.ni-unread{border-color:#9c57e3;box-shadow:inset 3px 0 #ca65ed,0 7px 19px #0003}
+.ni-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.ni-category{font-size:11px;border:1px solid #6f429d;background:#291846;color:#d6b1ff;padding:5px 10px;border-radius:30px}
+.ni-state{font-size:10px;color:#8cefd3;border-radius:30px;background:#0a3d3b;padding:5px 10px}
+.ni-state.expired{background:#2b2840;color:#b2b0c9}
+.ni-card h2{margin:0 0 10px;font-size:19px;color:#f9f7ff}.ni-card p{margin:0 0 12px;line-height:1.6;font-size:13px;color:#cfdbec}
+.ni-card p.ni-caution{font-size:11px;color:#b2a9cb}.ni-card>small{display:block;color:#8fa6c9;font-size:11px;line-height:1.5}
+.ni-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:18px}.ni-actions form{margin:0}
+.ni-actions button,.ni-go{display:inline-flex;align-items:center;justify-content:center;min-height:41px;border:1px solid #526b9d;border-radius:9px;background:#152d52;padding:10px 15px;font-size:12px;color:#e5f3ff;font-weight:700;cursor:pointer}
+.ni-go{border-color:#2e9bf5;background:linear-gradient(115deg,#1179ed,#7929e3);box-shadow:0 3px 12px #6729da39}
+.ni-error{padding:13px;border:1px solid #c65a77;background:#361826;border-radius:9px;color:#ffd0dc}
+.ni-empty{padding:40px 16px;border:1px dashed #3f5181;border-radius:14px;display:grid;justify-items:center;text-align:center;gap:8px;color:#aec5e5}
+.ni-empty span{font-size:35px;color:#9b77f5}.ni-empty p{font-size:12px;margin:0}
+.ni-footer-note{color:#95a8c4;font-size:11px;line-height:1.6;margin:22px 0}
+@media(max-width:500px){.ni-card{padding:14px}.ni-card h2{font-size:17px}.ni-stats{gap:9px}.ni-stats div{padding:13px}}
