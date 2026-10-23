@@ -27,6 +27,7 @@ const sections=[
   {href:'/admin/licencas',icon:'⚿',label:'Licenças'},
   {href:'/admin/planos',icon:'◈',label:'Planos'},
   {href:'/admin/dispositivos',icon:'▯',label:'Dispositivos'},
+  {href:'/admin/movimentacoes',icon:'♧',label:'Movimentações'},
   {href:'/admin/releases',icon:'⇧',label:'Atualizações'},
   {href:'/admin/downloads',icon:'⇩',label:'Downloads'},
   {href:'/admin/cupons',icon:'◇',label:'Cupons'},
@@ -65,10 +66,11 @@ export default async function Admin({searchParams,activeSection='visao'}:{search
  if(userError||!user)redirect('/entrar?next=%2Fadmin');
  const {data:staff,error:staffError}=await supabase.from('aeromind_staff').select('role').eq('user_id',user.id).maybeSingle();
  if(staffError||!staff) redirect('/minha-conta');
- const [result,deviceResult,revenueResult]=await Promise.all([
+ const [result,deviceResult,revenueResult,deviceAlertResult]=await Promise.all([
    supabase.rpc('aeromind_admin_overview'),
    supabase.rpc('aeromind_admin_devices'),
-   supabase.rpc('aeromind_admin_commercial_snapshot')
+   supabase.rpc('aeromind_admin_commercial_snapshot'),
+   supabase.from('aeromind_device_activity').select('id',{count:'exact',head:true}).is('reviewed_at',null)
  ]);
  const inventory=(deviceResult.data??{}) as {devices?:AdminDevice[];releases?:AdminRelease[]};
  const devices=Array.isArray(inventory.devices)?inventory.devices:[];
@@ -87,6 +89,7 @@ export default async function Admin({searchParams,activeSection='visao'}:{search
    plans:Array.isArray(raw.plans)?raw.plans:[],
    audit:Array.isArray(raw.audit)?raw.audit:[]
  };
+ const unreadDeviceAlerts=deviceAlertResult.error?null:deviceAlertResult.count??0;
  const {msg}=await searchParams;
  const canDisplay=!result.error;
  const allLicenses=data.licenses.length;
@@ -109,7 +112,7 @@ export default async function Admin({searchParams,activeSection='visao'}:{search
   </header>
   <div className="admin-shell">
     <aside className="admin-sidebar" aria-label="Menu administrativo"><p>PAINEL ADMINISTRATIVO</p><nav>
-    {sections.map((x,i)=><a key={x.href} href={x.href} className={x.href===(activeSection==='visao'?'/admin':'/admin/'+activeSection)?'current':''}><span>{x.icon}</span>{x.label}</a>)}
+    {sections.map((x,i)=><a key={x.href} href={x.href} className={x.href===(activeSection==='visao'?'/admin':'/admin/'+activeSection)?'current':''}><span>{x.icon}</span>{x.label}{x.href==='/admin/movimentacoes'&&unreadDeviceAlerts!==null&&unreadDeviceAlerts>0?<span className="admin-alert-badge">{unreadDeviceAlerts>99?'99+':unreadDeviceAlerts}</span>:null}</a>)}
     </nav><div className="admin-sidebar-foot"><span>Site e suporte</span><Link href="/">↗ Ver site</Link><a href="mailto:aeromindsuporte@gmail.com">✉ Contato</a><Link href="/minha-conta">◀ Voltar à conta</Link></div></aside>
     <main className="admin-content">
       <section id="visao" className="admin-overview">
@@ -122,6 +125,12 @@ export default async function Admin({searchParams,activeSection='visao'}:{search
           <MiniStat icon="⚿" label="Licenças ativas" value={canDisplay?data.licenses_active:'—'} tone="green" sub="Validade verificada"/>
           <MiniStat icon="◷" label="Licenças expiradas" value={canDisplay?data.licenses_expired:'—'} tone="yellow" sub={data.licenses_expiring_7d+' vencem em 7 dias'}/>
           <MiniStat icon="▥" label="Receita confirmada" value={!revenueResult.error?(Number(revenueResult.data?.revenue_cents||0)/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'—'} tone="blue" sub="Somente pedidos confirmados"/>
+        </div>
+        <div className="admin-card" style={{marginTop:16,display:'flex',justifyContent:'space-between',alignItems:'center',gap:14,flexWrap:'wrap'}}>
+         <div><strong style={{color:'#f4dbff'}}>♧ Monitoramento de aparelhos</strong>
+           <p className="admin-card-explain" style={{marginBottom:0}}>{unreadDeviceAlerts===null?'Não foi possível consultar os alertas agora.':unreadDeviceAlerts===0?'Nenhuma movimentação aguardando verificação.':unreadDeviceAlerts+' movimentação(ões) de aparelhos aguardando verificação.'}</p>
+         </div>
+         <Link className="admin-inline-action" href="/admin/movimentacoes">Abrir central de movimentações →</Link>
         </div>
       </section>
       <div className="admin-main-grid">
