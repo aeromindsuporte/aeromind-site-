@@ -10,8 +10,8 @@ const nav=[
  ['/admin/licencas','Licenças','⚿'],
  ['/admin/planos','Planos','◈'],
  ['/admin/dispositivos','Dispositivos','▯'],
- ['/admin/movimentacoes','Movimentações','♧'],
- ['/admin/notificacoes','Central de Notificações','♧'],
+ ['/admin/movimentacoes','Movimentações','⇄'],
+ ['/admin/notificacoes','Central de Notificações','🔔'],
  ['/admin/releases','Atualizações','⇧'],
  ['/admin/downloads','Downloads','⇩'],
  ['/admin/cupons','Cupons','◇'],
@@ -31,7 +31,7 @@ return <div className="admin-root admin-commercial">
   <AdminMenuToggle/>
   <Link href="/admin" className="admin-top-brand"><img src="/images/aeromind-mark.svg" width="36" height="36" alt=""/> AeroMind <span>ADMIN</span></Link>
   <div className="admin-top-actions">
-   <Link className="admin-notification-bell" href="/admin/notificacoes" aria-label="Abrir Central de Notificações">♧</Link>
+   <Link className="admin-notification-bell" href="/admin/notificacoes" aria-label="Abrir Central de Notificações">🔔</Link>
    <Link href="/minha-conta" className="admin-account-link">Minha conta ↗</Link>
   </div>
  </header>
