@@ -19,7 +19,7 @@ export default async function AdminDevices({searchParams}:{searchParams:Promise<
    ['Pendentes',items.filter(x=>x.status==='pending').length],['Revogados',items.filter(x=>x.status==='revoked').length]]
    .map(([k,v])=><div key={String(k)} className="admin-stat"><div className="admin-stat-body"><span>{k}</span><strong>{v}</strong></div></div>)}
  </section>
- <section className="admin-card"><h2>Aparelhos vinculados</h2>
+ <section className="admin-card"><h2>Aparelhos vinculados</h2><p><Link href="/admin/movimentacoes" className="admin-inline-action">Ver histórico de revogações e solicitações →</Link></p>
  <p className="admin-card-explain">Até 100 aparelhos, ordenados por cadastro. Revogar impede novos acessos desse dispositivo. Essa ação não pode ser desfeita por aqui.</p>
  <div className="admin-table-scroll"><table><thead><tr><th>Cliente</th><th>Aparelho</th><th>Estado</th><th>Último acesso</th><th>Ações</th></tr></thead><tbody>
  {items.map(d=><tr key={d.id}><td className="admin-email">{d.email}</td><td>{d.name}<small className="admin-device-os">{d.os_version||'Android'}</small></td>
