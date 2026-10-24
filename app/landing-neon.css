@@ -484,7 +484,7 @@
   .nl-plane-decoration{right:4%;top:12%;width:148px;height:95px}
   .nl-stage-bars{inset:18% 0 3% 45%}
   .nl-phone{top:10px;left:calc(50% - 165px);width:330px;height:585px;
-   transform:rotate(6deg) scale(.60);transform-origin:center top;
+   transform:rotate(6deg) scale(.58);transform-origin:center top;
    border-radius:49px}
   .nl-phone-bezel{border-radius:40px}
   .nl-phone-inner{padding:28px 10px 0}
