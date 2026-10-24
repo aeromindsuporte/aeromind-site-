@@ -70,3 +70,21 @@ test('movimentos têm opção sem animação e layout próprio responsivo',()=>{
  assert.match(css,/\.trial-feature-grid\{/);
  assert.ok(!css.includes('.nl-hero{'),'não alterar estilos da landing');
 });
+
+
+test('cronômetro rotativo envolve o número real de vagas sem simular contagem',()=>{
+ const component=read('components/trial/TrialAvailability.tsx');
+ const css=read('app/teste-gratis/trial-premium.css');
+ assert.match(component,/className="trial-slots-chronometer"/);
+ assert.match(component,/className="trial-slots-chronometer-dial"/);
+ assert.match(component,/className="trial-slots-chronometer-sweep"/);
+ assert.match(component,/aria-hidden="true"/);
+ assert.match(component,/remaining===null\?'—':remaining/);
+ assert.match(component,/aeromind_public_free_trial_slots/);
+ assert.match(css,/\.trial-slots-chronometer-sweep\{[^}]*animation:trial-stopwatch-spin/);
+ assert.match(css,/@keyframes trial-stopwatch-spin/);
+ assert.match(css, /\.trial-slots-chronometer-sweep::after\{/);
+ assert.match(css,/prefers-reduced-motion:reduce/);
+ assert.match(css,/\.trial-page \.trial-slots-chronometer-sweep\{animation:none!important/);
+ assert.ok(!component.includes('Math.random'),'Nunca fabricar contagem de vagas');
+});
