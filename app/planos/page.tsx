@@ -58,6 +58,7 @@ export default async function Plans({searchParams}:{searchParams:Promise<{period
      <Link className={'am-btn '+(p.marketing_highlight?'am-fill':'am-outline')} href={(p.price_cents===0?'/teste-gratis?plano=':'/checkout?plano=')+encodeURIComponent(p.slug)}>{p.marketing_cta||'Experimentar'} →</Link>
     </article>)}</div>
    </section>}
+   <p className="am-price-note" style={{marginTop:22}}>✦ <Link href="/gold" style={{color:'#f2d18f',textDecoration:'underline',textUnderlineOffset:3}}>Conheça o AeroMind Gold (em preparação)</Link> — uma apresentação informativa, sem compra ativa. Os planos atuais permanecem independentes.</p>
    <p className="am-price-notice">ℹ Criar uma conta não libera o monitor. É necessária uma licença ativa. Nenhum resultado histórico garante ganhos.</p>
    <p className="am-price-note" style={{marginTop:20}}>Os preços e recursos são configurados pelo administrador. Pagamentos são processados por Pix e a licença só é liberada após confirmação pelo servidor.</p>
   </main>
