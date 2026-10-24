@@ -51,11 +51,10 @@ begin
       (select count(*) from jsonb_object_keys(item))<>2 or
       not(item ? 'target' and item ? 'filter') then return false; end if;
   if jsonb_typeof(item->'target')<>'string' then return false;end if;
-  if case k
-       when 'BAIXA' then (item->>'target') not in ('low35','column7_5_p25')
-       when 'MEDIANA' then (item->>'target') not in ('column7_5_p50')
-       else (item->>'target') not in ('column7_5_p75','column7_6_p75','column7_7_p75')
-     end then return false; end if;
+  if (k='BAIXA' and (item->>'target') not in ('low35','column7_5_p25'))
+   or (k='MEDIANA' and (item->>'target') not in ('column7_5_p50'))
+   or (k='ALTA' and (item->>'target') not in ('column7_5_p75','column7_6_p75','column7_7_p75'))
+  then return false; end if;
   filter_obj:=item->'filter';
   if jsonb_typeof(filter_obj)<>'object' then return false; end if;
   mode:=filter_obj->>'mode';
