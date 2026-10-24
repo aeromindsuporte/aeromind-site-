@@ -26,6 +26,13 @@ function filterName(filter:Settings[Indicator]['filter']){
  if(filter.mode==='purple_improving')return 'Roxos em evolução: '+filter.k;
  return 'Pagantes: '+filter.a+' em 13 / '+filter.b+' em 5';
 }
+function RuleSummary({value}:{value:unknown}){
+ if(!validateGoldSettings(value))return <p className="gold-hint">Os parâmetros desta versão não correspondem ao catálogo vigente. Registro preservado.</p>;
+ const settings=value;
+ return <ul>{(['BAIXA','MEDIANA','ALTA'] as Indicator[]).map(k=><li key={k}>
+  <b>{k}</b> — {targetName[settings[k].target]} · {filterName(settings[k].filter)}
+ </li>)}</ul>;
+}
 export function GoldClientHistory({versions,events,loadError=false}:{
  versions:GoldConfigVersion[];events:GoldAuditEvent[];loadError?:boolean
 }){
@@ -37,11 +44,7 @@ export function GoldClientHistory({versions,events,loadError=false}:{
   <div className="gold-version-list">
    {versions.map(v=><details className="gold-version" key={v.id}>
     <summary><strong>Versão {v.version}</strong><span>{dateBR(v.created_at)}</span><span>{v.reason}</span></summary>
-    {validateGoldSettings(v.settings)?<ul>
-     {(['BAIXA','MEDIANA','ALTA'] as Indicator[]).map(k=><li key={k}>
-      <b>{k}</b> — {targetName[v.settings[k].target]} · {filterName(v.settings[k].filter)}
-     </li>)}
-    </ul>:<p className="gold-hint">Os parâmetros desta versão não correspondem ao catálogo vigente. Registro preservado.</p>}
+    <RuleSummary value={v.settings}/>
    </details>)}
    {versions.length===0&&<p className="gold-hint">Nenhuma configuração personalizada registrada. O perfil Refinado é o padrão.</p>}
   </div>
