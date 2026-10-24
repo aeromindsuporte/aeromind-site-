@@ -34,7 +34,7 @@ export function GoldComparisonWorkbench({settings,configLabel}:{settings:Setting
   setError('');setResult(null);
   if(!file)return;
   if(file.size>130000){setError('O arquivo ultrapassa 130 KB.');return;}
-  setCsv(await file.text());
+  setSessionConfirmed(false);setCsv(await file.text());
  }
  function exportCsv(){
   if(!result)return;
