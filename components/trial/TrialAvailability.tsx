@@ -50,14 +50,14 @@ export function TrialAvailability({slug,initialRemaining}:Props){
     </div>
     <div className="trial-slots-circle" role="status" aria-live="polite">
      <div className="trial-slots-inner" key={remaining===null?'unknown':remaining}>
-      <span className="trial-slots-person" aria-hidden="true">♟</span>
+      <span className="trial-slots-person" aria-hidden="true"><svg width="23" height="23" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="10" cy="7" r="4"/><path d="M2 20v-2a8 8 0 0 1 16 0v2Z"/><circle cx="19" cy="8" r="3"/><path d="M19 14a6 6 0 0 1 4 6h-3v-2a10 10 0 0 0-1-4Z"/></svg></span>
       <strong>{remaining===null?'—':remaining}</strong>
       <small>{remaining===null?'Disponibilidade sob consulta':remaining===0?'Vagas esgotadas':'ativações disponíveis agora'}</small>
      </div>
     </div>
    </div>
    <div className="trial-scarcity-footer">
-    <span className="trial-users-icon" aria-hidden="true">♟♟</span>
+    <span className="trial-users-icon" aria-hidden="true"><svg width="23" height="23" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="10" cy="7" r="4"/><path d="M2 20v-2a8 8 0 0 1 16 0v2Z"/><circle cx="19" cy="8" r="3"/><path d="M19 14a6 6 0 0 1 4 6h-3v-2a10 10 0 0 0-1-4Z"/></svg></span>
     <p>{isEmpty?'Lote encerrado':remaining===null?'Consulta de disponibilidade na ativação':'Vagas reais, atualizadas após cada ativação'} <span aria-hidden="true">•</span> Liberação por ordem de ativação</p>
    </div>
   </section>;
