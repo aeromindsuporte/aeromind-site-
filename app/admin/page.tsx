@@ -28,6 +28,7 @@ const sections=[
   {href:'/admin/clientes',icon:'♙',label:'Clientes'},
   {href:'/admin/licencas',icon:'⚿',label:'Licenças'},
   {href:'/admin/planos',icon:'◈',label:'Planos'},
+  {href:'/admin/gold',icon:'✦',label:'Gold (preparação)'},
   {href:'/admin/dispositivos',icon:'▯',label:'Dispositivos'},
   {href:'/admin/movimentacoes',icon:'⇄',label:'Movimentações'},
   {href:'/admin/notificacoes',icon:'🔔',label:'Notificações'},
