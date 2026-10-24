@@ -98,7 +98,7 @@
 .trial-intro{margin-bottom:14px}
 .trial-intro .trial-eyebrow{font-size:11px;margin:0 0 11px;padding:7px 14px;letter-spacing:1.2px}
 .trial-heading-wrap{min-height:62px}
-.trial-page .trial-container h1{font-size:clamp(28px,8.2vw,37px);letter-spacing:-1.35px}
+.trial-page .trial-container h1{font-size:clamp(24px,7.75vw,33px);letter-spacing:-1.35px}
 .trial-airplane{right:-23px;top:-24px;width:130px;opacity:.38}
 .trial-lead{font-size:13px;line-height:1.48}
 .trial-scarcity{padding:11px 9px 10px;border-radius:15px;margin-bottom:13px}
@@ -130,7 +130,7 @@
 }
 @media(max-width:350px){
 .trial-page .trial-header{padding-inline:9px}.trial-page .trial-header .auth-logo{font-size:15px}.trial-page .trial-header .auth-secondary{font-size:10px;padding:6px}
-.trial-page .trial-container h1{font-size:27px}
+.trial-page .trial-container h1{font-size:clamp(24px,7.75vw,27px)}
 .trial-scarcity-main{grid-template-columns:33px minmax(0,1fr) 74px;gap:4px}
 .trial-stopwatch svg{width:34px}.trial-slots-circle{width:73px;height:73px}
 .trial-scarcity-tag{font-size:8px;padding:4px 6px}.trial-scarcity-copy p{font-size:10px}
