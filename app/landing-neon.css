@@ -560,3 +560,79 @@
   .nl-mini-rose-heading{font-size:10px}
   .nl-multipliers-compact .nl-multi strong{font-size:9px}
 }
+
+
+/* Ajustes aprovados 24/10/2026: APENAS logo oficial do cabeçalho e CTA TESTE GRÁTIS. */
+.nl-logo-img{
+  display:block;
+  width:65px;
+  height:55px;
+  object-fit:contain;
+  flex:0 0 auto;
+}
+.nl-trial-cta{
+  width:100%;
+  max-width:555px;
+  margin:0 0 15px;
+}
+.nl-btn-trial{
+  position:relative;
+  isolation:isolate;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:13px;
+  width:100%;
+  min-height:58px;
+  padding:12px 22px;
+  border:2px solid #ffe788;
+  border-radius:15px;
+  color:#fff;
+  background:linear-gradient(110deg,#0a94f5 0%,#4d46ff 32%,#e119ef 69%,#fb831f 100%);
+  box-shadow:0 0 14px #ff3bad88,0 0 27px #efae3670,inset 0 1px 0 #ffffff7a;
+  text-shadow:0 2px 5px #34034b66;
+  animation:nl-trial-pulse 1.9s ease-in-out infinite;
+}
+.nl-btn-trial strong{
+  font-size:20px;
+  font-weight:900;
+  letter-spacing:.6px;
+}
+.nl-btn-trial-icon{
+  font-size:23px;
+  line-height:1;
+}
+.nl-btn-trial-arrow{
+  font-size:28px;
+  line-height:1;
+  font-weight:400;
+}
+.nl-btn-trial:hover{
+  filter:brightness(1.12);
+}
+@keyframes nl-trial-pulse{
+  0%,100%{
+    box-shadow:0 0 10px #ff3bad75,0 0 22px #efae364a,inset 0 1px 0 #ffffff73;
+  }
+  50%{
+    box-shadow:0 0 20px #ff3badee,0 0 42px #efae36a6,0 0 58px #fb3add4a,inset 0 1px 0 #ffffffaf;
+  }
+}
+@media(max-width:1120px){
+  .nl-logo-img{width:46px;height:48px}
+}
+@media(max-width:520px){
+  .nl-logo-img{width:34px;height:38px}
+  .nl-trial-cta{margin-bottom:11px;max-width:none}
+  .nl-btn-trial{min-height:53px;padding:10px 14px;border-radius:13px;gap:9px}
+  .nl-btn-trial strong{font-size:17px}
+  .nl-btn-trial-icon{font-size:21px}
+  .nl-btn-trial-arrow{font-size:24px}
+}
+@media(max-width:355px){
+  .nl-logo-img{width:32px;height:36px}
+  .nl-btn-trial strong{font-size:16px}
+}
+@media(prefers-reduced-motion:reduce){
+  .nl-btn-trial{animation:none}
+}

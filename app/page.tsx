@@ -146,7 +146,7 @@ export default function Home(){
  return <div className="nl-site">
   <header className="nl-header">
    <div className="nl-header-inner">
-    <Link href="/" className="nl-logo" aria-label="AeroMind — início"><AeroMark/><span>AEROMIND</span></Link>
+    <Link href="/" className="nl-logo" aria-label="AeroMind — início"><img src="/images/aeromind-mark.svg" alt="" width="65" height="55" className="nl-logo-img"/><span>AEROMIND</span></Link>
     <nav className="nl-nav" aria-label="Navegação principal">
      <a className="nl-nav-selected" href="#inicio">Início</a>
      <a href="#funcionalidades">Funcionalidades</a>
@@ -169,6 +169,11 @@ export default function Home(){
       <span className="nl-kicker">SEU ALIADO NO AVIATOR</span>
       <h1>Mais clareza<br/>para suas decisões<br/><span>no Aviator</span></h1>
       <p>O AeroMind monitora, analisa e organiza indicadores em tempo real e histórico inteligente, para você acompanhar cada sessão com mais clareza.</p>
+      <div className="nl-trial-cta">
+       <Link href="/teste-gratis?plano=teste-horas" className="nl-btn nl-btn-trial" aria-label="TESTE GRÁTIS — iniciar teste do AeroMind">
+        <span className="nl-btn-trial-icon" aria-hidden="true">🎁</span><strong>TESTE GRÁTIS</strong><span className="nl-btn-trial-arrow" aria-hidden="true">›</span>
+       </Link>
+      </div>
       <div className="nl-hero-buttons">
        <Link href="/planos" className="nl-btn nl-btn-primary"><span aria-hidden="true">ϟ</span> Começar agora <b aria-hidden="true">›</b></Link>
        <a href="#funcionalidades" className="nl-btn nl-btn-secondary"><span aria-hidden="true">▶</span> Ver funcionalidades</a>
