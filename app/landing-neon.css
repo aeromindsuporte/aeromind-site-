@@ -352,3 +352,211 @@
  .nl-demo-warning{font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){.nl-site .nl-btn{transition:none}.nl-site *{scroll-behavior:auto}}
+
+
+/* V3 MOBILE — fidelidade ao layout aprovado: visual compacto, sem cards gigantes.
+   Aplicado depois das regras v2 para corrigir a captura real enviada do Android. */
+.nl-site{width:100%;max-width:100%;overflow-x:clip}
+.nl-site main{min-width:0;overflow-x:clip}
+.nl-site section,.nl-site article,.nl-site nav,.nl-site .nl-feature-visual{min-width:0}
+.nl-site #funcionalidades,.nl-site #como-funciona,.nl-site #depoimentos{scroll-margin-top:20px}
+@media(max-width:860px){
+  /* Reduz a altura total da capa e mantém a proporção da arte do desktop. */
+  .nl-header,.nl-header-inner{min-height:66px}
+  .nl-header-inner{width:calc(100% - 28px);gap:10px}
+  .nl-nav{display:none}
+  .nl-mobile-menu{display:block;position:relative;z-index:20}
+  .nl-mobile-menu summary{width:43px;height:43px;display:flex;flex-direction:column;
+   align-items:center;justify-content:center;gap:5px;border-radius:11px;cursor:pointer;
+   border:1px solid #3476ce;background:linear-gradient(145deg,#0b214a,#071530);list-style:none}
+  .nl-mobile-menu summary span{width:20px;height:2px;border-radius:2px;background:#eff8ff}
+  .nl-mobile-menu nav{display:grid;position:absolute;right:0;top:49px;z-index:25;
+   width:min(270px,calc(100vw - 24px));padding:8px;border-radius:13px;
+   border:1px solid #7252de;background:#08112c;box-shadow:0 12px 35px #000b}
+  .nl-mobile-menu nav a{color:#f0f3ff;padding:10px 12px;border-radius:8px}
+  .nl-header .nl-btn-header{margin-left:auto}
+  .nl-hero{overflow:hidden}
+  .nl-hero-content{display:flex;flex-direction:column;align-items:stretch;gap:0;min-height:0}
+  .nl-hero-copy{max-width:660px;width:100%;padding:28px 4px 8px;margin-inline:auto}
+  .nl-hero-copy>p{font-size:15px;line-height:1.48;margin:0 0 19px;max-width:570px}
+  .nl-hero h1{font-size:clamp(35px,6.1vw,50px);letter-spacing:-1.9px;
+   line-height:1.07;margin-bottom:17px}
+  .nl-hero-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+   gap:10px;max-width:575px}
+  .nl-hero-buttons .nl-btn{min-width:0;font-size:13px;white-space:normal;
+   min-height:49px;padding:10px 9px;line-height:1.15}
+  .nl-benefits{max-width:540px;gap:8px;margin:17px 0 0}
+  .nl-benefits>div{font-size:11px;gap:7px}
+  .nl-benefits>div>span{flex-basis:31px;width:31px;height:31px;font-size:22px}
+  .nl-stage{height:421px;max-width:650px;margin:0 auto;overflow:hidden}
+  .nl-stage-halo{height:88%;width:60%;right:15%;top:0}
+  .nl-stage-bars{inset:20% 0 5% 49%;gap:9px}
+  .nl-plane-decoration{right:3%;top:15%;width:195px;height:125px}
+  .nl-phone{top:17px;left:calc(50% - 180px);width:360px;height:620px;
+   transform:rotate(6deg) scale(.67);transform-origin:center top;
+   border-radius:55px}
+  .nl-phone-bezel{border-radius:45px}
+  .nl-phone-inner{padding:28px 12px 0}
+  .nl-phone-status{margin-bottom:11px;font-size:14px}
+  .nl-phone-brand{font-size:22px}
+  .nl-phone-controls b{width:37px;height:37px;font-size:17px}
+  .nl-phone-caption{margin:6px 0 11px}
+  .nl-multi{height:126px;border-radius:10px}
+  .nl-multi .nl-multi-icon{font-size:20px}
+  .nl-multi-name{font-size:10px;min-height:29px}
+  .nl-multi strong{font-size:21px}
+  .nl-radar-label{min-height:38px;font-size:10px;margin:9px 0 4px}
+  .nl-phone-clock{min-height:48px}
+  .nl-phone-clock strong{font-size:23px}
+  .nl-chart{height:220px}
+  .nl-chart>strong{font-size:53px}
+  .nl-feature-wrap{display:grid;grid-template-columns:1fr;gap:12px;
+   max-width:650px;margin-top:0;z-index:4}
+  /* Os três cards mantêm texto à esquerda e demonstração à direita,
+     em vez de ocupar uma tela inteira cada um. */
+  .nl-feature-card{display:grid;grid-template-columns:minmax(0,44%) minmax(0,56%);
+   min-height:206px;gap:10px;align-items:center;padding:14px 18px;
+   border-radius:16px;overflow:hidden}
+  .nl-feature-copy{align-self:center}
+  .nl-feature-icon{width:40px;height:40px;flex-basis:40px;
+   font-size:22px;margin-bottom:9px}
+  .nl-feature-card h2{font-size:clamp(19px,2.9vw,24px);letter-spacing:-.4px;
+   line-height:1.16;margin:0 0 8px}
+  .nl-feature-card p{font-size:12px;line-height:1.44;max-width:285px}
+  .nl-feature-visual{width:100%;max-width:none;align-self:center;margin:0}
+  .nl-mini-crash{height:178px;border-radius:13px;padding:9px 7px;transform:none}
+  .nl-mini-heading{font-size:12px;margin-bottom:6px}
+  .nl-multipliers-compact{gap:3px}
+  .nl-multipliers-compact .nl-multi{height:96px;padding:2px 1px;border-width:1px;border-radius:6px}
+  .nl-multipliers-compact .nl-multi-icon{font-size:13px}
+  .nl-multipliers-compact .nl-multi-name{font-size:7px;min-height:25px}
+  .nl-multipliers-compact .nl-multi strong{font-size:12px;letter-spacing:-.35px}
+  .nl-mini-radar{font-size:8px;padding:7px 2px;margin-top:6px}
+  .nl-mini-rose{height:180px;min-height:0;padding:9px;border-radius:10px}
+  .nl-mini-rose-heading{font-size:13px;margin-bottom:6px}
+  .nl-mini-rose-stats>span{min-height:41px;padding:5px 3px;font-size:7px}
+  .nl-mini-rose-stats b{font-size:11px}
+  .nl-mini-rose-highlight{min-height:80px;margin-top:5px;padding:4px}
+  .nl-mini-rose-highlight small{font-size:7px}
+  .nl-mini-rose-highlight strong{font-size:31px}
+  .nl-mini-rose-highlight>span{font-size:19px;transform:translate(-48px,8px)}
+  .nl-mini-results{min-height:0;height:184px;margin:0;padding:9px}
+  .nl-mini-results-title{font-size:12px;margin-bottom:5px}
+  .nl-mini-results>small{font-size:8px}
+  .nl-mini-results-grid{gap:4px;margin:5px 0}
+  .nl-mini-results-grid>div{min-height:41px;padding:5px;font-size:8px}
+  .nl-mini-results-grid>div b{font-size:10px}
+  .nl-results-button{font-size:8px;padding:6px 3px}
+  .nl-demo-warning{margin-top:10px}
+  .nl-simple-section{padding:52px 0 43px}
+  .nl-simple-section h2{font-size:clamp(26px,4.5vw,35px);margin-bottom:22px}
+  .nl-steps{gap:10px}
+  .nl-steps>div{padding:17px}
+  .nl-steps h3{margin:6px 0;font-size:16px}
+  .nl-steps p{font-size:12px}
+}
+@media(max-width:520px){
+  .nl-shell{width:calc(100% - 28px)}
+  .nl-header-inner{width:calc(100% - 24px);gap:6px}
+  .nl-logo .nl-mark{width:34px;height:38px}
+  .nl-logo .nl-mark svg{width:35px;height:35px}
+  .nl-logo>span:last-child{font-size:18px;letter-spacing:-.8px}
+  .nl-btn-header{min-height:38px;min-width:0;font-size:11px;padding:7px 9px;gap:5px}
+  .nl-btn-header span{font-size:17px}
+  .nl-mobile-menu summary{width:39px;height:40px}
+  .nl-hero-copy{padding:24px 2px 9px}
+  .nl-kicker{font-size:9px;letter-spacing:1.7px;
+   padding:7px 12px;margin-bottom:14px}
+  .nl-hero h1{font-size:clamp(31px,8.55vw,40px);line-height:1.09;
+   letter-spacing:-1.5px;margin-bottom:12px}
+  .nl-hero-copy>p{font-size:13px;line-height:1.44;margin-bottom:14px}
+  .nl-hero-buttons{gap:8px}
+  .nl-hero-buttons .nl-btn{min-height:44px;font-size:11px;line-height:1.2;
+   padding:8px 5px;border-radius:11px;gap:5px}
+  .nl-hero-buttons .nl-btn-primary>span{font-size:20px}
+  .nl-hero-buttons .nl-btn-secondary>span{font-size:12px}
+  .nl-benefits{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:7px;
+   column-gap:10px;margin-top:14px}
+  .nl-benefits>div{font-size:10px;gap:7px;line-height:1.3}
+  .nl-benefits>div>span{width:28px;height:28px;flex-basis:28px;font-size:19px}
+  .nl-stage{height:360px;max-width:410px}
+  .nl-stage-halo{height:94%;top:0}
+  .nl-plane-decoration{right:4%;top:12%;width:148px;height:95px}
+  .nl-stage-bars{inset:18% 0 3% 45%}
+  .nl-phone{top:10px;left:calc(50% - 165px);width:330px;height:585px;
+   transform:rotate(6deg) scale(.58);transform-origin:center top;
+   border-radius:49px}
+  .nl-phone-bezel{border-radius:40px}
+  .nl-phone-inner{padding:28px 10px 0}
+  .nl-phone-status{font-size:13px;margin-bottom:9px}
+  .nl-phone-brand{font-size:19px}
+  .nl-phone-controls b{width:33px;height:33px;font-size:15px}
+  .nl-phone-caption{font-size:9px;margin:5px 0 10px}
+  .nl-multi{height:116px;border-radius:9px}
+  .nl-multi .nl-multi-icon{font-size:18px}
+  .nl-multi-name{font-size:10px;min-height:24px}
+  .nl-multi strong{font-size:19px}
+  .nl-radar-label{min-height:34px;font-size:9px;margin:8px 0 5px}
+  .nl-phone-clock strong{font-size:21px}
+  .nl-phone-clock span{font-size:8px}
+  .nl-phone-clock b{font-size:8px}
+  .nl-chart{height:207px}
+  .nl-chart>strong{font-size:50px}
+  .nl-feature-wrap{gap:10px;margin-top:0}
+  .nl-feature-card{grid-template-columns:minmax(0,43%) minmax(0,57%);
+   gap:8px;min-height:190px;padding:10px;border-radius:14px}
+  .nl-feature-copy{align-self:center}
+  .nl-feature-icon{width:34px;height:34px;flex-basis:34px;font-size:19px;
+   margin-bottom:7px}
+  .nl-feature-icon>span{font-size:20px!important}
+  .nl-feature-card h2{font-size:clamp(16px,4.35vw,19px);
+   line-height:1.13;margin:0 0 7px;letter-spacing:-.4px}
+  .nl-feature-card p{font-size:11px;line-height:1.36;max-width:none}
+  .nl-mini-crash{height:168px;padding:7px 5px;border-radius:10px}
+  .nl-mini-heading{font-size:11px;margin-bottom:7px}
+  .nl-multipliers-compact .nl-multi{height:87px;min-height:0;border-radius:5px}
+  .nl-multipliers-compact .nl-multi-icon{font-size:11px}
+  .nl-multipliers-compact .nl-multi-name{font-size:7px;line-height:1.12;min-height:25px}
+  .nl-multipliers-compact .nl-multi strong{font-size:11px;letter-spacing:-.45px}
+  .nl-mini-radar{font-size:7px;margin-top:6px;padding:6px 2px;line-height:1.2}
+  .nl-mini-rose{height:174px;padding:6px}
+  .nl-mini-rose-heading{font-size:11px;margin-bottom:5px;gap:3px}
+  .nl-mini-rose-stats>span{font-size:6px;min-height:39px;padding:4px 2px}
+  .nl-mini-rose-stats b{font-size:10px}
+  .nl-mini-rose-highlight{min-height:78px;margin-top:5px}
+  .nl-mini-rose-highlight strong{font-size:29px}
+  .nl-mini-rose-highlight small{font-size:6px}
+  .nl-mini-rose-highlight>span{font-size:17px;transform:translate(-38px,9px)}
+  .nl-mini-results{height:172px;padding:6px}
+  .nl-mini-results-title{font-size:10px;margin-bottom:4px}
+  .nl-mini-results>small{font-size:7px}
+  .nl-mini-results-grid{gap:3px;margin:4px 0}
+  .nl-mini-results-grid>div{font-size:7px;min-height:41px;padding:3px}
+  .nl-mini-results-grid>div b{font-size:8px;white-space:normal}
+  .nl-results-button{font-size:7px;padding:7px 2px}
+  .nl-demo-warning{font-size:10px;line-height:1.5;margin-top:11px}
+  .nl-simple-section{padding:43px 0 38px}
+  .nl-simple-section h2{font-size:25px}
+  .nl-steps{grid-template-columns:1fr;gap:9px}
+  .nl-steps>div{padding:13px 16px}
+  .nl-steps h3{font-size:15px}
+  .nl-steps p{font-size:12px}
+  .nl-feedback-note{padding:16px;margin-bottom:26px;gap:12px}
+  .nl-feedback-note h2{font-size:18px}
+  .nl-feedback-note p{font-size:12px}
+  .nl-feedback-note .nl-btn{width:100%;min-height:42px}
+  .nl-footer-inner{min-height:0;padding:17px 0;gap:9px}
+  .nl-footer-inner nav{gap:13px}
+}
+@media(max-width:355px){
+  .nl-header-inner{width:calc(100% - 16px)}
+  .nl-logo>span:last-child{font-size:16px}
+  .nl-btn-header{font-size:10px;padding:6px}
+  .nl-hero h1{font-size:30px}
+  .nl-feature-card{grid-template-columns:minmax(0,46%) minmax(0,54%);padding:8px;gap:6px}
+  .nl-feature-card h2{font-size:15px}
+  .nl-feature-card p{font-size:10px}
+  .nl-mini-heading{font-size:10px}
+  .nl-mini-rose-heading{font-size:10px}
+  .nl-multipliers-compact .nl-multi strong{font-size:9px}
+}
