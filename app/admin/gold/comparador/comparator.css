@@ -1,0 +1,22 @@
+.gold-comparator-page{min-width:0;display:grid;gap:16px}
+.gold-compare-breadcrumb{display:flex;flex-wrap:wrap;gap:14px}
+.gold-compare-breadcrumb a{color:#a9d4ff;font-size:12px;text-decoration:underline;text-underline-offset:3px}
+.gold-comparator{min-width:0;display:grid;gap:16px}
+.gold-comparator .admin-card{min-width:0}
+.gold-compare-eyebrow{font-size:11px;font-weight:800;letter-spacing:1.2px;color:#e6bc85}
+.gold-comparator h2{font-size:clamp(17px,2.3vw,23px);margin:8px 0;overflow-wrap:anywhere}
+.gold-compare-inputs{display:grid;gap:14px;margin-top:20px}
+.gold-compare-inputs label{display:grid;gap:8px;font-size:13px;font-weight:700;color:#c6d9f2;min-width:0}
+.gold-compare-inputs input[type=file],.gold-compare-inputs textarea{width:100%;min-width:0;background:#08162d;border:1px solid #516b91;border-radius:11px;color:#e7efff;font:inherit;padding:12px}
+.gold-compare-inputs textarea{resize:vertical;line-height:1.6;overflow-wrap:anywhere}
+.gold-compare-inputs .gold-session-check{display:flex;align-items:flex-start;gap:12px;font-size:12px;line-height:1.55;font-weight:500}
+.gold-session-check input{margin-top:3px;width:17px;height:17px;flex:none;accent-color:#ab76ff}
+.gold-compare-btn{min-height:43px;border:1px solid #9561ed;color:white;background:linear-gradient(120deg,#2e5bc9,#933fd0);border-radius:10px;font-weight:800;padding:11px 16px;cursor:pointer;max-width:100%}
+.gold-compare-btn.secondary{background:#142546;border-color:#4d6dad;color:#bcdfff}
+.gold-compare-btn:disabled{opacity:.55;cursor:not-allowed}
+.gold-compare-btn:focus-visible{outline:2px solid #8de8fe;outline-offset:2px}
+.gold-compare-results-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.gold-compare-disclaimer{border-left:3px solid #cb9a55;background:#35251869;padding:12px 13px;color:#f0d8ad;line-height:1.5;font-size:12px;margin:15px 0}
+.gold-comparator .admin-table-scroll{max-width:100%;overflow-x:auto;margin:12px 0}
+.gold-comparator td,.gold-comparator th{font-size:12px;white-space:nowrap}
+@media(max-width:600px){.gold-comparator .admin-card{padding:15px}.gold-compare-results-head{align-items:stretch;flex-direction:column}.gold-compare-btn{width:100%}.gold-compare-breadcrumb{gap:10px}}

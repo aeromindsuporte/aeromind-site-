@@ -11,7 +11,11 @@ const field=(f:FormData,k:string):string=>{
 };
 const validEmail=(s:string)=>s.length<=320&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
 const reason=(s:string)=>s.length>=8&&s.length<=500;
-const back='/admin/gold?msg=';
+const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const back=(f:FormData,msg:string)=>{
+ const client=field(f,'return_client');
+ return '/admin/gold?msg='+encodeURIComponent(msg)+(uuid.test(client)?'&cliente='+encodeURIComponent(client):'');
+};
 
 export async function saveGoldAccess(f:FormData){
  const {sb}=await requireAdmin();
@@ -20,12 +24,12 @@ export async function saveGoldAccess(f:FormData){
  const operation=field(f,'operation');
  const note=field(f,'reason');
  const date=field(f,'valid_until');
- if(!validEmail(email)||!['grant','revoke'].includes(operation)||!reason(note))redirect(back+'invalid');
+ if(!validEmail(email)||!['grant','revoke'].includes(operation)||!reason(note))redirect(back(f,'invalid'));
  let expires:string|null=null;
  if(isEnabled){
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(date))redirect(back+'invalid');
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date))redirect(back(f,'invalid'));
   const dt=new Date(date+'T23:59:59-03:00');
-  if(!Number.isFinite(dt.getTime())||dt.getTime()<=Date.now())redirect(back+'expiry');
+  if(!Number.isFinite(dt.getTime())||dt.getTime()<=Date.now())redirect(back(f,'expiry'));
   expires=dt.toISOString();
  }
  const {data,error}=await sb.rpc('aeromind_gold_admin_set_access',{
@@ -34,11 +38,11 @@ export async function saveGoldAccess(f:FormData){
  if(error||data?.ok!==true){
   const msg=error?.code==='22023'?'invalid':error?.code==='42501'?'permission':'error';
   console.error('gold_access_admin_failed',{code:error?.code||'NO_RESULT'});
-  redirect(back+msg);
+  redirect(back(f,msg));
  }
  revalidatePath('/admin/gold');
  revalidatePath('/minha-conta');
- redirect(back+(isEnabled?'granted':'revoked'));
+ redirect(back(f,isEnabled?'granted':'revoked'));
 }
 function parseFilter(f:FormData,prefix:string):FilterSpec{
  const mode=field(f,prefix+'_mode');
@@ -64,14 +68,14 @@ export async function saveGoldConfiguration(f:FormData){
  const email=field(f,'email').toLowerCase();
  const note=field(f,'reason');
  const config=settingsFromForm(f);
- if(!validEmail(email)||!reason(note)||!validateGoldSettings(config))redirect(back+'invalid-config');
+ if(!validEmail(email)||!reason(note)||!validateGoldSettings(config))redirect(back(f,'invalid-config'));
  const {data,error}=await sb.rpc('aeromind_gold_admin_save_config',{
   p_email:email,p_settings:config,p_reason:note
  });
  if(error||data?.ok!==true){
   console.error('gold_config_admin_failed',{code:error?.code||'NO_RESULT'});
-  redirect(back+(error?.code==='22023'?'invalid-config':error?.code==='42501'?'permission':'error'));
+  redirect(back(f,error?.code==='22023'?'invalid-config':error?.code==='42501'?'permission':'error'));
  }
  revalidatePath('/admin/gold');
- redirect(back+'config-saved');
+ redirect(back(f,'config-saved'));
 }
