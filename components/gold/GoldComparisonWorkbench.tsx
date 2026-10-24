@@ -34,7 +34,7 @@ export function GoldComparisonWorkbench({settings,configLabel}:{settings:Setting
   setError('');setResult(null);
   if(!file)return;
   if(file.size>130000){setError('O arquivo ultrapassa 130 KB.');return;}
-  setSessionConfirmed(false);setCsv(await file.text());
+  try{setSessionConfirmed(false);setCsv(await file.text());}catch{setError('Falha ao ler arquivo local.');}
  }
  function exportCsv(){
   if(!result)return;
@@ -56,7 +56,7 @@ export function GoldComparisonWorkbench({settings,configLabel}:{settings:Setting
      <input type="file" accept=".csv,.txt,text/csv,text/plain" onChange={e=>{void loadFile(e.target.files?.[0]);}}/>
     </label>
     <label>Ou cole o CSV abaixo
-     <textarea value={csv} onChange={e=>{setCsv(e.target.value);setResult(null);}} rows={8} spellCheck={false}
+     <textarea value={csv} onChange={e=>{setCsv(e.target.value);setResult(null);setSessionConfirmed(false);}} rows={8} spellCheck={false}
        placeholder={'id;data_hora_iso;resultado_x\nrodada-001;2026-10-24T14:00:00-03:00;1,42\nrodada-002;2026-10-24T14:00:35-03:00;2,18'} />
     </label>
     <p className="gold-hint">Formato: id;data_hora_iso;resultado_x. Data ISO 8601 com fuso obrigatório, uma rodada confirmada por linha. Entre 2 e 1.500 rodadas, IDs distintos e horários estritamente crescentes. As duas linhas do exemplo acima são fictícias, não são sinais.</p>
