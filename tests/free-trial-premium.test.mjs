@@ -70,3 +70,20 @@ test('movimentos têm opção sem animação e layout próprio responsivo',()=>{
  assert.match(css,/\.trial-feature-grid\{/);
  assert.ok(!css.includes('.nl-hero{'),'não alterar estilos da landing');
 });
+
+
+test('cronômetro realçado gira somente ao redor do número, com acessibilidade',()=>{
+ const component=read('components/trial/TrialAvailability.tsx');
+ const css=read('app/teste-gratis/trial-premium.css');
+ assert.match(component,/className="trial-chrono-face"/);
+ assert.match(component,/className="trial-chrono-sweep"/);
+ assert.match(component,/Array.from\(\{length:24\}/);
+ assert.match(component,/trial-chrono-tick-major/);
+ assert.match(component,/role="status" aria-live="polite"/);
+ assert.match(css,/\.trial-chrono-face\{/);
+ assert.match(css,/\.trial-chrono-sweep\{/);
+ assert.match(css,/animation:trial-stopwatch-sweep 4s linear infinite/);
+ assert.match(css,/@keyframes trial-stopwatch-sweep/);
+ assert.match(css,/\.trial-chrono-sweep\{animation:none!important\}/);
+ assert.ok(!/Math\.random\(/.test(component),'Aro não modifica disponibilidade real');
+});
