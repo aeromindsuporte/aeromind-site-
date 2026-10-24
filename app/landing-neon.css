@@ -636,3 +636,60 @@
 @media(prefers-reduced-motion:reduce){
   .nl-btn-trial{animation:none}
 }
+
+
+/* Aviso de idade e riscos — adição isolada, sem modificar o design aprovado. */
+.nl-responsibility-notice{
+  display:flex;
+  align-items:flex-start;
+  gap:11px;
+  width:100%;
+  max-width:695px;
+  margin:-6px 0 17px;
+  padding:10px 12px;
+  border:1px solid #6e648d;
+  border-radius:12px;
+  background:linear-gradient(120deg,#12172fda,#16112bdf);
+}
+.nl-responsibility-age{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+  min-width:39px;
+  min-height:30px;
+  padding:4px 6px;
+  border:1px solid #dec16b;
+  border-radius:8px;
+  background:#3b2a21;
+  color:#ffe19d;
+  font-size:14px;
+  line-height:1.15;
+  font-weight:850;
+}
+.nl-responsibility-notice p{
+  margin:0;
+  color:#d5def1;
+  font-size:12px;
+  line-height:1.48;
+}
+.nl-responsibility-notice p strong{
+  color:#fff;
+  font-weight:800;
+}
+@media(max-width:520px){
+  .nl-responsibility-notice{
+    padding:9px 10px;
+    gap:9px;
+    margin:-2px 0 13px;
+  }
+  .nl-responsibility-age{
+    min-width:35px;
+    min-height:28px;
+    font-size:13px;
+  }
+  .nl-responsibility-notice p{
+    font-size:11px;
+    line-height:1.42;
+  }
+}
