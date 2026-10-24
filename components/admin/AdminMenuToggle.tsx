@@ -12,7 +12,10 @@ export function AdminMenuToggle(){
   if(!root)return;
   root.classList.toggle('admin-nav-open',open);
   const previousOverflow=document.body.style.overflow;
-  if(open&&window.matchMedia(MOBILE_QUERY).matches)document.body.style.overflow='hidden';
+  const media=window.matchMedia(MOBILE_QUERY);
+  const syncOverflow=()=>{document.body.style.overflow=open&&media.matches?'hidden':previousOverflow;};
+  syncOverflow();
+  media.addEventListener('change',syncOverflow);
   const onKey=(event:KeyboardEvent)=>{
    if(event.key==='Escape'&&open){
     setOpen(false);
@@ -24,13 +27,18 @@ export function AdminMenuToggle(){
    nav?.querySelector<HTMLButtonElement>('.admin-sidebar-close')?.focus({preventScroll:true});
   }
   const onNavClick=(event:MouseEvent)=>{
-   if((event.target as HTMLElement)?.closest('a,.admin-sidebar-close'))setOpen(false);
+   const target=event.target as HTMLElement;
+   if(target?.closest('a,.admin-sidebar-close')){
+    setOpen(false);
+    if(target.closest('.admin-sidebar-close'))trigger.current?.focus();
+   }
   };
   document.addEventListener('keydown',onKey);
   nav?.addEventListener('click',onNavClick);
   return ()=>{
    root.classList.remove('admin-nav-open');
    document.body.style.overflow=previousOverflow;
+   media.removeEventListener('change',syncOverflow);
    document.removeEventListener('keydown',onKey);
    nav?.removeEventListener('click',onNavClick);
   };
