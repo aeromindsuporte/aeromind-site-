@@ -1,5 +1,5 @@
 'use client';
-import {useMemo,useState,useTransition} from 'react';
+import {useEffect,useMemo,useState,useTransition} from 'react';
 import {useRouter} from 'next/navigation';
 import {DEFAULT_NOTIFICATION,NOTIFICATION_CATEGORIES,NOTIFICATION_STATUS} from '@/lib/notification-types';
 import type {NotificationCampaign,NotificationInput} from '@/lib/notification-types';
@@ -8,6 +8,7 @@ type Stats={drafts:number;scheduled:number;sentToday:number;reads:number};
 type CustomerChoice={id:string;label:string};
 const date=(s:string|null)=>s?new Date(s).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short',timeZone:'America/Sao_Paulo'}):'—';
 const todayLocal=(iso:string|null)=>{if(!iso)return '';const d=new Date(iso);return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);};
+const LOCAL_DRAFT_KEY='aeromind-admin-notification-edit-v1';
 const validityChoices=[{value:'5',label:'5 minutos'},{value:'15',label:'15 minutos'},{value:'30',label:'30 minutos'},{value:'60',label:'1 hora'},{value:'1440',label:'24 horas'},{value:'none',label:'Sem expiração'}];
 const targets=[{key:'active',label:'Todos com licença ativa'},{key:'all',label:'Todos os cadastrados'},{key:'tier',label:'Por plano'},{key:'user',label:'Cliente específico'}];
 export function NotificationCenter({campaigns,stats,customers,readCounts}:{
@@ -22,6 +23,35 @@ export function NotificationCenter({campaigns,stats,customers,readCounts}:{
  const [feedback,setFeedback]=useState<{ok:boolean;text:string}|null>(null);
  const [pending,startTransition]=useTransition();
  const [showAdvanced,setShowAdvanced]=useState(false);
+ const [draftRestored,setDraftRestored]=useState(false);
+ // Evita perder o que foi digitado em refresh de sessão, retorno de aba ou teclado móvel.
+ useEffect(()=>{
+  try{
+   const raw=window.sessionStorage.getItem(LOCAL_DRAFT_KEY);
+   if(raw){
+    const data=JSON.parse(raw) as {form:NotificationInput;editingId:string|null;updatedAt:number};
+    if(data&&data.form&&typeof data.form.title==='string'&&typeof data.form.body==='string'
+     &&Number.isFinite(data.updatedAt)&&Date.now()-data.updatedAt<12*60*60*1000){
+      setForm({...DEFAULT_NOTIFICATION,...data.form});
+      setEditingId(data.editingId||null);
+    }else window.sessionStorage.removeItem(LOCAL_DRAFT_KEY);
+   }
+  }catch{/* Armazenamento local bloqueado: editor continua funcionando. */}
+  setDraftRestored(true);
+ },[]);
+ useEffect(()=>{
+  if(!draftRestored)return;
+  const timeout=window.setTimeout(()=>{
+   try{
+    if(!form.title.trim()&&!form.body.trim()&&!editingId){
+     window.sessionStorage.removeItem(LOCAL_DRAFT_KEY);
+    }else{
+     window.sessionStorage.setItem(LOCAL_DRAFT_KEY,JSON.stringify({form,editingId,updatedAt:Date.now()}));
+    }
+   }catch{/* Sem espaço local: salvamento no servidor não é afetado. */}
+  },300);
+  return ()=>window.clearTimeout(timeout);
+ },[draftRestored,form,editingId]);
  const update=<K extends keyof NotificationInput>(key:K,value:NotificationInput[K])=>
    setForm(current=>({...current,[key]:value}));
  const filtered=useMemo(()=>campaigns.filter(c=>{
@@ -33,7 +63,8 @@ export function NotificationCenter({campaigns,stats,customers,readCounts}:{
  }),[campaigns,filter,search]);
  const reset=()=>{
    setForm({...DEFAULT_NOTIFICATION});setEditingId(null);setFeedback(null);
-   document.getElementById('notification-editor')?.scrollIntoView({behavior:'smooth',block:'start'});
+   try{window.sessionStorage.removeItem(LOCAL_DRAFT_KEY);}catch{}
+   document.getElementById('notification-editor')?.scrollIntoView({behavior:'smooth',block:'start',inline:'nearest'});
  };
  const openCampaign=(c:NotificationCampaign)=>{
    if(c.status==='sent'||c.status==='cancelled'){
@@ -47,12 +78,20 @@ export function NotificationCenter({campaigns,stats,customers,readCounts}:{
     scheduled_at:c.status==='scheduled'?c.scheduled_at:null,
     channel_site:true,channel_app:false,channel_push:false
    });
-   document.getElementById('notification-editor')?.scrollIntoView({behavior:'smooth',block:'start'});
+   document.getElementById('notification-editor')?.scrollIntoView({behavior:'smooth',block:'start',inline:'nearest'});
+ };
+ const runSafely=(action:()=>Promise<void>)=>{
+  startTransition(async()=>{
+   try{await action();}
+   catch{
+    setFeedback({ok:false,text:'Não foi possível concluir a operação. Sua mensagem foi mantida no editor; verifique a conexão ou entre novamente.'});
+   }
+  });
  };
  const persist=(mode:'draft'|'template'|'scheduled',sendImmediately=false)=>{
   if(sendImmediately&&!window.confirm('Enviar esta notificação agora para o público selecionado? Essa ação não pode ser desfeita.'))return;
   setFeedback(null);
-  startTransition(async()=>{
+  runSafely(async()=>{
    const data:NotificationInput={...form,id:editingId||undefined,status:mode,scheduled_at:mode==='scheduled'?form.scheduled_at:null};
    const saved=await saveNotification(data);
    if(!saved.ok||!saved.id){setFeedback({ok:false,text:saved.message});return;}
@@ -61,7 +100,7 @@ export function NotificationCenter({campaigns,stats,customers,readCounts}:{
    if(sendImmediately){
     const published=await sendSavedNotification(saved.id);
     setFeedback({ok:published.ok,text:published.message});
-    if(published.ok){setEditingId(null);setForm({...DEFAULT_NOTIFICATION});}
+    if(published.ok){setEditingId(null);setForm({...DEFAULT_NOTIFICATION});try{window.sessionStorage.removeItem(LOCAL_DRAFT_KEY);}catch{}}
    }else setFeedback({ok:true,text:saved.message});
    router.refresh();
   });
@@ -69,14 +108,14 @@ export function NotificationCenter({campaigns,stats,customers,readCounts}:{
  const sendRow=(c:NotificationCampaign)=>{
    if(!window.confirm('Enviar agora: '+c.title+'? Destinatários elegíveis receberão esta mensagem no site.'))return;
    setFeedback(null);
-   startTransition(async()=>{
+   runSafely(async()=>{
     const result=await sendSavedNotification(c.id);
     setFeedback({ok:result.ok,text:result.message});
     router.refresh();
    });
  };
  const duplicateRow=(c:NotificationCampaign)=>{
-  startTransition(async()=>{
+  runSafely(async()=>{
    const copy:NotificationInput={title:c.title+' (cópia)',body:c.body,category:c.category,
     audience_type:c.audience_type,audience_tier:c.audience_tier,audience_user_id:c.audience_user_id,
     priority:c.priority,validity_minutes:c.validity_minutes,cta_label:c.cta_label,cta_path:c.cta_path,
@@ -89,7 +128,7 @@ export function NotificationCenter({campaigns,stats,customers,readCounts}:{
  };
  const cancelRow=(c:NotificationCampaign)=>{
   if(!window.confirm('Cancelar o agendamento desta notificação? Ela voltará aos rascunhos.'))return;
-  startTransition(async()=>{
+  runSafely(async()=>{
    const result=await cancelScheduledNotification(c.id);
    setFeedback({ok:result.ok,text:result.message});router.refresh();
   });
@@ -117,6 +156,7 @@ export function NotificationCenter({campaigns,stats,customers,readCounts}:{
       <h2>{editingId?'Editar notificação':'Nova notificação'}</h2>
       {editingId&&<button className="nc-text-action" type="button" onClick={reset}>Limpar</button>}
     </div>
+    <p className="nc-editor-hint">Seu texto é preservado nesta aba enquanto você edita. O envio só ocorre ao confirmar.</p>
     <label className="nc-field"><span>Título da notificação <small>{form.title.length}/100</small></span>
       <input type="text" maxLength={100} placeholder="Ex.: Radar Ao Vivo — condição observada" value={form.title} onChange={e=>update('title',e.target.value)}/>
     </label>
@@ -199,7 +239,7 @@ export function NotificationCenter({campaigns,stats,customers,readCounts}:{
     <div className="nc-toolbar">
       <button type="button" className="nc-button nc-save" disabled={pending}
        onClick={()=>persist('draft')}>▣ Salvar</button>
-      <button type="button" className="nc-button nc-ghost" onClick={()=>document.getElementById('nc-live-preview')?.scrollIntoView({behavior:'smooth',block:'center'})}>◉ Pré-visualizar</button>
+      <button type="button" className="nc-button nc-ghost" onClick={()=>document.getElementById('nc-live-preview')?.scrollIntoView({behavior:'smooth',block:'start',inline:'nearest'})}>◉ Pré-visualizar</button>
       <button type="button" className="nc-button nc-send" disabled={pending}
        onClick={()=>persist('draft',true)}>{pending?'Processando...':'➤ Enviar agora'}</button>
     </div>
@@ -253,7 +293,9 @@ export function NotificationCenter({campaigns,stats,customers,readCounts}:{
       </div>
     </section>
     <section className="nc-panel nc-preview" id="nc-live-preview">
-      <div className="nc-panel-heading"><span className="nc-heading-icon" aria-hidden="true">◉</span><h2>Pré-visualização da notificação</h2></div>
+      <div className="nc-panel-heading"><span className="nc-heading-icon" aria-hidden="true">◉</span><h2>Pré-visualização da notificação</h2>
+        <button type="button" className="nc-return-editor" onClick={()=>document.getElementById('notification-editor')?.scrollIntoView({behavior:'smooth',block:'start',inline:'nearest'})}>↑ Voltar ao editor</button>
+      </div>
       <div className="nc-preview-tabs" role="group" aria-label="Visualização da mensagem">
         {(['site','app','push'] as const).map(t=><button key={t} type="button" className={preview===t?'active':''}
          onClick={()=>setPreview(t)}>{t==='site'?'No site':t==='app'?'No app':'Push'}</button>)}

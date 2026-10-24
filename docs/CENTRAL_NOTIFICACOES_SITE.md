@@ -50,3 +50,20 @@ A extensão `pg_cron` versão 1.6.4 foi habilitada. Job `aeromind_notifications_
 - [ ] Teste funcional autenticado real no navegador: administrador salva e envia e um usuário acessa a própria caixa.
 - [ ] Comparação manual do layout com imagem aprovada em celulares físicos.
 - [ ] Integração Android para push remoto (próxima etapa).
+
+
+## Atualização visual: menu lateral e editor responsivo (23/10/2026)
+
+**Referência:** print enviado mostrando a navegação AeroMind como barra lateral escura/neon.
+**Alterações aprovadas para implementação:**
+- Um único botão `Menu`/hambúrguer no cabeçalho administrativo abre a lista completa de funcionalidades.
+- Desktop: o menu recolhido libera a largura da página; ao abrir, passa a ser uma coluna lateral com ícones, destaque da área ativa e fechamento.
+- Celular/tablet: menu lateral sobreposto, com fundo escurecido, fechamento por toque fora, botão interno ou Esc. Elimina a antiga faixa horizontal de links.
+- A navegação é aplicada tanto à Visão geral (`/admin`) quanto às telas internas (`CommercialAdminShell`).
+- O editor de notificações adapta-se à largura **real** disponível, com quebra para uma coluna, botões legíveis e fontes de formulário de 16px no celular para evitar zoom automático.
+- A Central de Notificações não executa mais o refresh administrativo periódico enquanto o usuário digita.
+- Um rascunho de edição é preservado nesta aba por até 12 horas usando `sessionStorage`, sem envio automático nem mudança nas mensagens já publicadas.
+- Falhas inesperadas de rede em ações de salvar/enviar são tratadas no editor sem apagar o texto.
+- A pré-visualização inclui retorno rápido ao editor no celular.
+
+**Verificações:** `tests/admin-mobile-navigation.test.mjs` executado com os demais testes no build da Vercel. Ainda é necessário testar toque/teclado em dispositivos reais com login administrativo.

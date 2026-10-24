@@ -6,6 +6,7 @@ import './admin.css';
 import { ReleaseUploader } from '@/components/admin/ReleaseUploader';
 import {effectiveLicenseStatus,labelForLicenseStatus} from '@/lib/license-status';
 import {AdminAlertsRefresh} from '@/components/admin/AdminAlertsRefresh';
+import {AdminMenuToggle} from '@/components/admin/AdminMenuToggle';
 
 export const dynamic='force-dynamic';
 export const metadata={title:'Painel Administrativo | AeroMind', robots:{index:false,follow:false}};
@@ -28,8 +29,8 @@ const sections=[
   {href:'/admin/licencas',icon:'⚿',label:'Licenças'},
   {href:'/admin/planos',icon:'◈',label:'Planos'},
   {href:'/admin/dispositivos',icon:'▯',label:'Dispositivos'},
-  {href:'/admin/movimentacoes',icon:'♧',label:'Movimentações'},
-  {href:'/admin/notificacoes',icon:'♧',label:'Notificações'},
+  {href:'/admin/movimentacoes',icon:'⇄',label:'Movimentações'},
+  {href:'/admin/notificacoes',icon:'🔔',label:'Notificações'},
   {href:'/admin/releases',icon:'⇧',label:'Atualizações'},
   {href:'/admin/downloads',icon:'⇩',label:'Downloads'},
   {href:'/admin/cupons',icon:'◇',label:'Cupons'},
@@ -109,12 +110,13 @@ export default async function Admin({searchParams,activeSection='visao'}:{search
  const chartGradient=sum?'conic-gradient('+chartColors.join(',')+')':'conic-gradient(#2d3458 0% 100%)';
  return <div className={'admin-root area-'+activeSection}><AdminAlertsRefresh/>
   <header className="admin-top">
+    <AdminMenuToggle/>
     <Link href="/" className="admin-top-brand"><img src="/images/aeromind-mark.svg" width="42" height="42" alt=""/>AeroMind <span>ADMIN</span></Link>
     <div className="admin-top-right"><span className="admin-live"><i/>Dados reais</span><div className="admin-user"><span className="admin-avatar">A</span><div><strong>AeroMind Suporte</strong><small>{staff.role==='owner'?'Proprietário':'Administrador'}</small></div></div><Link href="/minha-conta" className="admin-account-link">Minha conta ↗</Link></div>
   </header>
   <div className="admin-shell">
-    <aside className="admin-sidebar" aria-label="Menu administrativo"><p>PAINEL ADMINISTRATIVO</p><nav>
-    {sections.map((x,i)=><a key={x.href} href={x.href} className={x.href===(activeSection==='visao'?'/admin':'/admin/'+activeSection)?'current':''}><span>{x.icon}</span>{x.label}{x.href==='/admin/movimentacoes'&&unreadDeviceAlerts!==null&&unreadDeviceAlerts>0?<span className="admin-alert-badge">{unreadDeviceAlerts>99?'99+':unreadDeviceAlerts}</span>:null}</a>)}
+    <aside id="admin-navigation" className="admin-sidebar" aria-label="Menu administrativo"><div className="admin-sidebar-heading"><p>PAINEL ADMINISTRATIVO</p><button type="button" className="admin-sidebar-close" aria-label="Fechar menu">×</button></div><nav aria-label="Todas as funções administrativas">
+    {sections.map((x,i)=><Link key={x.href} href={x.href} aria-current={x.href===(activeSection==='visao'?'/admin':'/admin/'+activeSection)?'page':undefined} className={x.href===(activeSection==='visao'?'/admin':'/admin/'+activeSection)?'current':''}><span>{x.icon}</span>{x.label}{x.href==='/admin/movimentacoes'&&unreadDeviceAlerts!==null&&unreadDeviceAlerts>0?<span className="admin-alert-badge">{unreadDeviceAlerts>99?'99+':unreadDeviceAlerts}</span>:null}</Link>)}
     </nav><div className="admin-sidebar-foot"><span>Site e suporte</span><Link href="/">↗ Ver site</Link><a href="mailto:aeromindsuporte@gmail.com">✉ Contato</a><Link href="/minha-conta">◀ Voltar à conta</Link></div></aside>
     <main className="admin-content">
       <section id="visao" className="admin-overview">
