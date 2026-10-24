@@ -17,6 +17,7 @@ test('importação exige cabeçalho, IDs únicos e cronologia estrita',()=>{
  assert.throws(()=>parseGoldRoundsCsv(good.replace('b;','a;')),/repetido/);
  assert.throws(()=>parseGoldRoundsCsv(good.replace('10:00:30','09:59:30')),/crescentes/);
  assert.throws(()=>parseGoldRoundsCsv(good.replace('1.12','=-3')),/Linha/);
+ assert.throws(()=>parseGoldRoundsCsv(good.replace('2026-10-24T10:00:30','2026-02-30T10:00:30')),/Linha/);
  assert.throws(()=>parseGoldRoundsCsv('id;round;result\n'+good.split('\n').slice(1).join('\n')),/Cabeçalho/);
  assert.throws(()=>parseGoldRoundsCsv('id;data_hora_iso;resultado_x\na;2026-10-24T10:00:00-03:00;2'),/entre 2/);
 });
