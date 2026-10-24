@@ -23,7 +23,7 @@ export function normalizeAuthorizedRound(input:unknown,expectedProvider:string):
   !Number.isFinite(Date.parse(o.occurredAt))||typeof o.multiplier!=='number'||
   !Number.isFinite(o.multiplier)||o.multiplier<1||o.multiplier>1000000)
   throw Error('Evento fora do contrato autorizado');
- return o as AuthorizedRoundEnvelope;
+ return o as unknown as AuthorizedRoundEnvelope;
 }
 /** Assinatura HMAC sobre timestamp e corpo original. */
 export function verifyAuthorizedSourceSignature(
