@@ -25,6 +25,31 @@ function AeroMark({small=false}:{small?:boolean}){
  </span>;
 }
 
+/** Um avião de hélice consistente nas duas demonstrações da landing. */
+function AeroMindPlaneArt(){
+ return <g strokeLinecap="round" strokeLinejoin="round">
+  {/* Estabilizadores traseiros */}
+  <path d="M50 72 27 46 39 42 79 65 84 75Z" fill="#75002E" stroke="#FB1A76" strokeWidth="2.4"/>
+  <path d="M49 79 18 103 32 108 84 85 89 75Z" fill="#800433" stroke="#FB1A76" strokeWidth="2.4"/>
+  {/* Asas com nervuras */}
+  <path d="M104 63 91 14 Q90 10 96 11 L110 12 161 56 153 70Z" fill="#B10447" stroke="#FF328D" strokeWidth="2.6"/>
+  <path d="M106 72 80 113 Q77 119 83 119 L101 116 162 72 153 66Z" fill="#B9044E" stroke="#FF328D" strokeWidth="2.6"/>
+  {/* Fuselagem e reflexos */}
+  <path d="M24 76 C46 68 70 64 101 61 L197 46 Q211 42 217 49 L223 53 Q227 59 216 64 C174 73 127 81 83 85 L24 86 Q12 84 24 76Z" fill="#C5054B" stroke="#FF3A92" strokeWidth="2.8"/>
+  <path d="M31 77 C71 68 146 61 202 52" stroke="#FF8AB6" strokeWidth="2" fill="none"/>
+  <path d="M38 83 C102 83 165 72 202 63" stroke="#F51A77" strokeWidth="1.3" fill="none"/>
+  {/* Cabine com janelas */}
+  <path d="M149 59 Q156 43 172 44 Q184 44 190 52 Q183 61 168 64 L148 67Z" fill="#131A37" stroke="#FF70B3" strokeWidth="2.3"/>
+  <path d="M164 46 160 62 M173 46 175 59" stroke="#FF6DAC" strokeWidth="1.5" fill="none"/>
+  <path d="M99 18 136 57 M110 28 146 60 M94 107 139 75 M102 111 147 77" stroke="#FC5C9E" strokeWidth="1.45" fill="none" opacity=".7"/>
+  {/* Motor, spinner e hélice */}
+  <path d="M214 48 Q221 51 223 54 Q225 61 217 64" fill="#FD3E89" stroke="#FF8CBA" strokeWidth="2"/>
+  <ellipse cx="225" cy="55" rx="3.6" ry="4.1" fill="#FFADC9"/>
+  <path d="M227 30 Q222 43 226 55 Q223 70 227 83" stroke="#FF1D80" strokeWidth="4" fill="none"/>
+  <path d="M227 30 Q222 43 226 55 Q223 70 227 83" stroke="#FFC0DF" strokeWidth="1.4" fill="none"/>
+ </g>;
+}
+
 function CurveChart(){
  return <svg viewBox="0 0 520 245" preserveAspectRatio="none" className="nl-curve" aria-hidden="true">
   <defs>
@@ -43,8 +68,8 @@ function CurveChart(){
   <path d="M0 236 C100 233 168 216 229 189 C306 155 366 103 520 8 L520 245 L0 245 Z" fill="url(#nl-red-curve)"/>
   <path d="M0 236 C100 233 168 216 229 189 C306 155 366 103 520 8" stroke="#FF006F" strokeWidth="5" filter="url(#nl-glow)" fill="none"/>
   <path d="M0 236 C100 233 168 216 229 189 C306 155 366 103 520 8" stroke="#FF3D9A" strokeWidth="2" fill="none"/>
-  <g transform="translate(434 36) rotate(-23)" stroke="#FF0C75" strokeWidth="4" fill="none" strokeLinejoin="round" strokeLinecap="round">
-   <path d="M-30 8 29 -9 38 -4 11 7-15 13-30 8ZM-4 4 2-23 13-27 16 2M-14 10-19 22-7 22 4 8"/>
+  <g transform="translate(380 2) scale(.50)">
+   <g transform="rotate(-17 120 60)"><AeroMindPlaneArt/></g>
   </g>
  </svg>;
 }
@@ -62,7 +87,7 @@ function DeviceMockup(){
   <div className="nl-stage-halo" aria-hidden="true"/>
   <div className="nl-stage-bars" aria-hidden="true"><span/><span/><span/><span/><span/></div>
   <svg className="nl-plane-decoration" width="240" height="150" viewBox="0 0 240 150" aria-hidden="true" fill="none">
-   <path d="M6 128c54-27 85-47 123-86m-27 33 39-41 84-28-9 16-57 30-28 49-13-3 13-43-35 12-24 26-9-4 14-33-25 7-9-11 44-15Z" stroke="#FB156F" strokeWidth="3.4" strokeLinejoin="round"/>
+   <g transform="translate(0 13) rotate(-10 120 60)"><AeroMindPlaneArt/></g>
   </svg>
   <div className="nl-phone-shadow" aria-hidden="true"/>
   <div className="nl-phone">
