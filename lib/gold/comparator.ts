@@ -7,7 +7,7 @@ import {
  CLASSIC_TARGETS,REFINED_DEFAULT,GOLD_ENGINE_VERSION,
  evaluateGoldOrRefined,target,validateGoldSettings,
  type Indicator,type Settings
-} from './indicators';
+} from './indicators.ts';
 
 export const GOLD_COMPARISON_VERSION='gold-offline-walkforward-v1';
 export type ImportedRound={id:string;at:string;multiplier:number};
