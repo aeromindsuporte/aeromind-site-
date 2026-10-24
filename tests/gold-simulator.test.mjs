@@ -58,3 +58,8 @@ test('G11: rejeita valores e ordem inválidos',()=>{
  assert.throws(()=>simulateGold([], {...options,minEntryCents:-1}));
  assert.throws(()=>simulateGold([make('2','2025-07-02','win'),make('1','2025-07-01','loss')],options));
 });
+
+test('G06/G11: sinal duplicado não gera duas operações nem altera banca indevidamente',()=>{
+ const one=make('mesmo-sinal','2025-07-01','win');
+ assert.throws(()=>simulateGold([one,one],options),/duplicado/);
+});
