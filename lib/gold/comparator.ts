@@ -30,6 +30,14 @@ export type ComparisonResult={
 };
 const numberPattern=/^(?:[0-9]+(?:[.,][0-9]+)?)$/;
 const isoWithOffset=/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,3})?(?:Z|[+-]\d\d:\d\d)$/;
+const isActualCalendarDate=(at:string)=>{
+ const m=/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/.exec(at);
+ if(!m)return false;
+ const [year,month,day,hour,minute,second]=m.slice(1).map(Number);
+ if(year<2000||year>2100||hour>23||minute>59||second>59)return false;
+ const date=new Date(Date.UTC(year,month-1,day,hour,minute,second));
+ return date.getUTCFullYear()===year&&date.getUTCMonth()===month-1&&date.getUTCDate()===day;
+};
 const indicators:readonly Indicator[]=['BAIXA','MEDIANA','ALTA'];
 const profiles:readonly ComparedProfile[]=['Clássico','Refinado','Gold'];
 const delta=(later:ImportedRound,earlier:ImportedRound)=>(
@@ -51,7 +59,7 @@ export function parseGoldRoundsCsv(input:string):ImportedRound[]{
   const number=fields[2];
   const id=fields[0]||'',at=fields[1]||'';
   if(fields.length!==3||!/^[A-Za-z0-9_.:-]{1,64}$/.test(id)||!isoWithOffset.test(at)||
-   !numberPattern.test(number||''))throw Error('Linha '+(i+2)+': use ID, data ISO com fuso e multiplicador.');
+   !numberPattern.test(number||'')||!isActualCalendarDate(at))throw Error('Linha '+(i+2)+': use ID, data ISO com fuso e multiplicador.');
   const time=Date.parse(at),multiplier=Number(number.replace(',','.'));
   if(!Number.isFinite(time)||!Number.isFinite(multiplier)||multiplier<1||multiplier>1000000)throw Error('Linha '+(i+2)+': data ou resultado inválido.');
   if(seen.has(id))throw Error('ID repetido na linha '+(i+2)+'.');
@@ -71,7 +79,7 @@ export function compareGoldOffline(
  const seen=new Set<string>();
  let previousTime=-Infinity;
  for(const [i,row] of rows.entries()){
-  if(!row||!/^[A-Za-z0-9_.:-]{1,64}$/.test(row.id)||!isoWithOffset.test(row.at)||
+  if(!row||!/^[A-Za-z0-9_.:-]{1,64}$/.test(row.id)||!isoWithOffset.test(row.at)||!isActualCalendarDate(row.at)||
    !Number.isFinite(row.multiplier)||row.multiplier<1||row.multiplier>1000000)
    throw Error('Rodada inválida na posição '+(i+1)+'.');
   const timestamp=Date.parse(row.at);
