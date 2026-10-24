@@ -56,8 +56,9 @@ test('WhatsApp tem permissão de gravação por coluna, RLS e confirmação real
  const editor=read('components/account/AccountWhatsApp.tsx');
  assert.match(sql,/grant update\s*\([\s\S]*whatsapp_e164[\s\S]*whatsapp_marketing_opt_in[\s\S]*whatsapp_opt_in_at[\s\S]*updated_at[\s\S]*\) on table public\.profiles to authenticated/);
  assert.ok(!/grant update on table public\.profiles to authenticated/.test(sql));
- assert.match(editor,/\.eq\('id',user\.id\)\.select\('id'\)\.maybeSingle\(\)/);
- assert.match(editor,/if\(!data\)/);
+ assert.match(editor,/\.eq\('id',user\.id\)\.select\('whatsapp_e164,whatsapp_marketing_opt_in'\)\.maybeSingle\(\)/);
+ assert.match(editor,/if\(!data\|\|data\.whatsapp_e164!==formatted\)/);
+ assert.match(editor,/if\(readError\|\|!verified\|\|verified\.whatsapp_e164!==formatted\)/);
  assert.match(editor,/Sua sessão expirou/);
  assert.match(editor,/23514/);
  assert.match(editor,/42501/);

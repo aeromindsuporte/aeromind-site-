@@ -235,3 +235,16 @@ padding:13px 15px;background:#0a1731;border:1px solid #3e457c;border-radius:10px
 .account-consent input{width:18px;height:18px;flex:none;accent-color:#ad36ef}
 .account-whatsapp-form .auth-submit{margin-top:2px}
 .account-whatsapp-error{color:#ffb2c9;font-size:12px}.account-whatsapp-ok{color:#7cf4c5;font-size:12px}
+
+/* Perfil já cadastrado: resumo persistente em vez de formulário a cada login */
+.account-whatsapp-view{display:grid;gap:12px;margin-top:12px;min-width:0}
+.account-whatsapp-saved{display:grid;gap:7px;padding:17px;border-radius:12px;border:1px solid #318e77;background:linear-gradient(130deg,#103b32,#13223c);color:#e2fff4;min-width:0}
+.account-whatsapp-saved strong{color:#78f1c3;font-size:13px}
+.account-whatsapp-saved span{font-size:clamp(16px,2vw,19px);font-weight:800;overflow-wrap:anywhere}
+.account-whatsapp-saved small{font-size:11px;color:#b5dacd;line-height:1.55}
+.account-whatsapp-edit{margin-top:0!important;cursor:pointer}
+.account-whatsapp-buttons{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
+.account-whatsapp-buttons button{flex:1 1 175px;min-width:0}
+.account-whatsapp-form>.account-note{margin:0;line-height:1.5}
+@media(max-width:470px){.account-whatsapp-buttons{flex-direction:column}.account-whatsapp-buttons button{width:100%}}
+
