@@ -84,7 +84,7 @@ export default async function FreeTrial({searchParams}:{searchParams:Promise<{pl
      <p className="trial-description">Experimente os recursos <strong>{premium?'Premium':plan.tier}</strong> pelo período escolhido.</p>
 
      <div className="trial-price-row">
-      <div className="trial-duration"><span className="trial-clock-icon" aria-hidden="true">◷</span><strong>{durationLabelOf(plan).replace(/^por /,'')}</strong> de acesso</div>
+      <div className="trial-duration"><span className="trial-clock-icon" aria-hidden="true">◷</span><strong>{plan.slug==='teste-horas'?String(plan.trial_quantity||1)+'h':durationLabelOf(plan).replace(/^por /,'')}</strong> de acesso</div>
       <span className="trial-price-zero">GRÁTIS</span>
      </div>
      <ul className="trial-feature-grid">
@@ -103,14 +103,24 @@ export default async function FreeTrial({searchParams}:{searchParams:Promise<{pl
       {exhausted?<Link className="trial-action-button" href="/planos">Conhecer os planos disponíveis <span aria-hidden="true">→</span></Link>:
        hasLicense?<Link className="trial-action-button" href="/minha-conta">Abrir meu acesso <span aria-hidden="true">→</span></Link>:
        !user?<Link className="trial-action-button" href={'/entrar?next='+encodeURIComponent(claimUrl)}>
-        <span className="trial-gift-icon" aria-hidden="true">♢</span>{buttonText}<span className="trial-action-arrow" aria-hidden="true">→</span>
+        <svg className="trial-gift-icon" width="38" height="38" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+ <rect x="4" y="15" width="28" height="17" rx="2" fill="currentColor"/>
+ <rect x="3" y="12" width="30" height="7" rx="2" fill="currentColor"/>
+ <path d="M18 12V32" stroke="#ec12b3" strokeWidth="3"/>
+ <path d="M18 12C16 7 11 4 8 7c-3 4 2 6 10 5Zm0 0c2-5 7-8 10-5 3 4-2 6-10 5Z" stroke="currentColor" strokeWidth="2.5"/>
+ </svg>{buttonText}<span className="trial-action-arrow" aria-hidden="true">→</span>
        </Link>:!user.email_confirmed_at?<div className="trial-email-warning">
         <p>Confirme seu e-mail de cadastro para ativar o teste gratuito.</p>
         <Link className="trial-action-button" href="/minha-conta">Confirmar e-mail para continuar <span aria-hidden="true">→</span></Link>
        </div>:<form action={activateFreeTrial}>
         <input type="hidden" name="plan" value={slug}/>
         <button className="trial-action-button" type="submit">
-         <span className="trial-gift-icon" aria-hidden="true">♢</span>{buttonText}<span className="trial-action-arrow" aria-hidden="true">→</span>
+         <svg className="trial-gift-icon" width="38" height="38" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+ <rect x="4" y="15" width="28" height="17" rx="2" fill="currentColor"/>
+ <rect x="3" y="12" width="30" height="7" rx="2" fill="currentColor"/>
+ <path d="M18 12V32" stroke="#ec12b3" strokeWidth="3"/>
+ <path d="M18 12C16 7 11 4 8 7c-3 4 2 6 10 5Zm0 0c2-5 7-8 10-5 3 4-2 6-10 5Z" stroke="currentColor" strokeWidth="2.5"/>
+ </svg>{buttonText}<span className="trial-action-arrow" aria-hidden="true">→</span>
         </button>
        </form>}
      </div>
