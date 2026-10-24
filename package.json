@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run test:pix && npm run test:plans && npm run test:licenses && npm run test:admin && npm run test:customer && npm run test:devices && npm run test:notices && npm run test:mobile-nav && npm run test:landing && npm run test:trial && npm run test:gold && next build",
+    "build": "npm run test:pix && npm run test:plans && npm run test:licenses && npm run test:admin && npm run test:customer && npm run test:devices && npm run test:notices && npm run test:mobile-nav && npm run test:landing && npm run test:trial && npm run test:gold && npm run test:gold-simulator && next build",
     "test:pix": "node --experimental-strip-types --test tests/pix-security.test.mjs",
     "start": "next start",
     "test:plans": "node --experimental-strip-types --test tests/plan-editor.test.mjs",
@@ -16,7 +16,8 @@
     "test:mobile-nav": "node --test tests/admin-mobile-navigation.test.mjs",
     "test:landing": "node --test tests/landing-design.test.mjs",
     "test:trial": "node --test tests/free-trial-premium.test.mjs",
-    "test:gold": "node --experimental-strip-types --test tests/gold-foundation.test.mjs"
+    "test:gold": "node --experimental-strip-types --test tests/gold-foundation.test.mjs",
+    "test:gold-simulator": "node --experimental-strip-types --test tests/gold-simulator.test.mjs"
   },
   "dependencies": {
     "next": "15.5.28",
