@@ -139,3 +139,46 @@
 @media(prefers-reduced-motion:reduce){
 .trial-page .trial-stopwatch,.trial-page .trial-airplane,.trial-page .trial-scarcity::before,.trial-page .trial-slots-circle::before,.trial-page .trial-slots-inner,.trial-page .trial-live-dot,.trial-page .trial-action-button,.trial-page .trial-action-arrow{animation:none!important;transition:none!important}
 }
+
+
+/* Cronômetro ao redor do número real de vagas: somente o aro gira.
+   Animação ornamental contínua, NÃO é contagem regressiva ou estoque simulado. */
+.trial-chrono-face{
+ position:absolute;
+ inset:0;
+ width:100%;
+ height:100%;
+ overflow:visible;
+ z-index:2;
+ pointer-events:none;
+}
+.trial-chrono-track{
+ stroke:#ff6cbf;
+ opacity:.56;
+}
+.trial-chrono-tick{
+ stroke:#ff82c6;
+ stroke-width:1.35;
+ stroke-linecap:round;
+ opacity:.87;
+}
+.trial-chrono-tick-major{
+ stroke:#ffeaf7;
+ stroke-width:2.25;
+ opacity:1;
+}
+.trial-chrono-sweep{
+ transform-origin:50% 50%;
+ animation:trial-stopwatch-sweep 4s linear infinite;
+ filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 6px #ff4cac);
+}
+.trial-slots-inner{
+ z-index:3;
+}
+@keyframes trial-stopwatch-sweep{
+ from{transform:rotate(0deg)}
+ to{transform:rotate(360deg)}
+}
+@media(prefers-reduced-motion:reduce){
+ .trial-chrono-sweep{animation:none!important}
+}
