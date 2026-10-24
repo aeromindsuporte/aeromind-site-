@@ -54,3 +54,29 @@ test('CSS é isolado e responsivo para computador e celular',()=>{
  assert.match(css,/overflow-x:clip/);
  assert.match(css,/prefers-reduced-motion/);
 });
+
+
+test('visual mobile preserva três demonstrações compactas ao lado dos textos',()=>{
+ const css=read('app/landing-neon.css');
+ assert.match(css,/V3 MOBILE/);
+ assert.match(css,/@media\(max-width:860px\)/);
+ assert.match(css,/\.nl-feature-card\{display:grid;grid-template-columns:minmax\(0,44%\) minmax\(0,56%\)/);
+ assert.match(css,/\.nl-feature-card\{grid-template-columns:minmax\(0,43%\) minmax\(0,57%\)/);
+ assert.match(css,/\.nl-feature-card\{grid-template-columns:minmax\(0,43%\)[^}]*min-height:190px/);
+ assert.match(css,/\.nl-mini-crash\{height:168px/);
+ assert.match(css,/\.nl-mini-rose\{height:174px/);
+ assert.match(css,/\.nl-mini-results\{height:172px/);
+ assert.match(css,/\.nl-stage\{height:360px/);
+ assert.match(css,/transform:rotate\(6deg\) scale\(\.58\)/);
+ assert.match(css,/@media\(max-width:355px\)/);
+});
+
+test('landing não interfere nos planos e ainda mantém a chamada à compra',()=>{
+ const page=read('app/page.tsx');
+ const css=read('app/landing-neon.css');
+ assert.match(page,/<Link href="\/planos" className="nl-btn nl-btn-header"/);
+ assert.match(page,/<Link href="\/planos" className="nl-btn nl-btn-primary"/);
+ assert.ok(css.includes('.nl-site'));
+ assert.ok(!css.includes('.account-root{'));
+ assert.ok(!css.includes('.admin-root{'));
+});
