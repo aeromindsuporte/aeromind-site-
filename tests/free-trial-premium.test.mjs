@@ -18,7 +18,7 @@ test('tela gratuita Premium segue o design aprovado sem alterar cadastro',()=>{
  assert.match(page,/href=\{'\/entrar\?next='/);
  assert.match(page,/hasLicense\?/);
  assert.match(page,/exhausted\?/);
- assert.match(page,/plan\.tier==='Pro'/);
+ assert.match(page,/plan\?\.tier==='Pro'/);
  assert.match(page,/plano==='teste-horas'/);
 });
 
