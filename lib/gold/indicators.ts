@@ -61,7 +61,7 @@ export function percentileHalfUp(values:readonly number[],p:25|50|75):number{
  const numerator=(sorted.length-1)*p,index=Math.floor(numerator/100),fraction=numerator%100;
  const exact=sorted[index]*BigInt(100-fraction)+sorted[Math.min(index+1,sorted.length-1)]*BigInt(fraction);
  // exact is scaled by 100*1e6. Convert to centimultipliers with HALF_UP.
- return Number((exact+500000n)/1000000n)/100;
+ return Number((exact+BigInt(500000))/BigInt(1000000))/100;
 }
 /** Amostra da coluna 7: i-7, i-14,... nunca "últimas 7 rodadas". */
 export function column7(values:readonly number[],n:5|6|7):number[]|null{
