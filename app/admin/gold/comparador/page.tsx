@@ -22,7 +22,8 @@ export default async function AdminGoldComparator({searchParams}:{
   sb.rpc('aeromind_admin_customer_v3',{p_user_id:customerId})
  ]):[null,null];
  const badClient=!!(cliente&&!customerId)||!!(customerId&&(!customerResult?.data||customerResult?.error));
- const readError=!!(customerId&&configResult?.error);
+ const malformedConfig=!!(configResult?.data?.settings&&!validateGoldSettings(configResult.data.settings));
+ const readError=!!(customerId&&(configResult?.error||malformedConfig));
  const hasCustom=!!(configResult?.data?.settings&&validateGoldSettings(configResult.data.settings));
  const settings:Settings=hasCustom?configResult!.data!.settings as Settings:REFINED_DEFAULT as Settings;
  const name=customerResult?.data?.email;
