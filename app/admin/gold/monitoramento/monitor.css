@@ -1,0 +1,25 @@
+.gold-monitor{display:grid;gap:17px;min-width:0}
+.gold-monitor .admin-card{min-width:0}
+.gold-monitor h2{font-size:clamp(17px,2vw,23px);margin:7px 0 12px;overflow-wrap:anywhere}
+.gold-monitor-tag{display:inline-block;font-size:11px;letter-spacing:1px;font-weight:900;color:#efc786}
+.gold-monitor-links{display:flex;gap:14px;flex-wrap:wrap}
+.gold-monitor-links a{color:#b9dbff;font-weight:750;font-size:13px}
+.gold-monitor-email{color:#acd0ff;overflow-wrap:anywhere}
+.gold-monitor-note{font-size:12px;line-height:1.65;color:#a8bedb;overflow-wrap:anywhere}
+.gold-monitor-counters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:17px 0}
+.gold-monitor-counters>div{border:1px solid #42587c;border-radius:12px;background:#0b1b33;padding:14px;min-width:0}
+.gold-monitor-counters strong{display:block;font-size:clamp(24px,3vw,30px);color:#e5d1a4}
+.gold-monitor-counters span{display:block;font-size:11px;color:#b6cdec;margin-top:5px}
+.gold-monitor-forms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.gold-monitor-form{display:grid;gap:14px}
+.gold-monitor-form label{display:grid;gap:6px;color:#c7daef;font-size:12px;font-weight:750;min-width:0}
+.gold-monitor-form :is(input,select){border:1px solid #536e9b;background:#0c1a35;border-radius:10px;min-width:0;width:100%;min-height:45px;padding:10px 13px;color:#f2f7ff;font:inherit}
+.gold-monitor-form select{color-scheme:dark}
+.gold-monitor-form :is(input,select):focus-visible{outline:2px solid #95d8ff;outline-offset:1px}
+.gold-monitor-form button,.gold-monitor-export{border-radius:11px;background:linear-gradient(115deg,#365fcb,#913bd0);border:1px solid #8f65da;color:white;min-height:45px;padding:12px 16px;text-align:center;font-size:13px;font-weight:850;cursor:pointer;text-decoration:none}
+.gold-monitor-form button:hover,.gold-monitor-export:hover{filter:brightness(1.1)}
+.gold-monitor-section-head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.gold-monitor .admin-table-scroll{max-width:100%;overflow-x:auto;margin-top:12px}
+.gold-monitor td,.gold-monitor th{font-size:12px;white-space:nowrap}
+@media(max-width:850px){.gold-monitor-forms{grid-template-columns:1fr}.gold-monitor-counters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:460px){.gold-monitor .admin-card{padding:15px}.gold-monitor-counters{gap:8px}.gold-monitor-counters>div{padding:11px}.gold-monitor-section-head{flex-direction:column;align-items:stretch}.gold-monitor-export{display:block;width:100%}}
