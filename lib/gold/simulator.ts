@@ -29,10 +29,14 @@ export function simulateGold(signals:readonly ObservedSignal[],opt:SimulationOpt
  let balance=opt.initialCents,peak=balance,maxDrawdownCents=0,maxDrawdownPct=0;
  let wins=0,losses=0,invalidated=0,pending=0,released=0,blockedForFunds=false;
  const operations:Operation[]=[],days:Daily[]=[];
+ const seen=new Set<string>();
  let lastDay='',day:Daily|null=null;
  const flush=()=>{if(day){day.closeCents=balance;days.push(day)}};
  for(const signal of signals){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(signal.day)||!signal.id)throw Error('Registro sem dia/ID');
+  if(seen.has(signal.id))throw Error('Sinal duplicado');
+  seen.add(signal.id);
+  if(!['live','shadow','backtest'].includes(signal.origin))throw Error('Origem inválida');
   if(lastDay&&signal.day<lastDay)throw Error('Sequência de datas inválida');
   if(signal.day!==lastDay){flush();lastDay=signal.day;day={day:lastDay,openCents:balance,closeCents:balance,operations:0,reason:'end'};}
   if(!signal.released)continue;
