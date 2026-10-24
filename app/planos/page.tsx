@@ -8,7 +8,7 @@ export const metadata={title:'Planos | AeroMind',description:'Veja preços atuai
 const cards=[
  {tier:'Básico' as const, css:'am-plan-blue',icon:'♙',desc:'Monitoramento essencial',features:['Interface e monitor B4','Histórico do aplicativo','Alertas básicos']},
  {tier:'Pro' as const, css:'am-plan-purple',icon:'◈',desc:'Experiência ampliada',features:['Módulos adicionais','Histórico completo','Previsão Rosa V4','Alertas do monitor']},
- {tier:'Ultra' as const, css:'am-plan-gold',icon:'♜',desc:'Recursos avançados',features:['Funcionalidades a definir','Ranking e estatísticas','Suporte planejado']}
+ {tier:'Ultra' as const, css:'am-plan-gold',icon:'✦',desc:'Ferramentas avançadas em desenvolvimento',features:['Indicadores personalizáveis','Comparador Clássico, Refinado e Gold','Simulador virtual e relatórios']}
 ];
 
 export default async function Plans({searchParams}:{searchParams:Promise<{periodo?:string}>}) {
@@ -35,6 +35,20 @@ export default async function Plans({searchParams}:{searchParams:Promise<{period
     </div></div>
     <div className="am-plans-cards">
       {cards.map(card=>{
+        // Gold é o novo nome comercial do card Ultra; o tier interno é preservado
+        // para que licenças e cadastros antigos não sejam migrados ou revogados.
+        if(card.tier==='Ultra')return <Link key={card.tier} href="/gold"
+         className={'am-plan '+card.css+' am-gold-preview'}
+         aria-label="Conhecer o AeroMind Gold — em preparação, sem venda ativa">
+         <span className="am-top-label">EM PREPARAÇÃO</span>
+         <span className="am-plan-icon" aria-hidden="true">{card.icon}</span>
+         <h3>Gold</h3>
+         <strong>Em preparação</strong>
+         <small>Venda ainda não disponível</small>
+         <p>{card.desc}</p>
+         <ul>{card.features.map((feature,i)=><li key={i}>✓ {feature}</li>)}</ul>
+         <span className="am-btn am-outline">Conhecer Gold →</span>
+        </Link>;
         const plan=planData.find(p=>p.tier===card.tier && p.duration_days===days);
         return <article className={'am-plan '+card.css} key={card.tier}>
         {(plan?.marketing_badge||plan?.marketing_highlight)&&<span className="am-top-label">{plan?.marketing_badge||'EM DESTAQUE'}</span>}

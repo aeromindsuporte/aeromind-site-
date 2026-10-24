@@ -48,3 +48,30 @@
  .am-plan-toggle{gap:3px}
  .am-plan-toggle a{padding:7px 10px}
 }
+
+
+/* Card Gold comercial: todo o cartão é clicável; tier Ultra histórico não é alterado. */
+.am-site .am-gold-preview{
+ color:#f9f6ff;
+ cursor:pointer;
+ transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease;
+}
+.am-site .am-gold-preview .am-top-label{
+ background:#ead18b;
+ color:#322107;
+}
+.am-site .am-gold-preview .am-btn{
+ color:#f7deb2;
+ border-color:#a27c49;
+ background:#291f26;
+}
+.am-site .am-gold-preview:is(:hover,:focus-visible){
+ border-color:#efc77e;
+ box-shadow:0 0 0 1px #f0c87a55,0 0 26px #d59b3944;
+}
+@media(hover:hover) and (prefers-reduced-motion:no-preference){
+ .am-site .am-gold-preview:hover{transform:translateY(-2px)}
+}
+@media(prefers-reduced-motion:reduce){
+ .am-site .am-gold-preview{transition:none}
+}
