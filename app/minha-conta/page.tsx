@@ -23,14 +23,18 @@ export default async function Conta() {
   const {data:{user},error} = await client.auth.getUser();
   if (error || !user) redirect('/entrar?next=%2Fminha-conta');
 
-  const [profileResult,licenseResult,validResult,staffResult,notificationsResult] = await Promise.all([
+  const [profileResult,licenseResult,validResult,staffResult,notificationsResult,goldResult] = await Promise.all([
     client.from('profiles').select('display_name,whatsapp_e164,whatsapp_marketing_opt_in').eq('id',user.id).maybeSingle(),
     client.from('licenses').select('id,plan_name,status,valid_until,created_at')
       .eq('user_id',user.id).order('created_at',{ascending:false}).limit(10),
     client.rpc('aeromind_has_active_license'),
     client.from('aeromind_staff').select('role').eq('user_id',user.id).maybeSingle(),
-    client.from('aeromind_notification_deliveries').select('id,expires_at').eq('user_id',user.id).is('read_at',null).limit(1000)
+    client.from('aeromind_notification_deliveries').select('id,expires_at').eq('user_id',user.id).is('read_at',null).limit(1000),
+    client.rpc('aeromind_gold_my_entitlement')
   ]);
+  const gold=(!goldResult.error&&goldResult.data&&typeof goldResult.data==='object')?goldResult.data as {
+    app_access?:boolean;gold_access?:boolean;gold_rollout_enabled?:boolean;gold_expires_at?:string|null;can_use_gold?:boolean;
+  }:null;
   const licenses=(licenseResult.data||[]) as License[];
   const serverNow=Date.now();
   const isActive=validResult.data===true && !validResult.error;
@@ -75,6 +79,16 @@ export default async function Conta() {
           <p className="account-note">A licença expira automaticamente no horário indicado. O servidor verifica a validade antes de liberar o aplicativo e os downloads.</p>
           <p className="account-note">{isActive?(appReady?'Licença válida. AeroMind Monitor '+releaseName+' disponível para download.':'Licença válida. Aguarde a publicação da próxima versão do aplicativo.'):displayStatus==='Vencida'?'Seu prazo terminou. Renove sua licença para continuar utilizando o AeroMind Monitor.':'Consulte as opções de contratação para habilitar seu acesso.'}</p>
           {isActive&&<Link className="auth-submit auth-button-link" href="/download" style={{marginTop:16}}>Acessar aplicativo →</Link>}
+        </section>
+        <section className="account-card">
+          <h2>✦ AeroMind Gold</h2>
+          <p className="account-note">{gold?.gold_rollout_enabled
+            ? 'O adicional Gold está disponível conforme autorização e licença válida.'
+            : 'O Gold está em preparação. Seus recursos atuais permanecem disponíveis conforme sua licença.'}</p>
+          <p><b>Gold</b><span>{gold?.can_use_gold===true?'Ativo':gold?.gold_access===true?'Autorização cadastrada':'Em preparação'}</span></p>
+          {gold?.gold_access===true&&<p><b>Validade do adicional</b><span>{formatLicenseExpiryBrazil(gold.gold_expires_at)}</span></p>}
+          <p className="account-note">Acesso Gold é independente do plano Básico, Pro ou Ultra. Nenhuma assinatura é alterada aqui.</p>
+          <Link href="/gold" className="auth-secondary auth-button-link">Conhecer Gold →</Link>
         </section>
         <section className="account-card">
           <h2>Download do aplicativo</h2>
