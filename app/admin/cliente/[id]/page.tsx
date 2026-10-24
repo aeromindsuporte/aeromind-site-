@@ -45,7 +45,7 @@ const messages:Record<string,string>={
 export default async function CustomerPage({params,searchParams}:{
  params:Promise<{id:string}>,searchParams:Promise<{msg?:string}>}){
  const {id}=await params;if(!uuid.test(id))notFound();
- const {sb}=await requireAdmin();
+ const {sb,role}=await requireAdmin();
  const {data,error}=await sb.rpc('aeromind_admin_customer_v3',{p_user_id:id});
  if(error||!data)notFound();
  const c=data as Customer;
@@ -216,6 +216,7 @@ export default async function CustomerPage({params,searchParams}:{
     <div className="cv3-hero-actions">
      {waLink&&<a href={waLink} target="_blank" rel="noopener noreferrer" className="cv3-action">Conversar no WhatsApp ↗</a>}
      <Link href="/planos" className="cv3-action" target="_blank" rel="noopener noreferrer">Planos para renovação ↗</Link>
+     {(role==='admin'||role==='owner')&&<Link href={'/admin/gold?cliente='+encodeURIComponent(c.id)+'#gold-cliente'} className="cv3-action">Gerenciar Gold →</Link>}
     </div>
    </div>
    <div className="cv3-metrics">
