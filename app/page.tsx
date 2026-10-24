@@ -169,10 +169,6 @@ export default function Home(){
       <span className="nl-kicker">SEU ALIADO NO AVIATOR</span>
       <h1>Mais clareza<br/>para suas decisões<br/><span>no Aviator</span></h1>
       <p>O AeroMind monitora, analisa e organiza indicadores em tempo real e histórico inteligente, para você acompanhar cada sessão com mais clareza.</p>
-      <aside className="nl-responsibility-notice" aria-label="Aviso de idade mínima e riscos">
-       <strong className="nl-responsibility-age">18+</strong>
-       <p>O jogo é destinado a maiores de 18 anos. O AeroMind é um sistema de indicação e análise de dados; <strong>não há garantia de acertos ou ganhos.</strong> Jogue com responsabilidade.</p>
-      </aside>
       <div className="nl-trial-cta">
        <Link href="/teste-gratis?plano=teste-horas" className="nl-btn nl-btn-trial" aria-label="TESTE GRÁTIS — iniciar teste do AeroMind">
         <span className="nl-btn-trial-icon" aria-hidden="true">🎁</span><strong>TESTE GRÁTIS</strong><span className="nl-btn-trial-arrow" aria-hidden="true">›</span>
@@ -219,6 +215,12 @@ export default function Home(){
    <span><AeroMark small/> AEROMIND</span>
    <p>Monitoramento e análise histórica. Sem promessas de ganho.</p>
    <nav aria-label="Informações legais"><Link href="/planos">Planos</Link><Link href="/entrar">Entrar</Link><Link href="/termos">Termos</Link><Link href="/privacidade">Privacidade</Link><Link href="/suporte">Suporte</Link></nav>
+  </div>
+  <div className="nl-shell nl-responsibility-footer">
+   <aside className="nl-responsibility-notice" aria-label="Aviso de idade mínima e riscos">
+    <strong className="nl-responsibility-age">18+</strong>
+    <p>O jogo é destinado a maiores de 18 anos. O AeroMind é um sistema de indicação e análise de dados; <strong>não há garantia de acertos ou ganhos.</strong> Jogue com responsabilidade.</p>
+   </aside>
   </div></footer>
  </div>;
 }
