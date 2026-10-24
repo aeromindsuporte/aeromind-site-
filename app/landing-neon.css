@@ -572,7 +572,7 @@
 }
 .nl-trial-cta{
   width:100%;
-  max-width:555px;
+  max-width:520px;
   margin:0 0 15px;
 }
 .nl-btn-trial{
@@ -581,10 +581,10 @@
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:13px;
+  gap:12px;
   width:100%;
-  min-height:58px;
-  padding:12px 22px;
+  min-height:54px;
+  padding:10px 20px;
   border:2px solid #ffe788;
   border-radius:15px;
   color:#fff;
@@ -594,16 +594,16 @@
   animation:nl-trial-pulse 1.9s ease-in-out infinite;
 }
 .nl-btn-trial strong{
-  font-size:20px;
+  font-size:19px;
   font-weight:900;
   letter-spacing:.6px;
 }
 .nl-btn-trial-icon{
-  font-size:23px;
+  font-size:22px;
   line-height:1;
 }
 .nl-btn-trial-arrow{
-  font-size:28px;
+  font-size:26px;
   line-height:1;
   font-weight:400;
 }
@@ -623,15 +623,15 @@
 }
 @media(max-width:520px){
   .nl-logo-img{width:34px;height:38px}
-  .nl-trial-cta{margin-bottom:11px;max-width:none}
-  .nl-btn-trial{min-height:53px;padding:10px 14px;border-radius:13px;gap:9px}
-  .nl-btn-trial strong{font-size:17px}
-  .nl-btn-trial-icon{font-size:21px}
-  .nl-btn-trial-arrow{font-size:24px}
+  .nl-trial-cta{margin-bottom:11px;max-width:none;width:96%}
+  .nl-btn-trial{min-height:50px;padding:9px 12px;border-radius:13px;gap:9px}
+  .nl-btn-trial strong{font-size:16px}
+  .nl-btn-trial-icon{font-size:20px}
+  .nl-btn-trial-arrow{font-size:23px}
 }
 @media(max-width:355px){
   .nl-logo-img{width:32px;height:36px}
-  .nl-btn-trial strong{font-size:16px}
+  .nl-btn-trial strong{font-size:15px}
 }
 @media(prefers-reduced-motion:reduce){
   .nl-btn-trial{animation:none}
@@ -691,5 +691,23 @@
   .nl-responsibility-notice p{
     font-size:11px;
     line-height:1.42;
+  }
+}
+
+
+/* Aviso transferido para o rodapé; mantém a mesma aparência e conteúdo. */
+.nl-responsibility-footer{
+  padding-bottom:18px;
+}
+.nl-responsibility-footer .nl-responsibility-notice{
+  max-width:730px;
+  margin:0 auto;
+}
+@media(max-width:520px){
+  .nl-responsibility-footer{
+    padding-bottom:15px;
+  }
+  .nl-responsibility-footer .nl-responsibility-notice{
+    margin:0 auto;
   }
 }
