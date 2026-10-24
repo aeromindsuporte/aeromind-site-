@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run test:pix && npm run test:plans && npm run test:licenses && npm run test:admin && npm run test:customer && npm run test:devices && npm run test:notices && npm run test:mobile-nav && npm run test:landing && npm run test:trial && npm run test:gold && npm run test:gold-simulator && npm run test:gold-plans && npm run test:gold-entitlements && npm run test:gold-admin-history && npm run test:gold-comparator && npm run test:gold-phase5 && next build",
+    "build": "npm run test:pix && npm run test:plans && npm run test:licenses && npm run test:admin && npm run test:customer && npm run test:devices && npm run test:notices && npm run test:mobile-nav && npm run test:landing && npm run test:trial && npm run test:gold && npm run test:gold-simulator && npm run test:gold-plans && npm run test:gold-entitlements && npm run test:gold-admin-history && npm run test:gold-comparator && npm run test:gold-phase5 && npm run test:gold-phase6 && next build",
     "test:pix": "node --experimental-strip-types --test tests/pix-security.test.mjs",
     "start": "next start",
     "test:plans": "node --experimental-strip-types --test tests/plan-editor.test.mjs",
@@ -22,7 +22,8 @@
     "test:gold-entitlements": "node --experimental-strip-types --test tests/gold-entitlements.test.mjs",
     "test:gold-admin-history": "node --test tests/gold-admin-history.test.mjs",
     "test:gold-comparator": "node --experimental-strip-types --test tests/gold-comparator.test.mjs",
-    "test:gold-phase5": "node --experimental-strip-types --test tests/gold-phase5.test.mjs"
+    "test:gold-phase5": "node --experimental-strip-types --test tests/gold-phase5.test.mjs",
+    "test:gold-phase6": "node --experimental-strip-types --test tests/gold-phase6.test.mjs"
   },
   "dependencies": {
     "next": "15.5.28",

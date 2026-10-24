@@ -1,0 +1,29 @@
+.ga-wrap{display:grid;gap:17px;min-width:0}
+.ga-wrap .admin-card{min-width:0}
+.ga-wrap h2{font-size:clamp(17px,2vw,23px);margin:8px 0 12px;overflow-wrap:anywhere}
+.ga-eyebrow{font-size:11px;letter-spacing:1px;font-weight:850;color:#f0cb8e}
+.ga-links{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;font-weight:700}
+.ga-links a,.ga-link{color:#a9d5ff}
+.ga-source-state{display:flex;gap:11px;align-items:center;flex-wrap:wrap;margin:14px 0}
+.ga-source-state>*{border:1px solid #425778;border-radius:10px;background:#122442;padding:12px;color:#f1cc9e;font-size:12px;overflow-wrap:anywhere}
+.ga-source-state strong{border-color:#ad8135;background:#31261d}
+.ga-muted{font-size:12px;line-height:1.6;color:#acc2de;overflow-wrap:anywhere}
+.ga-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0}
+.ga-summary>div{background:#0c1b35;border:1px solid #40557b;border-radius:11px;padding:14px;min-width:0}
+.ga-summary b{display:block;font-size:clamp(24px,3vw,30px);color:#efce99}
+.ga-summary span{display:block;font-size:11px;margin-top:6px;color:#bad2ed}
+.ga-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.ga-rule{min-width:0;padding:16px;border:1px solid #425980;border-radius:12px;background:#0c1b34;display:grid;gap:12px}
+.ga-rule header{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;color:#e5c790}
+.ga-rule header strong{font-size:13px}.ga-rule header small{color:#a8bed8;font-size:11px}
+.ga-rule label{min-width:0;display:grid;gap:6px;font-size:12px;color:#d0e0f5;font-weight:700}
+.ga-rule input:not([type=checkbox]){width:100%;min-width:0;background:#09172d;color:#f0f5ff;border:1px solid #536b95;min-height:43px;border-radius:9px;padding:10px 12px;font:inherit}
+.ga-rule .ga-check{display:flex;gap:9px;align-items:flex-start}
+.ga-check input{width:17px;height:17px;flex:none;accent-color:#9d6cef}
+.ga-rule button{min-height:45px;border-radius:10px;border:1px solid #9b67db;background:linear-gradient(110deg,#315bc7,#8d3bd4);color:#fff;font-weight:800;cursor:pointer}
+.ga-rule :is(input,button):focus-visible{outline:2px solid #7acfff;outline-offset:2px}
+.ga-wrap .admin-table-scroll{max-width:100%;overflow-x:auto;margin:12px 0}
+.ga-wrap :is(td,th){font-size:12px;white-space:nowrap}
+@media(max-width:900px){.ga-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:740px){.ga-grid{grid-template-columns:1fr}}
+@media(max-width:460px){.ga-wrap .admin-card{padding:15px}.ga-summary>div{padding:10px}.ga-source-state{flex-direction:column;align-items:stretch}.ga-source-state>*{width:100%}}

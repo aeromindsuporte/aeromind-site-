@@ -53,7 +53,7 @@ export default async function GoldMonitor({searchParams}:{searchParams:Promise<{
  return <CommercialAdminShell active="/admin/gold" title="Gold · Monitoramento"
   description="Laboratório prospectivo de rodadas e relatórios segregados por cliente, sem feed ao vivo.">
   <div className="gold-monitor">
-   <nav className="gold-monitor-links"><Link href="/admin/gold">← Voltar à Central Gold</Link><Link href="/admin/gold/comparador">Comparador offline →</Link></nav>
+   <nav className="gold-monitor-links"><Link href="/admin/gold">← Voltar à Central Gold</Link><Link href="/admin/gold/comparador">Comparador offline →</Link><Link href={id?'/admin/gold/alertas?cliente='+encodeURIComponent(id):'/admin/gold/alertas'}>Prévia de alertas →</Link></nav>
    <section className="admin-card">
     <span className="gold-monitor-tag">AMBIENTE ADMINISTRATIVO · REGISTROS MANUAIS</span>
     <h2>Monitoramento prospectivo</h2>

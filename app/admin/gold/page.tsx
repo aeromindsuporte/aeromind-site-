@@ -135,7 +135,7 @@ export default async function AdminGold({searchParams}:{searchParams:Promise<{ms
      <span className={overview?.checkout_enabled?'gold-state-on':'gold-state-off'}>Venda Gold: {overview?.checkout_enabled?'Ligada':'Desligada'}</span>
     </div>
     <p className="gold-hint">Conceder autorização aqui não ativa funcionalidades Gold enquanto o rollout geral estiver desligado. Esse bloqueio afeta somente Gold.</p>
-    <div className="gold-quick-links"><Link href="/gold">Conhecer página Gold →</Link><Link href="/admin/gold/comparador">Comparador offline →</Link><Link href="/admin/gold/monitoramento">Monitoramento Gold →</Link><Link href="/admin/planos">Planos existentes →</Link><Link href="/admin/licencas">Licenças atuais →</Link></div>
+    <div className="gold-quick-links"><Link href="/gold">Conhecer página Gold →</Link><Link href="/admin/gold/comparador">Comparador offline →</Link><Link href="/admin/gold/monitoramento">Monitoramento Gold →</Link><Link href="/admin/gold/alertas">Alertas Gold — laboratório →</Link><Link href="/admin/planos">Planos existentes →</Link><Link href="/admin/licencas">Licenças atuais →</Link></div>
    </section>
    {error&&<p className="admin-feedback bad" role="alert">Não foi possível consultar a central Gold. Não execute operações até a conexão estar normal.</p>}
    {!error&&<>
@@ -166,7 +166,7 @@ export default async function AdminGold({searchParams}:{searchParams:Promise<{ms
       </div>
       <div className="gold-quick-links"><Link href={'/admin/cliente/'+encodeURIComponent(selected.id)}>Gestão completa do cliente →</Link>
        <Link href="/admin/gold">Limpar seleção</Link>
-       <Link href={'/admin/gold/comparador?cliente='+encodeURIComponent(selected.id)}>Comparar parâmetros deste cliente →</Link><Link href={'/admin/gold/monitoramento?cliente='+encodeURIComponent(selected.id)}>Monitorar este cliente →</Link><a href="#gold-historico">Ver histórico Gold ↓</a></div>
+       <Link href={'/admin/gold/comparador?cliente='+encodeURIComponent(selected.id)}>Comparar parâmetros deste cliente →</Link><Link href={'/admin/gold/monitoramento?cliente='+encodeURIComponent(selected.id)}>Monitorar este cliente →</Link><Link href={'/admin/gold/alertas?cliente='+encodeURIComponent(selected.id)}>Configurar alertas deste cliente →</Link><a href="#gold-historico">Ver histórico Gold ↓</a></div>
       <p className="gold-hint">Os formulários abaixo usam este cliente como padrão. A autorização não ativa o aplicativo Gold enquanto a implantação geral estiver desligada.</p>
      </section>}
     <div className="gold-admin-columns">
