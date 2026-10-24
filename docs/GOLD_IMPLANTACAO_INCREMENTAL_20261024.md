@@ -29,3 +29,11 @@ Não migrar `licenses.plan_name` para Gold em massa; `gold_access` é independen
 
 ## Observações
 Não foi feita escrita no Supabase nesta fase e nenhum teste de cobrança real foi realizado. **Backup restaurável do banco ainda não foi comprovado.** O sistema atual não deve depender do estado de Gold.
+
+## Ajuste comercial aprovado — Ultra passa a ser Gold na página de planos (24/10/2026)
+- O card que utilizava o tier técnico `Ultra` é exibido com o nome comercial **Gold** nas abas Mensal, Trimestral, Semestral e Anual.
+- O **card inteiro** é um link para `/gold`, com botão visual "Conhecer Gold".
+- O card informa **Em preparação — Venda ainda não disponível**, sem preços fictícios, cobranças ou tentativa de checkout Gold.
+- A implementação não modifica os campos do catálogo Supabase, os `slug`s internos Ultra, as licenças já concedidas ou as vendas Básico/Pro existentes.
+- Os cards Básico, Pro, as abas de períodos e o teste gratuito permanecem funcionando exatamente como antes.
+- Testes em navegador para 320, 390, 430, 768 e 1280px × 4 durações confirmam navegação para `/gold` sem rolagem lateral da página.
