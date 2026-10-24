@@ -16,6 +16,7 @@ export async function activateFreeTrial(formData:FormData){
  if(error||!data?.activated){
   const msg=(error?.message||'').toLocaleLowerCase('pt-BR');
   const flag=msg.includes('já utilizou')?'usado':
+   msg.includes('esgotadas')?'vagas':
    msg.includes('histórico de licenças')?'licenca':
    msg.includes('e-mail')?'email':
    msg.includes('indisponível')?'indisponivel':'falha';
