@@ -66,7 +66,8 @@ export default async function Conta() {
           <p><b>E-mail confirmado</b><span>{user.email_confirmed_at?'Sim':'Pendente'}</span></p>
           <h3>WhatsApp para contato</h3>
           <AccountWhatsApp initial={profileResult.data?.whatsapp_e164||null}
-            marketing={profileResult.data?.whatsapp_marketing_opt_in===true}/>
+            marketing={profileResult.data?.whatsapp_marketing_opt_in===true}
+            loadError={Boolean(profileResult.error)}/>
           <p className="account-note">Seus dados são protegidos. Cada cliente visualiza somente a própria conta.</p>
         </section>
         <section className="account-card">
