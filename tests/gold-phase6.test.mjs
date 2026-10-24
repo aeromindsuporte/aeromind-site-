@@ -81,7 +81,7 @@ test('6.6: separação entre clientes, fluxos e versões, sem envio de notifica�
  assert.match(component,/requireAdmin\(\)/);
  assert.match(component,/role\)\)redirect\('\/admin'\)/);
  assert.match(component,/\.eq\('subject_id',client\)/);
- assert.match(component,/fonte externa/);
+ assert.match(component,/provedor externo/);
  assert.doesNotMatch(component,/\/api\/pix\/create|sendWhatsApp|pushNotification/);
 });
 test('6.7: SQL mantém coleta e entrega desativadas mesmo com mutação não autorizada',()=>{
