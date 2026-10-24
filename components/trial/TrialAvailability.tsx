@@ -49,6 +49,13 @@ export function TrialAvailability({slug,initialRemaining}:Props){
      <p>{isEmpty?'Novas ativações dependerão da abertura de outro lote. Consulte os planos disponíveis.':'Se houver vaga disponível agora, garanta a sua o quanto antes.'}</p>
     </div>
     <div className="trial-slots-circle" role="status" aria-live="polite">
+     <span className="trial-slots-chronometer" aria-hidden="true">
+      <svg className="trial-slots-chronometer-dial" viewBox="0 0 100 100" fill="none">
+       <circle cx="50" cy="50" r="47" stroke="#FF55BA" strokeOpacity=".45" strokeWidth=".85"/>
+       <circle className="trial-slots-chronometer-ticks" cx="50" cy="50" r="43.5" stroke="#FF94D5" strokeWidth="2.2" strokeDasharray="1.25 11.2" strokeLinecap="round"/>
+      </svg>
+      <span className="trial-slots-chronometer-sweep"/>
+     </span>
      <div className="trial-slots-inner" key={remaining===null?'unknown':remaining}>
       <span className="trial-slots-person" aria-hidden="true"><svg width="23" height="23" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="10" cy="7" r="4"/><path d="M2 20v-2a8 8 0 0 1 16 0v2Z"/><circle cx="19" cy="8" r="3"/><path d="M19 14a6 6 0 0 1 4 6h-3v-2a10 10 0 0 0-1-4Z"/></svg></span>
       <strong>{remaining===null?'—':remaining}</strong>
