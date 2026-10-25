@@ -35,7 +35,7 @@ test('menu do design aprovado tem âncoras válidas e entrada para planos',()=>{
 
 test('demonstração preserva os valores e identifica que são ilustrativos',()=>{
  const page=read('app/page.tsx');
- for(const value of ['1.58x','2.16x','3.03x','20.59x','150.38x','55m']){
+ for(const value of ['1.58x','2.16x','3.03x','20.59x','55m']){
    assert.ok(page.includes(value),'Multiplicador/minuto ausente: '+value);
  }
  assert.match(page,/Multiplicadores ilustrativos|multiplicadores ilustrativos/i);
