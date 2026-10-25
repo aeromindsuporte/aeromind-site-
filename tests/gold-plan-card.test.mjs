@@ -9,7 +9,7 @@ test('planos mostram Gold no lugar do card comercial Ultra, em todos os período
   assert.ok(page.includes(p),'Duração ausente: '+p);
  }
  assert.match(page,/cards\.map\(card=>\{/);
- assert.match(page,/if\(card\.tier==='Ultra'\)return <Link key=\{card\.tier\} href="\/gold"/);
+ assert.match(page,/if\(card\.tier==='Ultra'\)return goldCampaign\?<Link key=\{card\.tier\} href="\/gold"/);
  assert.match(page,/<h3>Gold<\/h3>/);
  assert.match(page,/Conhecer Gold/);
  assert.match(page,/className=\{'am-plan '\+card\.css\+' am-gold-preview'\}/);
@@ -18,9 +18,9 @@ test('planos mostram Gold no lugar do card comercial Ultra, em todos os período
 });
 test('Gold não gera cobrança nem altera tiers legados, e venda existente continua funcionando',()=>{
  const page=read('app/planos/page.tsx'),catalog=read('lib/catalog.ts');
- const branch=page.split("if(card.tier==='Ultra')return <Link")[1].split("const plan=planData.find")[0];
+ const branch=page.split("if(card.tier==='Ultra')return goldCampaign?<Link")[1].split("const plan=planData.find")[0];
  assert.doesNotMatch(branch,/\/checkout|formattedPrice|plan\.price_cents|Indisponível/);
- assert.match(branch,/EM PREPARAÇÃO/);
+ assert.match(branch,/goldCampaign\.badge/);
  assert.match(branch,/Venda ainda não disponível/);
  assert.match(page,/tier:'Básico'/);
  assert.match(page,/tier:'Pro'/);
