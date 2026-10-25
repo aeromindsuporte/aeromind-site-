@@ -35,7 +35,7 @@ test('menu do design aprovado tem âncoras válidas e entrada para planos',()=>{
 
 test('demonstração preserva os valores e identifica que são ilustrativos',()=>{
  const page=read('app/page.tsx');
- for(const value of ['1.58x','2.16x','3.03x','20.59x','150.38x','55m']){
+ for(const value of ['1.58x','2.16x','3.03x','20.59x','55m']){
    assert.ok(page.includes(value),'Multiplicador/minuto ausente: '+value);
  }
  assert.match(page,/Multiplicadores ilustrativos|multiplicadores ilustrativos/i);
@@ -79,4 +79,18 @@ test('landing não interfere nos planos e ainda mantém a chamada à compra',()=
  assert.ok(css.includes('.nl-site'));
  assert.ok(!css.includes('.account-root{'));
  assert.ok(!css.includes('.admin-root{'));
+});
+
+
+test('celular realista aprovado aparece na landing sem mockup HTML duplicado',()=>{
+ const page=read('app/page.tsx');
+ const css=read('app/landing-neon.css');
+ assert.match(page,/className="nl-stage nl-stage-real"/);
+ assert.match(page,/src="\/images\/aeromind-phone-real\.avif"/);
+ assert.match(page,/className="nl-phone-real"/);
+ assert.doesNotMatch(page,/className="nl-phone"/);
+ assert.match(css,/\.nl-stage-real \.nl-phone-real\{/);
+ assert.match(css,/object-fit:contain/);
+ assert.match(css,/@media\(max-width:520px\)\{/);
+ assert.match(css,/\.nl-stage-real \.nl-phone-real\{width:min\(280px,80%\);max-height:100%\}/);
 });
