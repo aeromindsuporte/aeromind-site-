@@ -75,3 +75,11 @@
 @media(prefers-reduced-motion:reduce){
  .am-site .am-gold-preview{transition:none}
 }
+
+/* Campanha editorial Pro Aurora, sem criar checkout quando não houver preço publicado. */
+.am-site .am-pro-preview{position:relative;border-color:#8864ce!important;background:linear-gradient(140deg,#301d52,#151c38)!important;text-decoration:none;color:inherit}
+.am-site .am-pro-preview :is(h3,.am-plan-icon){color:#d9b0ff!important}
+.am-site .am-pro-preview .am-top-label{background:#573584;color:#ffe7ff}
+.am-site .am-pro-preview:is(:hover,:focus-visible){outline:2px solid #ab83ef;outline-offset:2px;transform:translateY(-3px)}
+.am-site .am-pro-preview .am-btn{background:#2b2054;border-color:#ac83e4;color:#eee1ff}
+@media(prefers-reduced-motion:reduce){.am-site .am-pro-preview:is(:hover,:focus-visible){transform:none}}

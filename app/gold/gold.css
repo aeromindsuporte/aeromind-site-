@@ -61,3 +61,18 @@
 @media(max-width:580px){.ag-shell{width:calc(100% - 28px)}.ag-nav{min-height:65px}.ag-nav nav{display:none}.ag-brand{font-size:18px}.ag-brand img{width:34px;height:34px}.ag-pill-link{font-size:10px;padding:9px 10px}.ag-hero{padding:35px 0 40px}.ag-hero h1{font-size:47px}.ag-hero p{font-size:13px}.ag-hero .ag-lead{font-size:18px}.ag-preview-lines div{padding:12px 8px}.ag-preview-lines span{width:60px;font-size:10px}.ag-preview-lines b{font-size:11px}.ag-preview-lines small{font-size:9px}.ag-features,.ag-profiles{grid-template-columns:1fr}.ag-section{padding-bottom:43px}.ag-section-title h2{font-size:30px}.ag-bottom{margin-bottom:35px}}
 @media(max-width:340px){.ag-hero h1{font-size:41px}.ag-preview-choices span,.ag-preview-choices strong{font-size:10px}.ag-pill-link{font-size:9px}}
 @media(prefers-reduced-motion:reduce){.ag-cta{transition:none}.ag-cta:hover{transform:none}}
+
+/* Aurora tiers and Gold Rosa 10x — readable on small phones */
+.ag-tier-ranks{display:grid;gap:8px;margin:0 17px 18px}
+.ag-tier-ranks>div{display:grid;grid-template-columns:70px minmax(0,1fr) auto;align-items:center;gap:10px;padding:12px;border:1px solid #455072;border-radius:9px;background:#151d32;min-width:0}
+.ag-tier-ranks .active{border-color:#d4aa59;background:#332a24}
+.ag-tier-ranks small{font-size:10px;color:#c5b2de}
+.ag-tier-ranks b{font-size:13px;color:#f9dfa5;overflow-wrap:anywhere}
+.ag-tier-ranks span{font-size:11px;color:#bac7e1;text-align:right}
+.ag-mode-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.ag-mode-grid article{border:1px solid #776449;background:linear-gradient(145deg,#282234,#0f1428);border-radius:14px;padding:22px;min-width:0}
+.ag-mode-grid article span{font-size:10px;color:#f3ca81;letter-spacing:1px;font-weight:900}
+.ag-mode-grid article h3{margin:10px 0;color:#f1e2c4;font-size:19px}
+.ag-mode-grid article p{font-size:13px;line-height:1.6;color:#b8c2d9}
+@media(max-width:800px){.ag-mode-grid{grid-template-columns:1fr}}
+@media(max-width:500px){.ag-tier-ranks>div{grid-template-columns:1fr;gap:4px}.ag-tier-ranks span{text-align:left}.ag-mode-grid article{padding:17px}}

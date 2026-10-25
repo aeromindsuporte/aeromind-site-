@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import {getPublicCampaigns} from '@/lib/campaigns';
 import type {Metadata} from 'next';
 import './landing-neon.css';
 
@@ -129,7 +130,8 @@ const items=[
  {id:'resultados',icon:'▥',title:'Resultados dos indicadores de rosa',description:'Veja placares, pendências e o desempenho registrado dos indicadores de rosa.',preview:<MiniResults/>}
 ];
 
-export default function Home(){
+export default async function Home(){
+ const campaigns=await getPublicCampaigns();
  return <div className="nl-site">
   <header className="nl-header">
    <div className="nl-header-inner">
@@ -183,6 +185,20 @@ export default function Home(){
     </article>)}
    </section>
    <p className="nl-demo-warning nl-shell">Imagens e multiplicadores ilustrativos para demonstrar a interface. Análises de rodadas anteriores não garantem resultados futuros.</p>
+   <section className="nl-campaigns nl-shell" id="versoes" aria-label="Conheça AeroMind Pro e Gold">
+    <div className="nl-campaigns-intro"><span>EVOLUÇÃO AEROMIND AURORA</span><h2>Conheça os próximos níveis</h2>
+     <p>O aplicativo atual continua disponível conforme sua licença. Os recursos novos abaixo estão planejados para a atualização Aurora e não são promessas de desempenho.</p></div>
+    <div className="nl-campaign-grid">
+     {campaigns.filter(c=>c.tier==='Pro'||c.tier==='Gold').map(c=><article className={'nl-campaign-card '+(c.tier==='Gold'?'gold':'pro')} key={c.tier}>
+       <span className="nl-campaign-badge">{c.badge}</span>
+       <h3>AeroMind {c.tier}</h3><h4>{c.headline}</h4>
+       <p>{c.description}</p>
+       <ul>{c.features.slice(0,4).map((item,i)=><li key={i}>✓ {item}</li>)}</ul>
+       <p className="nl-campaign-availability">{c.tier==='Gold'?'Em preparação · venda Gold não disponível':'Ofertas Pro dependem de preço e publicação no catálogo'}</p>
+       <Link href={c.tier==='Gold'?'/gold':'/pro'} className="nl-campaign-action">{c.cta_text} →</Link>
+     </article>)}
+    </div>
+   </section>
    <section className="nl-simple-section nl-shell" id="como-funciona">
     <span className="nl-section-kicker">SIMPLES DE COMEÇAR</span>
     <h2>Conheça o AeroMind em três passos</h2>
