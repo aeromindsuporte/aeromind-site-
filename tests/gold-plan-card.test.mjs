@@ -11,7 +11,7 @@ test('planos mostram Gold no lugar do card comercial Ultra, em todos os período
  assert.match(page,/cards\.map\(card=>\{/);
  assert.match(page,/if\(card\.tier==='Ultra'\)return goldCampaign\?<Link key=\{card\.tier\} href="\/gold"/);
  assert.match(page,/<h3>Gold<\/h3>/);
- assert.match(page,/Conhecer Gold/);
+ assert.match(page,/goldCampaign\.cta_text/);
  assert.match(page,/className=\{'am-plan '\+card\.css\+' am-gold-preview'\}/);
  assert.match(page,/aria-label="Conhecer o AeroMind Gold/);
  assert.ok(page.indexOf("if(card.tier==='Ultra')")<page.indexOf("const plan=planData.find"),'Gold não depende de plano Ultra publicado');
