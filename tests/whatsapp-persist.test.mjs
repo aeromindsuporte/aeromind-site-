@@ -44,3 +44,12 @@ test('Layout de resumo cadastrado mantém suporte para celulares',()=>{
  assert.match(css,/\.account-whatsapp-view\{/);
  assert.match(css,/@media\(max-width:470px\)/);
 });
+
+test('Botão WhatsApp não expande verticalmente no flex column de celulares',()=>{
+ const css=read('app/auth.css');
+ assert.match(css,/\.account-whatsapp-buttons\{display:flex;/);
+ assert.match(css,/@media\(max-width:470px\)\{[\s\S]*?\.account-whatsapp-buttons\{flex-direction:column;align-items:stretch\}/);
+ assert.match(css,/\.account-whatsapp-buttons button\{flex:0 0 auto;width:100%;min-height:48px;height:auto;/);
+ assert.match(css,/\.account-whatsapp-form \.account-whatsapp-buttons \.auth-submit\{max-width:100%;/);
+ assert.doesNotMatch(css,/\.account-whatsapp-buttons button\{flex:1 1 175px;/);
+});
