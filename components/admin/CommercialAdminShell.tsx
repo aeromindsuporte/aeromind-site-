@@ -9,6 +9,7 @@ const nav=[
  ['/admin/clientes','Clientes','♙'],
  ['/admin/licencas','Licenças','⚿'],
  ['/admin/planos','Planos','◈'],
+ ['/admin/divulgacao','Divulgação Pro e Gold','✧'],
  ['/admin/gold','Gold (preparação)','✦'],
  ['/admin/dispositivos','Dispositivos','▯'],
  ['/admin/movimentacoes','Movimentações','⇄'],
