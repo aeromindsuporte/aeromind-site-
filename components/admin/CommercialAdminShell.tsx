@@ -12,6 +12,7 @@ const nav=[
  ['/admin/divulgacao','Divulgação Pro e Gold','✧'],
  ['/admin/gold','Gold (preparação)','✦'],
  ['/admin/dispositivos','Dispositivos','▯'],
+ ['/admin/presenca','Clientes online','◉'],
  ['/admin/movimentacoes','Movimentações','⇄'],
  ['/admin/notificacoes','Central de Notificações','🔔'],
  ['/admin/releases','Atualizações','⇧'],
