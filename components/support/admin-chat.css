@@ -1,0 +1,30 @@
+.sa-wrap{display:grid;gap:12px;min-width:0}.sa-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:#141d36;border:1px solid #3a5778;border-radius:12px;padding:13px}
+.sa-toolbar>div{margin-right:auto;display:grid;gap:6px}.sa-toolbar strong{color:#adf7ff;font-size:14px}.sa-toolbar span{font-size:11px;color:#a7bada}
+.sa-toolbar button{padding:10px 13px;border:1px solid #5b7aaf;border-radius:9px;background:#142d51;color:#e9f4ff;cursor:pointer;font-size:12px;font-weight:800}
+.sa-error{padding:12px;border:1px solid #a94362;border-radius:9px;color:#ffc9d2;background:#40192a}
+.sa-grid{display:grid;grid-template-columns:minmax(245px,.38fr) minmax(0,.62fr);min-height:min(72vh,720px);border-radius:16px;overflow:hidden;border:1px solid #455b85;background:#0b132a;min-width:0}
+.sa-list{border-right:1px solid #405177;overflow:auto;max-height:min(72vh,720px);background:#101831;min-width:0}
+.sa-list h2{font-size:16px;margin:0;padding:17px;background:#192444;position:sticky;top:0;z-index:1;display:flex;justify-content:space-between;gap:12px}
+.sa-list h2 b{background:#47366d;color:#ead6ff;border-radius:99px;padding:2px 9px}
+.sa-list-item{display:flex;width:100%;align-items:flex-start;gap:9px;text-align:left;padding:13px 10px;border:none;border-bottom:1px solid #30425f;background:transparent;color:#e5ebff;cursor:pointer;font:inherit}
+.sa-list-item.active{background:#223660;border-left:3px solid #6ccaff}.sa-list-item:hover{background:#1b2a48}
+.sa-avatar{flex:none;display:grid;place-items:center;width:31px;height:31px;background:#2d3e6d;border-radius:10px;color:#9de4ff}
+.sa-list-copy{display:grid;gap:5px;min-width:0;flex:1}.sa-list-copy strong{font-size:12px;overflow-wrap:anywhere}.sa-list-copy small{font-size:11px;color:#d1aef3}.sa-list-copy em{font-size:11px;color:#aebbd8;font-style:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sa-list-copy span{font-size:10px;color:#a1b1cf}.sa-count{flex:none;background:#f02a94;border-radius:99px;padding:4px 7px;font-size:11px}
+.sa-none{padding:17px;color:#a6bbd8;font-size:12px}
+.sa-conversation{display:flex;flex-direction:column;min-width:0;min-height:500px}
+.sa-chat-top{display:flex;align-items:center;gap:12px;justify-content:space-between;border-bottom:1px solid #50658a;padding:16px;background:#111e3a}
+.sa-chat-top>div{display:grid;gap:4px;min-width:0}.sa-chat-top strong{font-size:15px;overflow-wrap:anywhere}.sa-chat-top span{font-size:12px;color:#c4b4ee}.sa-chat-top a{font-size:11px;color:#9de8ff}
+.sa-chat-top select{background:#23365e;border:1px solid #668ab4;color:#e9f4ff;border-radius:9px;padding:10px;max-width:155px;min-width:120px;font-size:12px}
+.sa-messages{flex:1;max-height:min(52vh,520px);min-height:260px;overflow:auto;display:flex;flex-direction:column;gap:13px;padding:18px 15px;overscroll-behavior:contain}
+.sa-message{padding:13px 15px;max-width:87%;border-radius:12px;border:1px solid #50718a;overflow-wrap:anywhere}
+.sa-message.client{background:#172a40;align-self:flex-start;border-bottom-left-radius:4px}
+.sa-message.admin{background:#2b245b;align-self:flex-end;border-color:#745cb8;border-bottom-right-radius:4px}
+.sa-message span{color:#8bebff;font-size:11px;font-weight:850}.sa-message p{white-space:pre-wrap;font-size:13px;line-height:1.5;margin:8px 0}
+.sa-message small{display:block;color:#9fb0c9;text-align:right;font-size:10px}
+.sa-reply{display:flex;flex-wrap:wrap;gap:10px;padding:14px;border-top:1px solid #46597f;background:#0b1831}
+.sa-reply textarea{flex:1 1 260px;min-width:0;border-radius:11px;border:1px solid #5571ae;background:#132341;color:#eef4ff;resize:vertical;padding:13px;font:inherit;font-size:12px}
+.sa-reply button{background:linear-gradient(125deg,#236bb3,#a92cc5);color:#fff;border-radius:11px;border:1px solid #8d90ef;padding:12px;font-size:12px;font-weight:850;cursor:pointer}
+.sa-reply button:disabled{opacity:.5}.sa-reply small{flex-basis:100%;color:#9fb5d4;font-size:10px}.sa-placeholder{margin:auto;text-align:center;color:#9cb6d6;font-size:14px}
+@media(max-width:790px){.sa-grid{grid-template-columns:1fr;min-height:0}.sa-list{max-height:225px;border-right:0;border-bottom:1px solid #405177}.sa-conversation{min-height:450px}.sa-messages{min-height:230px;max-height:45vh}}
+@media(max-width:460px){.sa-list h2{padding:13px}.sa-toolbar button{flex:1}.sa-chat-top{align-items:flex-start;flex-direction:column}.sa-chat-top select{width:100%;max-width:none}}
