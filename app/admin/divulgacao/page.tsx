@@ -32,12 +32,12 @@ export default async function AdminMarketing({searchParams}:{searchParams:Promis
  const params=await searchParams;
  const tier=params.tier==='Gold'?'Gold':'Pro';
  const [campResult,allPlans,goldOverview,auditResult]=await Promise.all([
-  sb.from('aeromind_tier_campaigns').select('tier,visible,eyebrow,headline,description,badge,cta_text,features,updated_at').order('tier'),
+  sb.rpc('aeromind_admin_campaigns'),
   sb.rpc('aeromind_admin_all_plans'),
   sb.rpc('aeromind_gold_admin_overview'),
   sb.from('aeromind_tier_campaign_audit').select('id,tier,created_at,reason').order('created_at',{ascending:false}).limit(20)
  ]);
- const allCampaigns=(campResult.data||[]) as Campaign[];
+ const allCampaigns=(Array.isArray(campResult.data)?campResult.data:[]) as Campaign[];
  const campaign=allCampaigns.find(x=>x.tier===tier);
  const plans=Array.isArray(allPlans.data)?allPlans.data as Plan[]:[];
  const overview=goldOverview.data as {global_enabled?:boolean;checkout_enabled?:boolean}|null;
