@@ -74,11 +74,11 @@ begin
  perform pg_advisory_xact_lock(hashtextextended(p_tier,92525));
  select to_jsonb(c) - 'updated_by' into old_state
  from public.aeromind_tier_campaigns c where c.tier=p_tier for update;
- update public.aeromind_tier_campaigns set
+ update public.aeromind_tier_campaigns as c set
   visible=p_visible,eyebrow=btrim(p_eyebrow),headline=btrim(p_headline),
   description=btrim(p_description),badge=btrim(p_badge),cta_text=btrim(p_cta_text),
   features=p_features,updated_by=actor,updated_at=clock_timestamp()
- where tier=p_tier returning to_jsonb(public.aeromind_tier_campaigns)-'updated_by' into new_state;
+ where c.tier=p_tier returning to_jsonb(c)-'updated_by' into new_state;
  if not found then raise exception 'Campanha inexistente' using errcode='22023'; end if;
  insert into public.aeromind_tier_campaign_audit(tier,before_state,after_state,changed_by,reason)
  values(p_tier,old_state,new_state,actor,btrim(p_reason));
