@@ -711,3 +711,32 @@
     margin:0 auto;
   }
 }
+
+/* Celular de referência aprovado: uma única arte, sem sobreposição de mockups HTML. */
+.nl-stage.nl-stage-real{height:700px;overflow:visible;isolation:isolate}
+.nl-stage-real .nl-phone-real{
+ position:absolute;z-index:3;display:block;
+ width:min(395px,82%);height:auto;max-height:100%;
+ top:0;left:50%;transform:translateX(-50%);
+ object-fit:contain;object-position:top center;
+ filter:drop-shadow(0 14px 30px rgba(21,3,56,.62));
+ pointer-events:none
+}
+.nl-stage-real .nl-stage-halo,.nl-stage-real .nl-stage-bars,
+.nl-stage-real .nl-plane-decoration{z-index:0}
+@media(max-width:1120px){
+ .nl-stage.nl-stage-real{height:640px}
+ .nl-stage-real .nl-phone-real{width:min(350px,83%)}
+}
+@media(max-width:860px){
+ .nl-stage.nl-stage-real{height:610px;max-width:650px;overflow:visible}
+ .nl-stage-real .nl-phone-real{width:min(338px,80%);max-height:100%}
+}
+@media(max-width:520px){
+ .nl-stage.nl-stage-real{height:505px;max-width:410px;overflow:visible}
+ .nl-stage-real .nl-phone-real{width:min(280px,80%);max-height:100%}
+}
+@media(max-width:355px){
+ .nl-stage.nl-stage-real{height:445px}
+ .nl-stage-real .nl-phone-real{width:min(248px,81%)}
+}
