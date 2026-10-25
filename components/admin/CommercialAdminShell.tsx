@@ -4,6 +4,7 @@ import '@/app/admin/admin.css';
 import {createClient} from '@/lib/supabase/server';
 import {AdminMenuToggle} from './AdminMenuToggle';
 import {AdminAlertsRefresh} from './AdminAlertsRefresh';
+import {SupportUnreadBadge} from './SupportUnreadBadge';
 const nav=[
  ['/admin','Visão geral','▦'],
  ['/admin/clientes','Clientes','♙'],
@@ -35,6 +36,7 @@ return <div className="admin-root admin-commercial">
   <Link href="/admin" className="admin-top-brand"><img src="/images/aeromind-mark.svg" width="36" height="36" alt=""/> AeroMind <span>ADMIN</span></Link>
   <div className="admin-top-actions">
    <Link className="admin-notification-bell" href="/admin/notificacoes" aria-label="Abrir Central de Notificações">🔔</Link>
+   <Link href="/admin/suporte" className="admin-account-link" aria-label="Abrir mensagens do suporte">✉ Suporte <SupportUnreadBadge/></Link>
    <Link href="/minha-conta" className="admin-account-link">Minha conta ↗</Link>
   </div>
  </header>
@@ -45,6 +47,7 @@ return <div className="admin-root admin-commercial">
     {nav.map(([href,label,icon])=><Link key={href} href={href} className={active===href?'current':''} aria-current={active===href?'page':undefined}>
      <span className="admin-nav-icon" aria-hidden="true">{icon}</span>{label}
      {href==='/admin/movimentacoes'&&<DevicePendingCount/>}
+     {href==='/admin/suporte'&&<SupportUnreadBadge/>}
     </Link>)}
    </nav>
    <div className="admin-sidebar-foot"><span>Site e suporte</span><Link href="/">↗ Ver site</Link><Link href="/minha-conta">◀ Minha conta</Link></div>
