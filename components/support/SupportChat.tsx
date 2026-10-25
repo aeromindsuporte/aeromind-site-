@@ -12,7 +12,7 @@ const errorMessage=(message:string)=>message.includes('rate')||message.includes(
  'Você enviou muitas mensagens. Aguarde um pouco para continuar.':
  'Não foi possível enviar. Confira sua conexão e tente novamente.';
 
-export function SupportChatPanel({embedded=false}:{embedded?:boolean}){
+export function SupportChatPanel({embedded=false,initialSubject='Atendimento AeroMind'}:{embedded?:boolean;initialSubject?:string}){
  const sb=useMemo(()=>createClient(),[]);
  const [userId,setUserId]=useState<string|null>(null);
  const [checking,setChecking]=useState(true);
@@ -20,7 +20,7 @@ export function SupportChatPanel({embedded=false}:{embedded?:boolean}){
  const [selected,setSelected]=useState<string|null>(null);
  const [messages,setMessages]=useState<Message[]>([]);
  const [message,setMessage]=useState('');
- const [subject,setSubject]=useState('Atendimento AeroMind');
+ const [subject,setSubject]=useState(initialSubject);
  const [error,setError]=useState('');
  const [busy,setBusy]=useState(false);
  const [newConversation,setNewConversation]=useState(false);
