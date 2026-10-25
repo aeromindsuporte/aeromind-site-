@@ -60,7 +60,7 @@ export function SupportChatPanel({embedded=false,initialSubject='Atendimento Aer
   setSelected(id);selectedRef.current=id;setNewConversation(false);setMessages([]);setError('');
   const {data,error:chatError}=await sb.from('aeromind_support_messages').select('id,ticket_id,author_id,content,created_at')
     .eq('ticket_id',id).order('created_at',{ascending:true}).limit(300);
-  if(!chatError){setMessages(chat||[]);await sb.rpc('aeromind_support_chat_seen',{p_ticket_id:id})}
+  if(!chatError){setMessages(data||[]);await sb.rpc('aeromind_support_chat_seen',{p_ticket_id:id})}
  }
  async function send(event:React.FormEvent<HTMLFormElement>){
   event.preventDefault();const body=message.trim();if(body.length<2||busy)return;
