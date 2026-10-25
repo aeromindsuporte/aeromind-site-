@@ -35,7 +35,8 @@ test('customer card and support include device histories and requests',()=>{
  const devices=read('app/dispositivos/page.tsx');
  assert.match(customer,/Histórico de movimentações dos aparelhos/);
  assert.match(customer,/aeromind_device_activity/);
- assert.match(support,/'dispositivo'/);
+ assert.match(support,/aeromind_support_chat_send/);
+ assert.match(read('app/suporte/page.tsx'),/categoria/);
  assert.match(devices,/categoria=dispositivo/);
 });
 test('admin menu includes notification counter',()=>{

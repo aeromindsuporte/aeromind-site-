@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import {SupportFloatingChat} from '@/components/support/SupportChat';
 import './globals.css';
 import './auth.css';
 export const metadata: Metadata = {
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
  robots: { index: true, follow: true }
 };
 export default function RootLayout({children}:{children:React.ReactNode}) {
- return <html lang="pt-BR"><body>{children}</body></html>;
+ return <html lang="pt-BR"><body>{children}<SupportFloatingChat/></body></html>;
 }
