@@ -6,6 +6,7 @@ import './admin.css';
 import { ReleaseUploader } from '@/components/admin/ReleaseUploader';
 import {effectiveLicenseStatus,labelForLicenseStatus} from '@/lib/license-status';
 import {AdminAlertsRefresh} from '@/components/admin/AdminAlertsRefresh';
+import {SupportUnreadBadge} from '@/components/admin/SupportUnreadBadge';
 import {AdminMenuToggle} from '@/components/admin/AdminMenuToggle';
 
 export const dynamic='force-dynamic';
@@ -113,11 +114,11 @@ export default async function Admin({searchParams,activeSection='visao'}:{search
   <header className="admin-top">
     <AdminMenuToggle/>
     <Link href="/" className="admin-top-brand"><img src="/images/aeromind-mark.svg" width="42" height="42" alt=""/>AeroMind <span>ADMIN</span></Link>
-    <div className="admin-top-right"><span className="admin-live"><i/>Dados reais</span><div className="admin-user"><span className="admin-avatar">A</span><div><strong>AeroMind Suporte</strong><small>{staff.role==='owner'?'Proprietário':'Administrador'}</small></div></div><Link href="/minha-conta" className="admin-account-link">Minha conta ↗</Link></div>
+    <div className="admin-top-right"><span className="admin-live"><i/>Dados reais</span><div className="admin-user"><span className="admin-avatar">A</span><div><strong>AeroMind Suporte</strong><small>{staff.role==='owner'?'Proprietário':'Administrador'}</small></div></div><Link href="/admin/suporte" className="admin-account-link">✉ Suporte <SupportUnreadBadge/></Link><Link href="/minha-conta" className="admin-account-link">Minha conta ↗</Link></div>
   </header>
   <div className="admin-shell">
     <aside id="admin-navigation" className="admin-sidebar" aria-label="Menu administrativo"><div className="admin-sidebar-heading"><p>PAINEL ADMINISTRATIVO</p><button type="button" className="admin-sidebar-close" aria-label="Fechar menu">×</button></div><nav aria-label="Todas as funções administrativas">
-    {sections.map((x,i)=><Link key={x.href} href={x.href} aria-current={x.href===(activeSection==='visao'?'/admin':'/admin/'+activeSection)?'page':undefined} className={x.href===(activeSection==='visao'?'/admin':'/admin/'+activeSection)?'current':''}><span>{x.icon}</span>{x.label}{x.href==='/admin/movimentacoes'&&unreadDeviceAlerts!==null&&unreadDeviceAlerts>0?<span className="admin-alert-badge">{unreadDeviceAlerts>99?'99+':unreadDeviceAlerts}</span>:null}</Link>)}
+    {sections.map((x,i)=><Link key={x.href} href={x.href} aria-current={x.href===(activeSection==='visao'?'/admin':'/admin/'+activeSection)?'page':undefined} className={x.href===(activeSection==='visao'?'/admin':'/admin/'+activeSection)?'current':''}><span>{x.icon}</span>{x.label}{x.href==='/admin/suporte'&&<SupportUnreadBadge/>}{x.href==='/admin/movimentacoes'&&unreadDeviceAlerts!==null&&unreadDeviceAlerts>0?<span className="admin-alert-badge">{unreadDeviceAlerts>99?'99+':unreadDeviceAlerts}</span>:null}</Link>)}
     </nav><div className="admin-sidebar-foot"><span>Site e suporte</span><Link href="/">↗ Ver site</Link><a href="mailto:aeromindsuporte@gmail.com">✉ Contato</a><Link href="/minha-conta">◀ Voltar à conta</Link></div></aside>
     <main className="admin-content">
       <section id="visao" className="admin-overview">
