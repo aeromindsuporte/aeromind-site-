@@ -46,7 +46,7 @@ begin
   if length(btrim(coalesce(p_subject,''))) not between 5 and 140
   then raise exception 'Assunto inválido' using errcode='22023';end if;
   insert into public.aeromind_support_tickets(user_id,subject,category,status)
-  values(actor,btrim(p_subject),'geral','open') returning id into t;
+  values(actor,btrim(p_subject),case when p_subject ilike '%dispositivo%' then 'dispositivo' else 'geral' end,'open') returning id into t;
  else
   select user_id,status into owner_id,state from public.aeromind_support_tickets where id=p_ticket_id for update;
   if not found or (not is_staff and owner_id<>actor) then
