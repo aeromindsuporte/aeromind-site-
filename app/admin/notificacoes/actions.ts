@@ -14,7 +14,7 @@ function sanitize(input:NotificationInput):{data:Record<string,unknown>|null;err
  if(!['normal','high'].includes(input.priority))return {data:null,error:'Prioridade inválida.'};
  if(input.audience_type==='tier'&&!['Básico','Pro','Ultra'].includes(input.audience_tier||''))return {data:null,error:'Escolha um plano válido.'};
  if(input.audience_type==='user'&&(!input.audience_user_id||!uuid.test(input.audience_user_id)))return {data:null,error:'Escolha o cliente destinatário.'};
- if(!input.channel_site||input.channel_app||input.channel_push)return {data:null,error:'Nesta etapa o envio está habilitado somente no site. App e push dependem da atualização Android.'};
+ if(!input.channel_site||input.channel_push)return {data:null,error:'O envio pelo site permanece obrigatório. Push remoto ainda não está disponível.'};
  const duration=input.validity_minutes;
  if(duration!==null&&(!Number.isInteger(duration)||duration<1||duration>10080))return {data:null,error:'Prazo de validade inválido.'};
  const label=String(input.cta_label||'').trim(),path=String(input.cta_path||'').trim();
@@ -32,7 +32,7 @@ function sanitize(input:NotificationInput):{data:Record<string,unknown>|null;err
   audience_tier:input.audience_type==='tier'?input.audience_tier:null,
   audience_user_id:input.audience_type==='user'?input.audience_user_id:null,
   priority:input.priority,validity_minutes:duration,cta_label:label,cta_path:path,
-  channel_site:true,channel_app:false,channel_push:false,
+  channel_site:true,channel_app:input.channel_app===true,channel_push:false,
   status:input.status,scheduled_at:scheduled
  }};
 }
@@ -66,7 +66,7 @@ export async function sendSavedNotification(campaignId:string):Promise<Notificat
  revalidatePath('/admin/notificacoes');
  revalidatePath('/notificacoes');
  revalidatePath('/minha-conta');
- return {ok:true,id:campaignId,recipients:data,message:'Notificação entregue à caixa do site de '+data+' cliente(s).'};
+ return {ok:true,id:campaignId,recipients:data,message:'Notificação enviada a '+data+' cliente(s) pelo site e, se marcado, à caixa interna do app Aurora Pulse.'};
 }
 export async function cancelScheduledNotification(campaignId:string):Promise<NotificationResult>{
  const {sb,user}=await requireAdmin();
