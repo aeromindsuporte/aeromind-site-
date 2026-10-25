@@ -187,10 +187,10 @@ export function NotificationCenter({campaigns,stats,customers,readCounts}:{
       <span>Canais de envio</span>
       <div className="nc-channels" role="group" aria-label="Canais de entrega">
         <label className="nc-channel enabled"><input type="checkbox" checked readOnly aria-label="Site, canal ativo"/><span>◎ Site</span><b>✓</b></label>
-        <label className="nc-channel future" title="Exige atualização do aplicativo Android"><input type="checkbox" disabled/><span>▯ App</span><small>Em breve</small></label>
+        <label className="nc-channel enabled" title="Entrega na aba ADM do sino quando o cliente abrir o Aurora Pulse"><input type="checkbox" checked={form.channel_app} onChange={e=>update('channel_app',e.target.checked)}/><span>▯ App Aurora</span><b>{form.channel_app?'✓':'Opcional'}</b></label>
         <label className="nc-channel future" title="Notificações remotas dependem do Android"><input type="checkbox" disabled/><span>♧ Push</span><small>Em breve</small></label>
       </div>
-      <em>O envio atual funciona na caixa de mensagens do site. App e push serão ativados após a integração Android.</em>
+      <em>O canal Site permanece ativo. Se marcar App, a mensagem também aparecerá na aba ADM do sino do Aurora Pulse quando o cliente abrir o app. Não é push remoto.</em>
     </div>
     <label className="nc-field"><span>Mensagem <small>{form.body.length}/500</small></span>
       <textarea rows={4} maxLength={500} placeholder="Descreva a condição observada. Evite promessas de resultado." value={form.body}
