@@ -27,9 +27,12 @@ test('operações de edição seguem protegidas e usam dados do Supabase',()=>{
  ['app/admin/pagamentos/page.tsx','aeromind_admin_orders'],
  ['app/admin/relatorios/page.tsx','aeromind_admin_commercial_snapshot'],
  ['app/admin/downloads/page.tsx','aeromind_admin_downloads'],
- ['app/admin/suporte/page.tsx','changeSupportStatus'],
+ ['app/admin/suporte/page.tsx','SupportAdminChat'],
  ];
  for(const [file,term] of assertions)assert.ok(source(file).includes(term),file+' sem integração '+term);
+ const chat=source('components/support/SupportAdminChat.tsx');
+ assert.match(chat,/aeromind_support_chat_set_status/);
+ assert.match(chat,/aeromind_support_chat_send/);
 });
 test('telas de clientes e edição evitam deslocamento UTC da validade',()=>{
  assert.ok(source('app/admin/cliente/[id]/page.tsx').includes('dateInputBrazil(current?.valid_until)'));
