@@ -39,6 +39,7 @@ test('Gestão de campanhas separada do catálogo e somente administradores',()=>
  assert.match(admin,/aeromind_admin_all_plans/);
  assert.match(admin,/aeromind_gold_admin_overview/);
  assert.match(admin,/aeromind_tier_campaign_audit/);
+ assert.match(admin,/sb\.rpc\('aeromind_admin_campaigns'\)/);
  assert.match(admin,/PlanReadiness/);
  assert.match(action,/aeromind_admin_save_tier_campaign/);
  assert.match(action,/reason\.length>=8/);
@@ -53,7 +54,11 @@ test('Campanha pública só lê o que está visível e não altera preço nem pe
  assert.doesNotMatch(api,/service_role|UPDATE|INSERT|DELETE/);
  assert.match(sql,/enable row level security/g);
  assert.match(sql,/grant select on public\.aeromind_tier_campaigns to anon,authenticated/);
- assert.match(sql,/visible=true or/);
+ assert.match(sql,/using \(visible=true\)/);
+ const publicPolicy=read('supabase/migrations/20261025132000_campaign_public_read_and_admin_rpc.sql');
+ assert.match(publicPolicy,/aeromind_admin_campaigns/);
+ assert.match(publicPolicy,/from public\.aeromind_tier_campaigns c/);
+ assert.match(publicPolicy,/auth\.uid\(\)/);
  assert.match(sql,/aeromind_staff/);
  assert.doesNotMatch(sql,/grant (?:insert|update|delete|all) on public\.aeromind_tier_campaigns to (?:anon|authenticated)/i);
  assert.match(sql,/auth\.uid\(\)/);
