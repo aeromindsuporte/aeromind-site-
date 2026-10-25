@@ -31,12 +31,14 @@ test('agendamento utiliza cron nativo do banco e validade relativa ao envio',()=
  assert.match(sql,/status='scheduled' and scheduled_at<=now\(\)/);
  assert.match(sql,/make_interval\(mins => c\.validity_minutes\)/);
 });
-test('edição salva rascunho, modelo e agenda; não habilita push sem Android',()=>{
+test('edição salva rascunho, agenda e app inbox opcional; push remoto segue desligado',()=>{
  const actions=source('app/admin/notificacoes/actions.ts');
  const ui=source('app/admin/notificacoes/NotificationCenter.tsx');
  assert.match(actions,/requireAdmin/);
  assert.match(actions,/\.in\('status',\['draft','scheduled','template'\]\)/);
- assert.match(actions,/!input\.channel_site\|\|input\.channel_app\|\|input\.channel_push/);
+ assert.match(actions,/!input\.channel_site\|\|input\.channel_push/);
+ assert.match(actions,/channel_app:input\.channel_app===true/);
+ assert.match(ui,/checked=\{form\.channel_app\}/);
  assert.match(ui,/persist\('template'\)/);
  assert.match(ui,/persist\('scheduled'\)/);
  assert.match(ui,/persist\('draft',true\)/);
