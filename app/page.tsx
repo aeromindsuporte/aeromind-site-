@@ -83,28 +83,15 @@ function Multipliers({compact=false}:{compact?:boolean}){
  </div>;
 }
 function DeviceMockup(){
- return <div className="nl-stage" aria-label="Prévia demonstrativa dos indicadores e da interface do AeroMind">
+ return <div className="nl-stage nl-stage-real" aria-label="Ilustração demonstrativa da interface AeroMind no celular">
   <div className="nl-stage-halo" aria-hidden="true"/>
   <div className="nl-stage-bars" aria-hidden="true"><span/><span/><span/><span/><span/></div>
   <svg className="nl-plane-decoration" width="240" height="150" viewBox="0 0 240 150" aria-hidden="true" fill="none">
    <g transform="translate(0 13) rotate(-10 120 60)"><AeroMindPlaneArt/></g>
   </svg>
-  <div className="nl-phone-shadow" aria-hidden="true"/>
-  <div className="nl-phone">
-   <div className="nl-phone-bezel">
-    <div className="nl-speaker"/>
-    <div className="nl-phone-inner">
-     <div className="nl-phone-status"><strong>19:55</strong><span>▰ ▴ ◧</span></div>
-     <div className="nl-phone-top"><span className="nl-phone-brand">AEROMIND</span><span className="nl-phone-controls"><b>⛶</b><b>?</b><b>☰</b></span></div>
-     <small className="nl-phone-caption">Monitor v0.27.2 — comercial ativo</small>
-     <Multipliers/>
-     <div className="nl-radar-label">RADAR AEROMIND <span>•</span> ROXO EM EVOLUÇÃO</div>
-     <div className="nl-phone-clock"><strong>19:55:41</strong><span>Última rosa 19:49:26 • 556.26x<br/>Intervalo #1</span><b>EQUILÍBRIO</b></div>
-     <div className="nl-chart"><CurveChart/><strong>150.38x</strong></div>
-     <div className="nl-phone-footer">HISTÓRICO EXATO <span>▤</span> RESULTADOS</div>
-    </div>
-   </div>
-  </div>
+  <img className="nl-phone-real" src="/images/aeromind-phone-real.avif"
+   alt="Prévia ilustrativa do AeroMind em um celular com indicadores BAIXA, MEDIANA, ALTA, ALTO RISCO, radar e gráfico Aviator."
+   width="395" height="702" decoding="async" fetchPriority="high"/>
  </div>;
 }
 function Flower({size=30}:{size?:number}){
