@@ -14,11 +14,8 @@ create table if not exists public.aeromind_tier_campaigns (
 alter table public.aeromind_tier_campaigns enable row level security;
 revoke all on public.aeromind_tier_campaigns from public,anon,authenticated;
 grant select on public.aeromind_tier_campaigns to anon,authenticated;
-create policy aeromind_campaign_public_or_staff on public.aeromind_tier_campaigns
- for select to anon,authenticated using (
- visible=true or
- exists(select 1 from public.aeromind_staff s where s.user_id=(select auth.uid()) and s.role in ('admin','owner'))
-);
+create policy aeromind_campaign_public_visible on public.aeromind_tier_campaigns
+ for select to anon,authenticated using (visible=true);
 insert into public.aeromind_tier_campaigns(tier,visible,eyebrow,headline,description,badge,cta_text,features)
 values
  ('Pro',true,'AEROMIND PRO','Mais recursos para acompanhar cada sessão',
