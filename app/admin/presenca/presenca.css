@@ -1,0 +1,16 @@
+.pulse-admin{display:grid;gap:18px;min-width:0}
+.pulse-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.pulse-stats section{display:grid;gap:7px}
+.pulse-stats small{color:#b8cae5}
+.pulse-stats strong{font-size:33px;color:#b5ecff}
+.pulse-stats span{font-size:12px;color:#b6c9e0}
+.pulse-admin p{font-size:13px;color:#b8c9df;line-height:1.7}
+.pulse-admin a{color:#a8d9ff;text-decoration:underline}
+.pulse-table-scroll{max-width:100%;overflow-x:auto}
+.pulse-table-scroll table{width:100%;border-collapse:collapse;min-width:840px}
+.pulse-table-scroll td,.pulse-table-scroll th{padding:13px 10px;border-bottom:1px solid #3b4770;text-align:left;font-size:12px;white-space:normal}
+.pulse-table-scroll th{color:#e3c9fd;font-weight:850}
+.pulse-table-scroll td{color:#d5e1f3;overflow-wrap:anywhere}
+.pulse-online{color:#63ecc1;font-weight:850}
+.pulse-offline{color:#d5a4aa;font-weight:750}
+@media(max-width:700px){.pulse-stats{grid-template-columns:1fr}.pulse-stats strong{font-size:28px}}
