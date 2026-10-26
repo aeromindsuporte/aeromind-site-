@@ -50,7 +50,7 @@ test('cliente vê próprias mensagens e pode marcar como lidas',()=>{
  const read=source('app/notificacoes/actions.ts');
  assert.match(inbox,/\.eq\('user_id',user\.id\)/);
  assert.match(inbox,/expires_at/);
- assert.match(inbox,/Expirada/);
+ assert.match(source('components/account/NotificationList.tsx'),/Expirada/);
  assert.match(read,/aeromind_mark_notification_read/);
  assert.match(read,/sb\.auth\.getUser\(\)/);
 });
