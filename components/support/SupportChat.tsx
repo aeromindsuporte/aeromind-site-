@@ -139,7 +139,7 @@ export function SupportFloatingChat(){
   </section>}
   <button type="button" className="sc-launcher" onClick={()=>setOpen(x=>!x)}
    aria-label={open?'Fechar suporte':'Abrir chat do suporte'} aria-expanded={open}>
-   <span aria-hidden="true">{open?'×':<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-6.5A7.5 7.5 0 0 1 10.5 7h3A7.5 7.5 0 0 1 21 14.5z" transform="translate(0 -2)"/><path d="M8 11h8M8 14h5"/></svg>}</span> <span>{open?'Fechar':'Suporte'}</span>
+   <span aria-hidden="true">{open?'×':<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20.5 11.5a8.2 8.2 0 0 1-8.5 8.1 9.6 9.6 0 0 1-3.7-.8L3 20l1.3-4A8 8 0 0 1 3.5 11.5a8.5 8.5 0 0 1 17 0Z"/><path d="M8 11.5h.01M12 11.5h.01M16 11.5h.01"/></svg>}</span> <span>{open?'Fechar':'Suporte'}</span>
    {!open&&unread>0&&<b className="sc-unread">{unread>99?'99+':unread}</b>}
   </button>
  </div>;
