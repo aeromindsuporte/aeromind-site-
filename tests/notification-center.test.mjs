@@ -50,7 +50,7 @@ test('cliente vê próprias mensagens e pode marcar como lidas',()=>{
  const read=source('app/notificacoes/actions.ts');
  assert.match(inbox,/\.eq\('user_id',user\.id\)/);
  assert.match(inbox,/expires_at/);
- assert.match(inbox,/Expirada/);
+ assert.match(source('components/account/NotificationList.tsx'),/Expirada/);
  assert.match(read,/aeromind_mark_notification_read/);
  assert.match(read,/sb\.auth\.getUser\(\)/);
 });
@@ -61,4 +61,27 @@ test('central aparece no painel e acesso do cliente',()=>{
  assert.match(shell,/admin\/notificacoes/);
  assert.match(home,/Abrir Central de Notificações/);
  assert.match(account,/Abrir minhas notificações/);
+});
+
+test('inbox oferece contadores por categoria, modal de detalhe e marcar todas como lidas',()=>{
+ const component=source('components/account/NotificationList.tsx');
+ const page=source('app/notificacoes/page.tsx');
+ const actions=source('app/notificacoes/actions.ts');
+ assert.match(component,/setActive\(n\)/);
+ assert.match(component,/role="dialog"/);
+ assert.match(component,/aria-modal="true"/);
+ assert.match(component,/labels\[c\]/);
+ assert.match(page,/ni-category-summary/);
+ assert.match(page,/markAllUserNotificationsRead/);
+ assert.match(actions,/markAllUserNotificationsRead/);
+ assert.match(actions,/\.eq\('user_id',user\.id\)/);
+ assert.match(actions,/\.is\('read_at',null\)/);
+});
+test('ajuda explica limites dos planos e Gold destaca recursos exclusivos sem prometer resultado',()=>{
+ const help=source('app/funcionalidades/page.tsx');
+ const plans=source('app/planos/page.tsx');
+ assert.match(help,/Alto Risco e agenda completa/);
+ assert.match(help,/não garantem acerto/);
+ assert.match(plans,/Alto Risco exclusivo Gold/);
+ assert.match(plans,/Radar Rosa Ampliado/);
 });
