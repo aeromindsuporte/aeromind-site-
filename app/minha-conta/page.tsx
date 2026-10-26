@@ -57,10 +57,19 @@ export default async function Conta() {
     <div className="account-container">
       <span className="auth-eyebrow">♙ ÁREA DO CLIENTE</span>
       <h1>Minha conta <em>AeroMind</em></h1>
-      <p className="account-lead">Bem-vindo, {name}. Consulte seus dados e sua licença.</p>
+      <p className="account-lead">Bem-vindo, {name}. Escolha uma área para ir direto ao que precisa.</p>
+
+      <nav className="account-quick-nav" aria-label="Atalhos da conta">
+        <a href="#licenca"><span>◈</span> Minha licença</a>
+        <a href="#gold"><span>✦</span> Gold</a>
+        <a href="#aplicativo"><span>▣</span> Aplicativo</a>
+        <a href="#dispositivos"><span>▤</span> Dispositivos</a>
+        <a href="#suporte"><span>◌</span> Suporte</a>
+        <a href="#notificacoes"><span>♧</span> Notificações{unreadNotifications>0 ? ' ('+unreadNotifications+')' : ''}</a>
+      </nav>
 
       <div className="account-grid">
-        <section className="account-card">
+        <section className="account-card" id="dados">
           <h2>Dados da conta</h2>
           <p><b>E-mail</b> <span>{user.email}</span></p>
           <p><b>E-mail confirmado</b><span>{user.email_confirmed_at?'Sim':'Pendente'}</span></p>
@@ -70,7 +79,7 @@ export default async function Conta() {
             loadError={Boolean(profileResult.error)}/>
           <p className="account-note">Seus dados são protegidos. Cada cliente visualiza somente a própria conta.</p>
         </section>
-        <section className="account-card">
+        <section className="account-card" id="licenca">
           <h2>Minha licença</h2>
           <div className={isActive?'account-license-state is-active':'account-license-state'} role="status">
             <span aria-hidden="true">{isActive?'✓':'◷'}</span> {displayStatus}
@@ -81,7 +90,7 @@ export default async function Conta() {
           <p className="account-note">{isActive?(appReady?'Licença válida. AeroMind Monitor '+releaseName+' disponível para download.':'Licença válida. Aguarde a publicação da próxima versão do aplicativo.'):displayStatus==='Vencida'?'Seu prazo terminou. Renove sua licença para continuar utilizando o AeroMind Monitor.':'Consulte as opções de contratação para habilitar seu acesso.'}</p>
           {isActive&&<Link className="auth-submit auth-button-link" href="/download" style={{marginTop:16}}>Acessar aplicativo →</Link>}
         </section>
-        <section className="account-card">
+        <section className="account-card account-gold-card" id="gold">
           <h2>✦ AeroMind Gold</h2>
           <p className="account-note">{gold?.gold_rollout_enabled
             ? 'O adicional Gold está disponível conforme autorização e licença válida.'
@@ -91,36 +100,36 @@ export default async function Conta() {
           <p className="account-note">Acesso Gold é independente do plano Básico, Pro ou Ultra. Nenhuma assinatura é alterada aqui.</p>
           <Link href="/gold" className="auth-secondary auth-button-link">Conhecer Gold →</Link>
         </section>
-        <section className="account-card">
+        <section className="account-card" id="aplicativo">
           <h2>Download do aplicativo</h2>
           <p className="account-note">{appReady?'O aplicativo já está disponível. Acesse a versão oficial e as instruções de instalação.':'Veja as informações sobre o aplicativo e atualizações.'}</p>
           <Link href="/download" className="auth-secondary auth-button-link">Ver downloads e atualizações →</Link>
         </section>
-        <section className="account-card">
+        <section className="account-card" id="dispositivos">
           <h2>Meus dispositivos</h2>
           <p className="account-note">Consulte seus aparelhos e a quantidade permitida para sua licença.</p>
           <Link href="/dispositivos" className="auth-secondary auth-button-link">Gerenciar dispositivos →</Link>
         </section>
-        <section className="account-card">
+        <section className="account-card" id="suporte">
           <h2>Suporte</h2>
           <p className="account-note">Envie sua dúvida e acompanhe as respostas sem sair do site.</p>
           <Link href="/suporte" className="auth-secondary auth-button-link">Abrir central de atendimento →</Link>
         </section>
       </div>
-      <section className="account-card account-notification-entry" style={{margin:'18px 0',borderColor:'#7845be'}}>
+      <section id="notificacoes" className="account-card account-notification-entry" style={{margin:'18px 0',borderColor:'#7845be'}}>
         <h2>♧ Notificações AeroMind {unreadNotifications>0?'· '+unreadNotifications+' nova(s)':''}</h2>
         <p className="account-note">Confira avisos importantes, atualizações e mensagens do Radar Ao Vivo.</p>
         <Link className="auth-submit auth-button-link" href="/notificacoes">
           Abrir minhas notificações →
         </Link>
       </section>
-      {isStaff && <section className="account-card account-admin-entry">
+      {isStaff && <section id="administrativo" className="account-card account-admin-entry">
         <div className="account-admin-eyebrow">ACESSO ADMINISTRATIVO</div>
         <h2>Painel de gestão AeroMind</h2>
         <p className="account-note">Acompanhe clientes, licenças e planos com acesso protegido e auditoria.</p>
         <Link className="auth-submit auth-button-link" href="/admin">Abrir painel administrativo →</Link>
       </section>}
-      {licenses.length>0 && <section className="account-card account-history">
+      {licenses.length>0 && <section id="historico" className="account-card account-history">
         <h2>Histórico de licenças</h2>
         <div className="account-history-rows">
           {licenses.map((l)=><div className="account-history-row" key={l.id}>
