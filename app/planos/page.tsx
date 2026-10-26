@@ -4,12 +4,12 @@ import {getVisiblePlans,formattedPrice,formattedDuration} from '@/lib/catalog';
 import {benefitsOf,descriptionOf,durationLabelOf} from '@/lib/plan-display';
 
 export const dynamic='force-dynamic';
-export const metadata={title:'Planos | AeroMind',	description:'Conheça Básico, Pro e Gold. Somente planos com preço publicado podem ser contratados; Gold está em preparação.'};
+export const metadata={title:'Planos | AeroMind',	description:'Compare os planos AeroMind Básico, Pro e Gold. Recursos e contratação dependem da licença e da publicação no catálogo.'};
 
 const cards=[
  {tier:'Básico' as const, css:'am-plan-blue',icon:'♙',desc:'Monitoramento essencial',features:['Interface e monitor B4','Histórico do aplicativo','Alertas básicos']},
  {tier:'Pro' as const, css:'am-plan-purple',icon:'◈',desc:'Experiência ampliada',features:['Módulos adicionais','Histórico completo','Previsão Rosa V4','Alertas do monitor']},
- {tier:'Ultra' as const, css:'am-plan-gold',icon:'✦',desc:'Ferramentas avançadas em desenvolvimento',features:['Indicadores personalizáveis','Comparador Clássico, Refinado e Gold','Simulador virtual e relatórios']}
+ {tier:'Ultra' as const, css:'am-plan-gold',icon:'✦',desc:'Camada avançada com acesso Gold',features:['Radar Rosa Ampliado','Alto Risco exclusivo Gold','Agenda completa de sinais','Indicadores e relatórios avançados']}
 ];
 
 export default async function Plans({searchParams}:{searchParams:Promise<{periodo?:string}>}) {
@@ -32,7 +32,7 @@ export default async function Plans({searchParams}:{searchParams:Promise<{period
   <main className="am-shell" style={{paddingTop:55,paddingBottom:100}}>
    <Link href="/#planos" className="am-btn am-outline am-compact" style={{marginBottom:26}}>← Voltar ao início</Link>
    <section className="am-plans" style={{paddingTop:20}}>
-    <div className="am-plans-intro"><span className="am-eyebrow">✦ PLANOS AEROMIND</span><h1 style={{fontSize:'clamp(34px,4vw,56px)',margin:'4px 0 18px'}}>Escolha o plano ideal</h1><p>Compare Básico, Pro e Gold. Preços são exibidos apenas quando publicados no catálogo. O Gold está em preparação.</p>
+    <div className="am-plans-intro"><span className="am-eyebrow">✦ PLANOS AEROMIND</span><h1 style={{fontSize:'clamp(34px,4vw,56px)',margin:'4px 0 18px'}}>Escolha o plano ideal</h1><p>Compare Básico, Pro e Gold. Preços são exibidos apenas quando publicados no catálogo. Os recursos premium dependem da ativação da licença.</p>
     <div className="am-plan-toggle" aria-label="Selecionar duração">
       {choices.map(c=><Link key={c.slug} className={selected===c.slug?'am-active-period':''} href={'/planos?periodo='+c.slug} aria-current={selected===c.slug?'page':undefined}>{c.label}</Link>)}
     </div></div>
