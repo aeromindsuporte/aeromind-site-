@@ -59,14 +59,20 @@ export default async function Conta() {
       <h1>Minha conta <em>AeroMind</em></h1>
       <p className="account-lead">Bem-vindo, {name}. Escolha uma área para ir direto ao que precisa.</p>
 
-      <nav className="account-quick-nav" aria-label="Atalhos da conta">
-        <a href="#licenca"><span>◈</span> Minha licença</a>
-        <a href="#gold"><span>✦</span> Gold</a>
-        <a href="#aplicativo"><span>▣</span> Aplicativo</a>
-        <a href="#dispositivos"><span>▤</span> Dispositivos</a>
-        <a href="#suporte"><span>◌</span> Suporte</a>
-        <a href="#notificacoes"><span>♧</span> Notificações{unreadNotifications>0 ? ' ('+unreadNotifications+')' : ''}</a>
-      </nav>
+      <section className="account-launchpad" aria-label="Acesso rápido às funções">
+        <div className="account-launchpad-heading">
+          <div><span className="account-launchpad-kicker">CENTRAL DO CLIENTE</span><h2>O que você precisa acessar?</h2></div>
+          <p>Entre direto na função desejada, sem procurar pela página.</p>
+        </div>
+        <nav className="account-quick-nav" aria-label="Atalhos da conta">
+          <Link href="/minha-conta#licenca" className="account-shortcut shortcut-license"><span className="shortcut-icon" aria-hidden="true">◈</span><span className="shortcut-copy"><b>Minha licença</b><small>Plano, validade e status</small></span><span className="shortcut-arrow" aria-hidden="true">↗</span></Link>
+          <Link href="/gold" className="account-shortcut shortcut-gold"><span className="shortcut-icon" aria-hidden="true">✦</span><span className="shortcut-copy"><b>Conhecer o Gold</b><small>Recursos premium</small></span><span className="shortcut-arrow" aria-hidden="true">↗</span></Link>
+          <Link href="/download" className="account-shortcut shortcut-app"><span className="shortcut-icon" aria-hidden="true">▣</span><span className="shortcut-copy"><b>Aplicativo</b><small>Downloads e atualizações</small></span><span className="shortcut-arrow" aria-hidden="true">↗</span></Link>
+          <Link href="/dispositivos" className="account-shortcut"><span className="shortcut-icon" aria-hidden="true">▤</span><span className="shortcut-copy"><b>Meus dispositivos</b><small>Gerencie seus aparelhos</small></span><span className="shortcut-arrow" aria-hidden="true">↗</span></Link>
+          <Link href="/suporte" className="account-shortcut shortcut-support"><span className="shortcut-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H5l-2 1.5V12a9 9 0 0 1 18 0Z"/><path d="M8 12h8M8 15h5"/></svg></span><span className="shortcut-copy"><b>Suporte ao cliente</b><small>Converse com a equipe</small></span><span className="shortcut-arrow" aria-hidden="true">↗</span></Link>
+          <Link href="/notificacoes" className="account-shortcut"><span className="shortcut-icon" aria-hidden="true">♧</span><span className="shortcut-copy"><b>Notificações</b><small>{unreadNotifications>0?unreadNotifications+' nova(s) mensagem(ns)':'Avisos e comunicados'}</small></span>{unreadNotifications>0?<span className="shortcut-badge">{unreadNotifications>99?'99+':unreadNotifications}</span>:<span className="shortcut-arrow" aria-hidden="true">↗</span>}</Link>
+        </nav>
+      </section>
 
       <div className="account-grid">
         <section className="account-card" id="dados">
