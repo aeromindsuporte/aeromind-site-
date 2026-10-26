@@ -49,7 +49,7 @@ export default async function Plans({searchParams}:{searchParams:Promise<{period
          <strong>Em preparação</strong>
          <small>Venda ainda não disponível</small>
          <p>{goldCampaign.description}</p>
-         <ul>{goldCampaign.features.slice(0,5).map((feature,i)=><li key={i}>✓ {feature}</li>)}</ul>
+         <ul>{goldCampaign.features.slice(0,5).map((feature,i)=><li key={i}>✓ {feature}</li>)}<li>✓ Alto Risco e agenda completa — exclusivos Gold quando ativados</li></ul>
          <span className="am-btn am-outline">{goldCampaign.cta_text} →</span>
         </Link>:null;
         const plan=planData.find(p=>p.tier===card.tier && p.duration_days===days);
