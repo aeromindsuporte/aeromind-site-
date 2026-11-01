@@ -65,17 +65,18 @@ test('G01/G12/G14/G17: acesso Gold é cumulativo e nunca derivado do texto Premi
  assert.equal(canUseGold({...input,goldEnabled:false}),false);
  assert.equal(canUseGold({...input,accountSuspended:true}),false);
 });
-test('Site Gold informa EM BREVE e não integra checkout Gold',()=>{
+test('Site Gold publica ofertas do catálogo com alertas sobre resultados e benefícios futuros',()=>{
  const page=readFileSync(new URL('../app/gold/page.tsx',import.meta.url),'utf8');
  const css=readFileSync(new URL('../app/gold/gold.css',import.meta.url),'utf8');
- assert.match(page,/GOLD EM PREPARAÇÃO/);
- assert.match(page,/SEM VENDA ATIVA/);
+ assert.match(page,/getVisiblePlans/);
+ assert.match(page,/offers=plans.filter\(p=>p.tier==='Ultra'/);
  assert.match(page,/18\+/);
  assert.match(page,/Sem garantia de acertos ou ganhos/);
  assert.match(page,/Clássico/);
  assert.match(page,/Refinado/);
- assert.match(page,/Gold/);
- assert.match(page,/\/planos/);
- assert.doesNotMatch(page,/\/checkout\?plano=gold|\/api\/pix\/create|pagamento Gold disponível/i);
+ assert.match(page,/Comunidade Gold VIP/);
+ assert.match(page,/em implantação/);
+ assert.match(page,/checkout\?plano=/);
+ assert.doesNotMatch(page,/\/api\/pix\/create|pagamento Gold garantido/i);
  assert.match(css,/@media\(max-width:580px\)/);
 });
