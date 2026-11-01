@@ -1,5 +1,5 @@
 'use server';
-import {revalidatePath} from 'next/cache';
+import {revalidatePath,revalidateTag} from 'next/cache';
 import {redirect} from 'next/navigation';
 import {requireAdmin} from '@/lib/admin-access';
 
@@ -32,6 +32,7 @@ export async function saveTierCampaign(f:FormData){
   console.error('campaign_admin_save_failed',{code:error?.code||'NO_RESULT'});
   redirect(back(tier,error?.code==='42501'?'permission':'error'));
  }
+ revalidateTag('aeromind-public-campaigns');
  revalidatePath('/');
  revalidatePath('/planos');
  revalidatePath('/pro');
