@@ -33,3 +33,44 @@
 .account-quick-nav a:active{transform:scale(.985)}
 @media(max-width:640px){.account-launchpad{margin:20px -2px 25px;padding:14px;border-radius:18px}.account-launchpad-heading{display:block;margin-bottom:13px}.account-launchpad-heading p{margin-top:7px;font-size:.8rem}.account-quick-nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.account-quick-nav a.account-shortcut{min-height:93px;padding:11px 9px;gap:9px;border-radius:13px}.account-quick-nav .shortcut-icon{width:34px;height:34px;flex-basis:34px;border-radius:10px;font-size:1.1rem}.account-quick-nav .shortcut-copy b{font-size:.81rem}.account-quick-nav .shortcut-copy small{font-size:.68rem}.account-quick-nav .shortcut-arrow{font-size:1rem}.account-container [id]{scroll-margin-top:85px}}
 @media(max-width:360px){.account-quick-nav a.account-shortcut{gap:7px;padding:9px 7px}.account-quick-nav .shortcut-icon{width:30px;height:30px;flex-basis:30px}.account-quick-nav .shortcut-copy b{font-size:.75rem}.account-quick-nav .shortcut-copy small{font-size:.64rem}}
+
+
+/* AEROMIND UX 2026 — feedback imediato, animações leves e compatíveis com celular. */
+.am-interaction-feedback{position:fixed;inset:0;z-index:9999;pointer-events:none}
+.am-page-progress{position:absolute;left:0;right:0;top:0;height:3px;opacity:0;overflow:hidden;background:#6a27883d;transition:opacity .14s ease}
+.am-page-progress span{display:block;width:100%;height:100%;transform-origin:left;transform:scaleX(.08);background:linear-gradient(90deg,#38ddff,#b96bff,#ff5bc4);box-shadow:0 0 12px #b66aff88}
+.am-interaction-feedback.is-active .am-page-progress{opacity:1}
+.am-interaction-feedback.is-active .am-page-progress span{animation:am-progress 2.3s ease-in-out infinite}
+.am-interaction-status{position:absolute;right:max(12px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));display:flex;align-items:center;gap:10px;max-width:calc(100vw - 24px);padding:11px 16px;border:1px solid #7352c3;border-radius:13px;color:#f4eaff;background:#141632f2;box-shadow:0 12px 28px #0007;font-size:13px;font-weight:700;animation:am-slide-up .2s ease-out both}
+.am-interaction-spinner{width:15px;height:15px;flex:0 0 15px;border:2px solid #b376ff66;border-top-color:#72eafa;border-radius:50%;animation:am-spin .8s linear infinite}
+.am-form-submitting button[type="submit"],.am-form-submitting button:not([type]){cursor:progress;opacity:.78}
+.am-form-submitting button[type="submit"]::after,.am-form-submitting button:not([type])::after{content:"";display:inline-block;vertical-align:-2px;margin-left:8px;width:11px;height:11px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:am-spin .7s linear infinite}
+:where(.admin-root,.account-root,.nl-site) :where(button,a[class]):focus-visible{outline:2px solid #73ecff;outline-offset:3px}
+:where(.admin-root,.account-root,.nl-site) :where(button,a[class]):active{transform:scale(.975);filter:brightness(1.13)}
+:where(.admin-root,.account-root,.nl-site) :where(button,a[class]){transition:transform .16s ease,filter .16s ease,border-color .18s ease,background-color .18s ease,box-shadow .18s ease}
+@media(hover:hover){
+ .admin-root :where(.admin-card,.admin-stat):hover{border-color:#7857b2;box-shadow:0 8px 24px #07041c35}
+ .account-root :where(.device-item,.account-card):hover{border-color:#7950b0}
+}
+.admin-root .admin-content,.account-root .account-container,.nl-site .nl-hero-copy{animation:am-enter .28s ease-out both}
+.admin-root .admin-content :where(.admin-card,.admin-stat),.account-root :where(.device-item,.account-card){transition:border-color .2s ease,box-shadow .2s ease,transform .2s ease}
+.am-device-toast{position:fixed;z-index:10010;right:max(16px,env(safe-area-inset-right));bottom:max(22px,env(safe-area-inset-bottom));display:flex;gap:12px;align-items:flex-start;width:min(430px,calc(100vw - 32px));padding:17px;border:1px solid #31d7a2;border-radius:16px;background:linear-gradient(125deg,#0e342f,#0f1834 82%);color:#eafff9;box-shadow:0 14px 35px #0009,0 0 18px #22ba9d22;animation:am-slide-up .34s ease-out both}
+.am-device-toast-icon{display:grid;place-items:center;flex:0 0 33px;width:33px;height:33px;border-radius:50%;background:#1bba8a;color:#061a1b;font-size:23px;font-weight:900}
+.am-device-toast strong{display:block;font-size:15px;line-height:1.35}
+.am-device-toast p{margin:6px 0 0;color:#b8e9d9;font-size:12px;line-height:1.55}
+.am-device-toast button{margin:-7px -7px 0 auto;border:0;background:transparent;color:#d8fff5;cursor:pointer;font-size:24px;line-height:1;padding:7px}
+.am-site-loading{min-height:45vh;display:grid;place-content:center;justify-items:center;gap:15px;padding:50px 20px;color:#d7cbf3;text-align:center}
+.am-site-loading .am-loading-ring{width:40px;height:40px;border:3px solid #8e48e740;border-top-color:#57dffc;border-radius:50%;animation:am-spin .9s linear infinite}
+.am-site-loading strong{font-size:15px}
+.am-site-loading small{font-size:12px;color:#9dacd1}
+@keyframes am-progress{0%{transform:scaleX(.06)}60%{transform:scaleX(.74)}100%{transform:scaleX(.94)}}
+@keyframes am-spin{to{transform:rotate(360deg)}}
+@keyframes am-enter{from{opacity:.55;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@keyframes am-slide-up{from{opacity:0;transform:translateY(13px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){
+ .am-interaction-feedback *, .am-device-toast,.am-site-loading .am-loading-ring,
+ .admin-root .admin-content,.account-root .account-container,.nl-site .nl-hero-copy{
+  animation:none!important;transition:none!important
+ }
+ :where(.admin-root,.account-root,.nl-site) :where(button,a[class]):active{transform:none}
+}
