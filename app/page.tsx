@@ -187,15 +187,15 @@ export default async function Home(){
    </section>
    <p className="nl-demo-warning nl-shell">Imagens e multiplicadores ilustrativos para demonstrar a interface. Análises de rodadas anteriores não garantem resultados futuros.</p>
    <section className="nl-campaigns nl-shell" id="versoes" aria-label="Conheça AeroMind Pro e Gold">
-    <div className="nl-campaigns-intro"><span>EVOLUÇÃO AEROMIND AURORA</span><h2>Conheça os próximos níveis</h2>
-     <p>O aplicativo atual continua disponível conforme sua licença. Os recursos novos abaixo estão planejados para a atualização Aurora e não são promessas de desempenho.</p></div>
+    <div className="nl-campaigns-intro"><span>PLANOS AEROMIND</span><h2>Escolha seu próximo nível</h2>
+     <p>Do Básico ao Gold, compare os recursos e conheça os benefícios de cada licença. Consulte os preços e períodos disponíveis no catálogo.</p></div>
     <div className="nl-campaign-grid">
      {campaigns.filter(c=>c.tier==='Pro'||c.tier==='Gold').map(c=><article className={'nl-campaign-card '+(c.tier==='Gold'?'gold':'pro')} key={c.tier}>
        <span className="nl-campaign-badge">{c.badge}</span>
        <h3>AeroMind {c.tier}</h3><h4>{c.headline}</h4>
        <p>{c.description}</p>
        <ul>{c.features.slice(0,4).map((item,i)=><li key={i}>✓ {item}</li>)}</ul>
-       <p className="nl-campaign-availability">{c.tier==='Gold'?'Em preparação · venda Gold não disponível':'Ofertas Pro dependem de preço e publicação no catálogo'}</p>
+       <p className="nl-campaign-availability">{c.tier==='Gold'?'Conheça os períodos Gold e o acesso à comunidade VIP (em implantação)':'Mais sinais do Radar Rosa e recursos essenciais'}</p>
        <Link href={c.tier==='Gold'?'/gold':'/pro'} className="nl-campaign-action">{c.cta_text} →</Link>
      </article>)}
     </div>
