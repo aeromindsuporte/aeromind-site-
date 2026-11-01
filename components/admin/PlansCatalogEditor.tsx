@@ -90,7 +90,9 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
  function update(changes:Partial<Plan>){setDraft(p=>p?{...p,...changes}:null);}
  function changeDuration(days:number){
   if(!Number.isFinite(days))return;
-  setDraft(p=>p?{...p,duration_days:days,marketing_duration_caption:
+  setDraft(p=>p?{...p,duration_days:days,
+   marketing_title:p.marketing_title?.replace(/ · (Mensal|Trimestral|Semestral|Anual|\d+ dias)$/,' · '+days+' dias')??null,
+   marketing_duration_caption:
    !p.marketing_duration_caption||/^por \d+ dias?$/.test(p.marketing_duration_caption)
     ?'por '+days+(days===1?' dia':' dias'):p.marketing_duration_caption}:null);
  }
