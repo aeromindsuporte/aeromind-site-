@@ -95,15 +95,15 @@ export async function POST(req:Request){
    const code=cause instanceof GatewayError?cause.httpStatus:0;
    if(rejected){
     await admin.from('aeromind_payment_orders').update({
-     status:'failed',last_payment_error:'PaggPay rejeitou a requisição (HTTP '+code+'). Nenhuma confirmação de cobrança foi recebida.',
+     status:'failed',last_payment_error:'Provedor Pix rejeitou a requisição (HTTP '+code+'). Nenhuma confirmação de cobrança foi recebida.',
     }).eq('id',orderId).eq('status','created').is('provider_transaction_id',null);
     return respond({environment:paymentEnvironment(),orderId,status:'failed',amountCents:order.amount_cents,
-     requiresSupport:true,message:code===403?'A chave PaggPay não permite criar Pix (HTTP 403). Confira a permissão pix.create.':
-      code===422||code===400?'PaggPay recusou os dados da cobrança (HTTP '+code+'). Confira nome, CPF/CNPJ e o valor mínimo da conta.':
-      code===401?'A chave PaggPay não foi aceita para emissão (HTTP 401).':
-      'PaggPay recusou a requisição de criação (HTTP '+code+').'},200);
+     requiresSupport:true,message:code===403?'A chave do provedor Pix não permite criar cobranças (HTTP 403). Confira a permissão pix.create.':
+      code===422||code===400?'O provedor Pix recusou os dados da cobrança (HTTP '+code+'). Confira nome, CPF/CNPJ e o valor mínimo da conta.':
+      code===401?'A chave do provedor Pix não foi aceita para emissão (HTTP 401).':
+      'O provedor Pix recusou a requisição de criação (HTTP '+code+').'},200);
    }
-   await admin.from('aeromind_payment_orders').update({last_payment_error:'Resposta indeterminada da PaggPay; verificar transação antes de qualquer nova tentativa'})
+   await admin.from('aeromind_payment_orders').update({last_payment_error:'Resposta indeterminada do provedor Pix; verificar transação antes de qualquer nova tentativa'})
     .eq('id',orderId).eq('status','created');
    return respond({environment:paymentEnvironment(),orderId,status:'creating',amountCents:order.amount_cents,
     requiresSupport:true,message:'Não foi possível confirmar a criação do Pix. A reserva foi mantida para impedir duplicidade.'},202);
