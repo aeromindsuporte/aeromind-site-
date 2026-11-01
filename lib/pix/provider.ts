@@ -24,13 +24,17 @@ export function isAeromindCallback(raw:string|undefined):boolean {
 // cadastrar PAGGONE_API_KEY e selecionar PAGGPAY_PROVIDER=paggone na Vercel.
 // As duas credenciais nunca se misturam nem são enviadas para outro provedor.
 export type PixProvider = 'paggpay'|'paggone';
-export function pixProvider():PixProvider{
- return process.env.PAGGPAY_PROVIDER==='paggone'?'paggone':'paggpay';
+export function pixProvider():PixProvider|null{
+ const selected=process.env.PAGGPAY_PROVIDER;
+ if(!selected || selected==='paggpay')return 'paggpay';
+ if(selected==='paggone')return 'paggone';
+ return null; // Provedor não reconhecido: bloquear Pix, nunca usar a chave antiga por engano.
 }
 function activeApiKey():string|undefined{
  return pixProvider()==='paggone'?process.env.PAGGONE_API_KEY:process.env.PAGGPAY_API_KEY;
 }
 export function activePixBaseUrl():string{
+ if(!pixProvider())throw new Error('Provedor Pix não reconhecido');
  if(process.env.PAGGPAY_MODE==='sandbox')return 'https://sandbox-api.paggpay.com/v1';
  return pixProvider()==='paggone'?'https://api.paggone.com/v1':'https://api.paggpay.com/v1';
 }
