@@ -31,3 +31,44 @@ A Descont' Saude utiliza `reference_id` UUID simples e banco Supabase `qkepsqxak
 Os webhooks sao assinados por segredo distinto por integracao/cobranca. Em uma **mesma conta** PaggPay, o saldo financeiro sera compartilhado; estes controles isolam operacoes de software, mas nao criam contas recebedoras nem saldos separados. A API key de producao compartilhada em conversa deve ser rotacionada antes de qualquer uso comercial; ela NAO faz parte do codigo nem das variaveis implantadas. Os testes desta etapa sao simulados; a homologacao live segue pendente.
 
 O webhook da Descont' Saude procura `payment_charges.id` UUID. Se ela receber por engano uma notificacao AeroMind com referencia alfanumerica, a consulta direta a coluna UUID pode gerar resposta HTTP de erro, embora nao libere nem altere uma fatura. Deve receber um filtro de referencia UUID proprio caso ambos recebam todos os eventos de conta por webhook global, alem do callback por cobranca recomendado.
+
+
+## Atualização da integração para paggOne — 01/11/2026
+
+A documentação oficial `https://docs.paggone.com/` passou a indicar produção em
+`https://api.paggone.com/v1`. O sandbox continua em `https://sandbox-api.paggpay.com/v1`.
+Os endpoints Pix são `POST /pix` e `GET /pix/{id}`, a autenticação continua por
+`Authorization: Bearer <chave>` e os cabeçalhos da assinatura do webhook continuam
+`X-Paggpay-Webhook-*`. Não converter centavos em reais sem verificar o contrato.
+
+### Troca controlada na Vercel (projeto aeromind-site)
+
+1. No painel `https://app.paggone.com`, ir a Developer > API Keys e gerar uma chave
+   da conta de recebimento correta, com as permissões mínimas necessárias
+   (`pix.create`, leitura de Pix e de transações). Nunca enviar a chave por chat.
+2. Adicionar **Production** `PAGGONE_API_KEY` como segredo na Vercel. O nome
+   `PAGGPAY_API_KEY` permanece guardado separadamente como fallback antigo.
+3. Confirmar a URL `PAGGPAY_WEBHOOK_URL=https://aeromind-site.vercel.app/api/pix/webhook`.
+   Conferir no painel paggOne o webhook e o segredo HMAC: o código também envia
+   `X-Paggpay-Webhook-Secret` em cada criação de Pix. Se o segredo do endpoint
+   tiver sido rotacionado, trocar `PAGGPAY_WEBHOOK_SECRET` de forma coordenada.
+4. **Só depois de cadastrar a nova chave**, adicionar Production
+   `PAGGPAY_PROVIDER=paggone`; manter `PAGGPAY_MODE=live` somente após homologação.
+   Criar um novo deploy de produção, pois alterações de environment não mudam
+   deployments antigos.
+5. Verificar status da API e permissões via teste sem cobrança e depois realizar
+   um Pix de homologação conscientemente autorizado. Checar QR, webhook assinado,
+   status confirmado por GET, valor em centavos e emissão idempotente da licença.
+6. Confirmar inexistência de cobranças pendentes no gateway anterior. Desabilitar
+   a credencial antiga só depois de conciliação e validação do novo sistema.
+
+### Compatibilidade e segurança
+
+O seletor `PAGGPAY_PROVIDER` é explícito e o valor padrão é `paggpay`.
+Se `paggone` estiver selecionado **sem** `PAGGONE_API_KEY` válida, o checkout
+fica desativado (503), sem reutilizar silenciosamente a chave PaggPay. O sistema
+não exibe a chave na resposta, não gera Pix duplicado em timeout e não concede
+licença sem confirmar transação, moeda, referência e valor no servidor. A integração
+ao vivo da conta nova **não está homologada** até completar o teste de cobrança.
+
+Fontes técnicas: https://docs.paggone.com/ e https://paggone.com/.
