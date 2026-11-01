@@ -70,7 +70,7 @@ export default async function Admin({searchParams,activeSection='visao'}:{search
  const {data:{user},error:userError}=await supabase.auth.getUser();
  if(userError||!user)redirect('/entrar?next=%2Fadmin');
  const {data:staff,error:staffError}=await supabase.from('aeromind_staff').select('role').eq('user_id',user.id).maybeSingle();
- if(staffError||!staff) redirect('/minha-conta');
+ if(!user.email_confirmed_at||staffError||!staff||!['owner','admin'].includes(staff.role)) redirect('/minha-conta');
  const [result,deviceResult,revenueResult,deviceAlertResult]=await Promise.all([
    supabase.rpc('aeromind_admin_overview'),
    supabase.rpc('aeromind_admin_devices'),

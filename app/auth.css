@@ -254,3 +254,32 @@ padding:13px 15px;background:#0a1731;border:1px solid #3e457c;border-radius:10px
  .account-whatsapp-form .account-whatsapp-buttons .auth-submit{max-width:100%;margin-top:2px}
 }
 
+
+
+/* Acesso administrativo visível somente após verificação da sessão no servidor. */
+.account-header-with-panel{position:sticky;top:0;z-index:70;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.account-header-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;min-width:0}
+.account-header-actions .auth-logout{margin:0;min-width:0;white-space:nowrap}
+.account-panel-link{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:9px 16px;border:1px solid #b568fa;border-radius:11px;background:linear-gradient(115deg,#6829cd,#b823df);box-shadow:0 3px 14px #7c23d770;color:#fff!important;font-size:13px;font-weight:800;white-space:nowrap;text-decoration:none!important;transition:filter .18s,transform .18s,box-shadow .18s}
+.account-panel-link:hover{filter:brightness(1.12);box-shadow:0 4px 20px #8e25e18c}
+.account-panel-link:active{transform:scale(.97)}
+.account-panel-link:focus-visible{outline:2px solid #52eaff;outline-offset:3px}
+.account-panel-link svg{flex:none}
+@media(max-width:600px){
+ .account-header-with-panel{gap:10px;padding:12px 14px}
+ .account-header-with-panel .auth-logo{min-width:0;gap:6px;font-size:17px;letter-spacing:-.5px}
+ .account-header-with-panel .auth-logo img{width:35px;height:35px}
+ .account-header-actions{gap:6px}
+ .account-panel-link{padding:9px 10px;font-size:12px;min-height:42px;gap:6px}
+ .account-panel-link svg{width:17px;height:17px}
+ .account-header-actions .auth-logout{padding:9px 10px;font-size:12px;min-height:42px}
+}
+@media(max-width:355px){
+ .account-header-with-panel{padding-inline:10px}
+ .account-header-with-panel .auth-logo img{width:34px;height:34px}
+ .account-header-with-panel .auth-logo{font-size:14px}
+ .account-header-actions .auth-logout{padding:8px 7px;font-size:11px}
+ .account-panel-link{padding:8px}
+}
+@media(max-width:315px){.account-header-with-panel .account-brand-text{display:none}}
+@media(prefers-reduced-motion:reduce){.account-panel-link{transition:none}.account-panel-link:active{transform:none}}

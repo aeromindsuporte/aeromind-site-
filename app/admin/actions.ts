@@ -10,7 +10,7 @@ async function adminClient() {
   const { data:{user} }=await supabase.auth.getUser();
   if (!user) redirect('/entrar?next=%2Fadmin');
   const {data:staff,error}=await supabase.from('aeromind_staff').select('role').eq('user_id',user.id).maybeSingle();
-  if (error || !staff) redirect('/minha-conta');
+  if (!user.email_confirmed_at || error || !staff || !['owner','admin'].includes(staff.role)) redirect('/minha-conta');
   return supabase;
 }
 
