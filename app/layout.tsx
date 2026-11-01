@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import {Suspense} from 'react';
+import {SiteInteractionFeedback} from '@/components/SiteInteractionFeedback';
 import {SupportFloatingChat} from '@/components/support/SupportChat';
 import './globals.css';
 import './auth.css';
@@ -8,5 +10,5 @@ export const metadata: Metadata = {
  robots: { index: true, follow: true }
 };
 export default function RootLayout({children}:{children:React.ReactNode}) {
- return <html lang="pt-BR"><body>{children}<SupportFloatingChat/></body></html>;
+ return <html lang="pt-BR"><body>{children}<Suspense fallback={null}><SiteInteractionFeedback/></Suspense><SupportFloatingChat/></body></html>;
 }
