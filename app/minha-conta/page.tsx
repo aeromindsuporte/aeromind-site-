@@ -45,14 +45,24 @@ export default async function Conta() {
   const appReady=!!releaseName && !published?.error;
   const displayStatus=valid ? 'Ativa' : labelForLicenseStatus(current?.status,current?.valid_until,serverNow);
   const name=profileResult.data?.display_name || 'Cliente AeroMind';
-  const isStaff=Boolean(staffResult.data?.role) && !staffResult.error;
+  const isStaff=Boolean(user.email_confirmed_at) && !staffResult.error &&
+    (staffResult.data?.role==='owner'||staffResult.data?.role==='admin');
   const unreadNotifications=(notificationsResult.data||[]).filter(
     x=>!x.expires_at||new Date(x.expires_at).getTime()>serverNow).length;
 
   return <main className="account-root">
     <header className="account-header">
       <Link href="/" className="auth-logo"><img src="/images/aeromind-mark.svg" alt="" width="40" height="40"/> AeroMind</Link>
-      <SignOutButton/>
+      <nav className="account-header-actions" aria-label="Ações da conta">
+        {isStaff&&<Link href="/admin" className="account-panel-link" aria-label="Abrir painel administrativo">
+          <svg aria-hidden="true" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
+          </svg>
+          <span>Painel</span>
+        </Link>}
+        <SignOutButton/>
+      </nav>
     </header>
     <div className="account-container">
       <span className="auth-eyebrow">♙ ÁREA DO CLIENTE</span>
@@ -129,12 +139,6 @@ export default async function Conta() {
           Abrir minhas notificações →
         </Link>
       </section>
-      {isStaff && <section id="administrativo" className="account-card account-admin-entry">
-        <div className="account-admin-eyebrow">ACESSO ADMINISTRATIVO</div>
-        <h2>Painel de gestão AeroMind</h2>
-        <p className="account-note">Acompanhe clientes, licenças e planos com acesso protegido e auditoria.</p>
-        <Link className="auth-submit auth-button-link" href="/admin">Abrir painel administrativo →</Link>
-      </section>}
       {licenses.length>0 && <section id="historico" className="account-card account-history">
         <h2>Histórico de licenças</h2>
         <div className="account-history-rows">
