@@ -2,6 +2,7 @@ import Link from 'next/link';
 import {getPublicCampaigns} from '@/lib/campaigns';
 import {getVisiblePlans,formattedPrice,formattedDuration,effectivePriceCents,isFlashActive} from '@/lib/catalog';
 import {benefitsOf,descriptionOf,durationLabelOf} from '@/lib/plan-display';
+import {FlashCountdown} from '@/components/plan/FlashCountdown';
 
 export const dynamic='force-dynamic';
 export const metadata={title:'Planos | AeroMind',	description:'Compare os planos AeroMind Básico, Pro e Gold. Recursos e contratação dependem da licença e da publicação no catálogo.'};
@@ -69,7 +70,7 @@ export default async function Plans({searchParams}:{searchParams:Promise<{period
         <span className="am-plan-icon">{card.icon}</span><h3>{plan?.marketing_title||card.tier}</h3>
         <strong>{plan?formattedPrice(effectivePriceCents(plan)):'Em definição'}</strong>
         <small>{plan?durationLabelOf(plan):'Preço não publicado'}</small>
-        {plan&&isFlashActive(plan)&&<p className="am-price-note">{plan.flash_label||'Oferta por tempo limitado'} · até {new Date(plan.flash_ends_at!).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})} (Brasília). Valor regular após o prazo: {formattedPrice(plan.price_cents)}.</p>}
+        {plan&&isFlashActive(plan)&&<><FlashCountdown endsAt={plan.flash_ends_at!} label={plan.flash_label||'Oferta relâmpago'}/><small>Preço regular após o prazo: {formattedPrice(plan.price_cents)}</small></>}
         <p>{plan?descriptionOf(plan):card.desc}</p><ul>{(plan?benefitsOf(plan):card.features).map((feature,i)=><li key={i}>✓ {feature}</li>)}</ul>
         {plan?<Link href={'/checkout?plano='+encodeURIComponent(plan.slug)} className={'am-btn '+(plan.marketing_highlight?'am-fill':'am-outline')}>{plan.marketing_cta||'Escolher plano'} →</Link>:<span className="am-btn am-outline" aria-disabled="true">Indisponível</span>}
         </article>
