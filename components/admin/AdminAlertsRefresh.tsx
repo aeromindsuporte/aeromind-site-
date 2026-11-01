@@ -2,15 +2,25 @@
 import {useEffect} from 'react';
 import {useRouter} from 'next/navigation';
 
-/** Atualiza somente as telas administrativas enquanto a aba estiver visível.
- * Não envia notificações externas e não altera dados do cliente. */
+/** Evita consultas completas durante edição, navegação ou uso contínuo do painel.
+ * Os alertas do suporte continuam sendo atualizados pelo seu mecanismo independente. */
 export function AdminAlertsRefresh(){
  const router=useRouter();
  useEffect(()=>{
-  const timer=window.setInterval(()=>{
-   if(document.visibilityState==='visible')router.refresh();
-  },90000);
-  return ()=>window.clearInterval(timer);
+  let lastRefresh=Date.now();
+  const refreshOnReturn=()=>{
+   if(document.visibilityState!=='visible'||Date.now()-lastRefresh<300000)return;
+   // Nunca substitui dados enquanto o usuário preenche algo ou mantém um modal aberto.
+   if(document.querySelector('form:focus-within,[role="dialog"],[aria-modal="true"],.am-form-submitting'))return;
+   lastRefresh=Date.now();
+   router.refresh();
+  };
+  document.addEventListener('visibilitychange',refreshOnReturn);
+  window.addEventListener('focus',refreshOnReturn);
+  return ()=>{
+   document.removeEventListener('visibilitychange',refreshOnReturn);
+   window.removeEventListener('focus',refreshOnReturn);
+  };
  },[router]);
  return null;
 }
