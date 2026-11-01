@@ -108,14 +108,14 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
  const filters:[Filter,string][]=[['all','Todos'],['trials','Testes'],['commercial','Comerciais'],
   ['published','Publicados'],['hidden','Ocultos'],['featured','Destaques']];
  const tabs:[Tab,string][]=[['general','Geral'],['price','Preço'],['offer','Oferta relâmpago'],['license','Licença'],['marketing','Divulgação'],['status','Status']];
- const available=plans.filter(p=>!p.visible&&p.price_cents===null);
+ const available=plans;
  return <div className="pv2-root">
   <div className="pv2-header">
    <div><span className="pv2-eyebrow">GESTÃO DE PLANOS</span><h2>Seu catálogo em um só lugar</h2>
     <p>Organize os planos, edite a divulgação e controle o que aparece para seus clientes.</p></div>
    <div className="pv2-header-buttons">
     <Link href="/planos" target="_blank" rel="noreferrer" className="pv2-outline">↗ Ver página de vendas</Link>
-    <button className="pv2-primary" type="button" onClick={()=>setNewOpen(true)}>＋ Novo plano</button>
+    <button className="pv2-primary" type="button" onClick={()=>setNewOpen(true)}>＋ Configurar modelo</button>
    </div>
   </div>
   <div className="pv2-metrics">
@@ -165,19 +165,19 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
    {!filtered.length&&<div className="pv2-empty">Não há planos para esse filtro ou busca.</div>}
   </div>
   <div className="pv2-footnote">
-   <strong>Novo plano:</strong> selecione um dos modelos pré-configurados que ainda não foram utilizados.
+   <strong>Adicionar ou editar:</strong> selecione qualquer modelo pré-configurado. Todos os títulos, dias, preços e benefícios são editáveis.
    Os modelos de licença e duração suportados são mantidos para preservar o checkout e compras já realizadas.
   </div>
 
   {newOpen&&portalRoot&&createPortal(<div className="pv2-backdrop" onMouseDown={e=>{if(e.currentTarget===e.target)setNewOpen(false);}}>
    <section className="pv2-picker" role="dialog" aria-modal="true" aria-label="Escolher modelo de plano">
-    <header><div><span className="pv2-eyebrow">NOVO PLANO</span><h2>Escolha um modelo</h2>
-     <p>Selecione uma opção e configure preço, divulgação e publicação.</p></div>
+    <header><div><span className="pv2-eyebrow">NOVO PLANO</span><h2>Escolha um plano</h2>
+     <p>Abra qualquer modelo existente para configurar duração, preço e divulgação.</p></div>
      <button type="button" className="pv2-close" onClick={()=>setNewOpen(false)} aria-label="Fechar">×</button></header>
     <div className="pv2-template-list">
-     {available.map(p=><button type="button" key={p.slug} onClick={()=>open(p,'price')}>
+     {available.map(p=><button type="button" key={p.slug} onClick={()=>open(p,'general')}>
       <span className="pv2-template-icon">{symbol(p)}</span><span><strong>{name(p)}</strong>
-       <small>{duration(p)} · {p.tier}</small></span><b>Configurar →</b></button>)}
+       <small>{duration(p)} · {p.tier}</small></span><b>Editar →</b></button>)}
      {!available.length&&<p>Todos os modelos disponíveis já foram configurados. Edite um plano existente.</p>}
     </div>
    </section>
