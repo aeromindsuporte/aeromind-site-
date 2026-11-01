@@ -133,6 +133,25 @@ const items=[
 
 export default async function Home(){
  const campaigns=await getPublicCampaigns();
+ const proCampaign=campaigns.find(c=>c.tier==='Pro');
+ const goldCampaign=campaigns.find(c=>c.tier==='Gold');
+ const planShowcase=[
+  {id:'essencial',label:'ESSENCIAL',badge:'COMECE POR AQUI',symbol:'◉',amount:'03',name:'AeroMind Essencial',
+   tagline:'O essencial para acompanhar cada rodada.',
+   copy:'Tenha os indicadores principais, histórico de rodadas e ranking de casas em um só lugar.',
+   features:['Sinais de baixa, média e alta','Histórico de rodadas e ranking de casas','Radar Rosa com até 3 sinais por hora'],
+   extra:'O primeiro passo para conhecer o AeroMind',cta:'Conhecer o Essencial'},
+  {id:'pro',label:'PRÓ',badge:proCampaign?.badge||'RADAR ROSA AMPLIADO',symbol:'◇',amount:'05',name:'AeroMind Pró',
+   tagline:proCampaign?.headline||'Mais informações para acompanhar seus sinais.',
+   copy:proCampaign?.description||'Tudo do Essencial, com Radar Rosa ampliado para até 5 sinais por hora.',
+   features:proCampaign?.features.slice(0,3)||['Tudo do Essencial','Radar Rosa com até 5 sinais por hora','Histórico e ranking de casas'],
+   extra:'Mais sinais Rosa, mantendo todos os recursos essenciais',cta:'Conhecer o Pró'},
+  {id:'gold',label:'GOLD',badge:goldCampaign?.badge||'ACESSO MAIS COMPLETO',symbol:'✦',amount:'07',name:'AeroMind Gold',
+   tagline:goldCampaign?.headline||'Desbloqueie os benefícios exclusivos Gold.',
+   copy:goldCampaign?.description||'Acesso ao Alto Risco, agenda do dia, sinais Premium e suporte prioritário.',
+   features:goldCampaign?.features.slice(0,3)||['Radar Rosa com até 7 sinais por hora','Alto Risco e agenda do dia','Sinais Premium do administrador'],
+   extra:'Suporte prioritário · Comunidade VIP em implantação',cta:'Conhecer o Gold'}
+ ] as const;
  return <LandingSessionLinks><div className="nl-site">
   <header className="nl-header">
    <div className="nl-header-inner">
@@ -186,19 +205,41 @@ export default async function Home(){
     </article>)}
    </section>
    <p className="nl-demo-warning nl-shell">Imagens e multiplicadores ilustrativos para demonstrar a interface. Análises de rodadas anteriores não garantem resultados futuros.</p>
-   <section className="nl-campaigns nl-shell" id="versoes" aria-label="Conheça AeroMind Pro e Gold">
-    <div className="nl-campaigns-intro"><span>PLANOS AEROMIND</span><h2>Escolha seu próximo nível</h2>
-     <p>Do Básico ao Gold, compare os recursos e conheça os benefícios de cada licença. Consulte os preços e períodos disponíveis no catálogo.</p></div>
+   <section className="nl-campaigns nl-shell" id="versoes" aria-label="Compare AeroMind Essencial, Pró e Gold">
+    <div className="nl-campaigns-intro">
+     <span className="nl-campaign-kicker"><span aria-hidden="true">✦</span> ENCONTRE SEU PLANO AEROMIND</span>
+     <h2>Três níveis. <em>Uma experiência do seu jeito.</em></h2>
+     <p>Comece pelo Essencial, amplie com o Pró ou descubra os recursos exclusivos Gold. Compare os benefícios e escolha o período ideal para você.</p>
+     <div className="nl-campaign-highlights" aria-label="Benefícios do AeroMind">
+      <span><span aria-hidden="true">✧</span> Histórico de rodadas</span>
+      <span><span aria-hidden="true">🌸</span> Radar Rosa</span>
+      <span><span aria-hidden="true">◈</span> Planos para cada perfil</span>
+     </div>
+    </div>
     <div className="nl-campaign-grid">
-     {campaigns.filter(c=>c.tier==='Pro'||c.tier==='Gold').map(c=><article className={'nl-campaign-card '+(c.tier==='Gold'?'gold':'pro')} key={c.tier}>
-       <span className="nl-campaign-badge">{c.badge}</span>
-       <h3>AeroMind {c.tier}</h3><h4>{c.headline}</h4>
-       <p>{c.description}</p>
-       <ul>{c.features.slice(0,4).map((item,i)=><li key={i}>✓ {item}</li>)}</ul>
-       <p className="nl-campaign-availability">{c.tier==='Gold'?'Conheça os períodos Gold e o acesso à comunidade VIP (em implantação)':'Mais sinais do Radar Rosa e recursos essenciais'}</p>
-       <Link href={c.tier==='Gold'?'/gold':'/pro'} className="nl-campaign-action">{c.cta_text} →</Link>
+     {planShowcase.map(plan=><article className={'nl-campaign-card '+plan.id} key={plan.id}>
+      <div className="nl-campaign-card-top">
+       <span className="nl-campaign-badge">{plan.badge}</span>
+       <span className="nl-campaign-symbol" aria-hidden="true">{plan.symbol}</span>
+      </div>
+      <h3>{plan.name}</h3>
+      <p className="nl-campaign-tagline">{plan.tagline}</p>
+      <div className="nl-campaign-radar" aria-label={'Radar Rosa com até '+Number(plan.amount)+' sinais por hora'}>
+       <div className="nl-campaign-radar-icon" aria-hidden="true"><span>🌸</span></div>
+       <div className="nl-campaign-radar-numbers"><small>RADAR ROSA</small><strong>{plan.amount} <span>SINAIS/HORA</span></strong></div>
+       <div className="nl-campaign-radar-glow" aria-hidden="true"/>
+      </div>
+      <p className="nl-campaign-copy">{plan.copy}</p>
+      <ul>{plan.features.map((item,i)=><li key={i}><span aria-hidden="true">✓</span>{item}</li>)}</ul>
+      <p className="nl-campaign-availability">{plan.extra}</p>
+      <Link href="/planos" className="nl-campaign-action" aria-label={'Ver valores e benefícios do plano '+plan.name}>{plan.cta}<span aria-hidden="true">↗</span></Link>
      </article>)}
     </div>
+    <div className="nl-campaign-final-cta">
+     <div><span>PRONTO PARA CONHECER AS OPÇÕES?</span><h3>Veja os preços e escolha seu acesso.</h3><p>Mensal, trimestral, semestral ou anual. Benefícios detalhados em cada plano.</p></div>
+     <Link href="/planos" className="nl-campaign-big-action">VER TODOS OS PLANOS E PREÇOS <span aria-hidden="true">↗</span></Link>
+    </div>
+    <p className="nl-campaign-disclaimer">18+ · Recursos sujeitos à disponibilidade do aplicativo e da licença. Sinais e históricos não garantem acertos ou ganhos. Comunidade Gold e lives em implantação.</p>
    </section>
    <section className="nl-simple-section nl-shell" id="como-funciona">
     <span className="nl-section-kicker">SIMPLES DE COMEÇAR</span>
