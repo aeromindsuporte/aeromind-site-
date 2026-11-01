@@ -5,6 +5,7 @@ export type PlanEditorInput={
  p_slug:string;p_price_cents:number|null;p_visible:boolean;p_trial_quantity:number|null;
  p_title:string;p_description:string;p_badge:string;p_features:string[];
  p_cta:string;p_highlight:boolean;p_duration_caption:string;p_unpriced_label:string;
+ p_duration_days:number;p_flash_price_cents:number|null;p_flash_ends_at:string|null;p_flash_label:string;
 };
 export type PlanParseResult={ok:true;value:PlanEditorInput}|{ok:false;code:PlanInputError};
 const value=(fd:FormData,key:string)=>typeof fd.get(key)==='string'?(fd.get(key) as string).trim():'';
@@ -36,6 +37,19 @@ export function parsePlanEditorForm(fd:FormData):PlanParseResult{
   if(!Number.isSafeInteger(quantity)||quantity<1||
     quantity>(slug==='teste-horas'?72:30))return {ok:false,code:'plan-duration'};
  }
+ const period=slug.match(/-(mensal|trimestral|semestral|anual)$/)?.[1]||'';
+ const canonical=({mensal:30,trimestral:90,semestral:180,anual:365} as Record<string,number>)[period]||null;
+ const daysRaw=value(fd,'duration_days');
+ const days=isTrial?(slug==='teste-horas'?1:2):daysRaw?Number(daysRaw):canonical;
+ if(!Number.isSafeInteger(days)||!days||(!isTrial&&(days<1||days>730)))return {ok:false,code:'plan-duration'};
+ const flashRaw=value(fd,'flash_price').replace(',','.');
+ const flashEndRaw=value(fd,'flash_ends_at');
+ const flashLabel=value(fd,'flash_label');
+ const flashCents=flashRaw===''?null:Number(flashRaw)*100;
+ const ends=flashEndRaw?new Date(flashEndRaw+':00-03:00'):null;
+ if((flashRaw==='')!==(!flashEndRaw)||flashLabel.length>48||
+   (flashCents!==null&&(!Number.isInteger(flashCents)||flashCents<200||cents===null||flashCents>=cents||isTrial))||
+   (ends&&Number.isNaN(ends.getTime())))return {ok:false,code:'plan-price'};
  const title=value(fd,'title'),description=value(fd,'description'),
   badge=value(fd,'badge'),cta=value(fd,'cta'),
   durationCaption=value(fd,'duration_caption'),
@@ -49,5 +63,7 @@ export function parsePlanEditorForm(fd:FormData):PlanParseResult{
   p_title:title,p_description:description,p_badge:badge,p_features:features,
   p_cta:cta,p_highlight:value(fd,'highlight')==='on',
   p_duration_caption:durationCaption,p_unpriced_label:unpricedLabel,
+  p_duration_days:days,p_flash_price_cents:flashCents===null?null:Math.round(flashCents),
+  p_flash_ends_at:ends?.toISOString()||null,p_flash_label:flashCents===null?'':flashLabel,
  }};
 }

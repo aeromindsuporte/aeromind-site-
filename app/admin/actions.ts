@@ -167,17 +167,17 @@ export async function savePlanEditor(formData:FormData){
   // Mensagem específica sobre o campo inválido; sem executar alterações parciais.
   redirect(back+'&msg='+parsed.code);
  }
- const {data,error}=await sb.rpc('aeromind_save_plan_editor_v2',parsed.value);
- if(error||data!==true){
+ const {data,error}=await sb.rpc('aeromind_save_plan_editor_v3',parsed.value);
+ if(error||data?.ok!==true){
   const reason=error?.code==='42501'?'plan-permission':
    error?.code==='PGRST202'?'plan-schema':
    error?.code==='23514'||error?.code==='22023'||error?.code==='23502'?'plan-validation':
-   data===false?'plan-missing':'plan-error';
+   data?.code==='not-found'?'plan-missing':'plan-error';
   console.error('aeromind_plan_save_failed',{code:error?.code||'NO_RESULT',slug});
   redirect(back+'&msg='+reason);
  }
  revalidatePath('/admin/planos');revalidatePath('/');revalidatePath('/planos');revalidatePath('/checkout');
- redirect(back+'&msg=plan-saved');
+ redirect(back+'&msg=plan-saved&extended='+Number(data?.extended_licenses||0));
 }
 export async function toggleCatalogPlan(formData:FormData){
  const sb=await adminClient(),slug=word(formData.get('slug'));
@@ -189,15 +189,17 @@ export async function toggleCatalogPlan(formData:FormData){
  if(error||!plan)redirect('/admin/planos?msg=plan-error');
  if(next&&(!Number.isInteger(plan.price_cents)||(plan.price_cents<200&&!(String(plan.slug).startsWith('teste-')&&plan.price_cents===0))))
   redirect('/admin/planos?msg=price&editar='+encodeURIComponent(slug));
- const {data:updated,error:saveError}=await sb.rpc('aeromind_save_plan_editor_v2',{
+ const {data:updated,error:saveError}=await sb.rpc('aeromind_save_plan_editor_v3',{
   p_slug:slug,p_price_cents:plan.price_cents,p_visible:next,
   p_trial_quantity:plan.slug==='teste-horas'||plan.slug==='teste-dias'?plan.trial_quantity:null,
   p_title:plan.marketing_title||'',p_description:plan.marketing_description||'',
   p_badge:plan.marketing_badge||'',p_features:plan.marketing_features||[],
   p_cta:plan.marketing_cta||'',p_highlight:!!plan.marketing_highlight,
-  p_duration_caption:plan.marketing_duration_caption||'',p_unpriced_label:plan.marketing_unpriced_label||''
+  p_duration_caption:plan.marketing_duration_caption||'',p_unpriced_label:plan.marketing_unpriced_label||'',
+  p_duration_days:plan.duration_days,p_flash_price_cents:plan.flash_price_cents??null,
+  p_flash_ends_at:plan.flash_ends_at??null,p_flash_label:plan.flash_label||''
  });
- if(saveError||updated!==true)redirect('/admin/planos?msg=plan-error');
+ if(saveError||updated?.ok!==true)redirect('/admin/planos?msg=plan-error');
  revalidatePath('/admin/planos');revalidatePath('/');revalidatePath('/planos');revalidatePath('/checkout');
  redirect('/admin/planos?msg=plan-saved');
 }

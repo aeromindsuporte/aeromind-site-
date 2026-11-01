@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import {getPublicCampaigns} from '@/lib/campaigns';
-import {getVisiblePlans,formattedPrice,formattedDuration} from '@/lib/catalog';
+import {getVisiblePlans,formattedPrice,formattedDuration,effectivePriceCents,isFlashActive} from '@/lib/catalog';
 import {benefitsOf,descriptionOf,durationLabelOf} from '@/lib/plan-display';
+import {FlashCountdown} from '@/components/plan/FlashCountdown';
 
 export const dynamic='force-dynamic';
 export const metadata={title:'Planos | AeroMind',	description:'Compare os planos AeroMind Básico, Pro e Gold. Recursos e contratação dependem da licença e da publicação no catálogo.'};
@@ -16,7 +17,7 @@ export default async function Plans({searchParams}:{searchParams:Promise<{period
  const params=await searchParams;
  const choices=[{slug:'mensal',days:30,label:'Mensal'},{slug:'trimestral',days:90,label:'Trimestral'},{slug:'semestral',days:180,label:'Semestral'},{slug:'anual',days:365,label:'Anual'}];
  const selected=choices.find(x=>x.slug===params.periodo)?.slug||'mensal';
- const days=choices.find(x=>x.slug===selected)?.days||30;
+ const periodKey=selected;
  const [planData,campaigns]=await Promise.all([getVisiblePlans(),getPublicCampaigns()]);
  const goldCampaign=campaigns.find(x=>x.tier==='Gold');
  const proCampaign=campaigns.find(x=>x.tier==='Pro');
@@ -52,7 +53,7 @@ export default async function Plans({searchParams}:{searchParams:Promise<{period
          <ul>{goldCampaign.features.slice(0,5).map((feature,i)=><li key={i}>✓ {feature}</li>)}<li>✓ Alto Risco e agenda completa — exclusivos Gold quando ativados</li></ul>
          <span className="am-btn am-outline">{goldCampaign.cta_text} →</span>
         </Link>:null;
-        const plan=planData.find(p=>p.tier===card.tier && p.duration_days===days);
+        const plan=planData.find(p=>p.tier===card.tier && p.slug.endsWith('-'+periodKey));
         if(card.tier==='Pro'&&!plan)return proCampaign?<Link key={card.tier} href="/pro"
          className={'am-plan '+card.css+' am-pro-preview'}
          aria-label="Conhecer AeroMind Pro — sem preço publicado neste período">
@@ -67,8 +68,9 @@ export default async function Plans({searchParams}:{searchParams:Promise<{period
         return <article className={'am-plan '+card.css} key={card.tier}>
         {(plan?.marketing_badge||plan?.marketing_highlight)&&<span className="am-top-label">{plan?.marketing_badge||'EM DESTAQUE'}</span>}
         <span className="am-plan-icon">{card.icon}</span><h3>{plan?.marketing_title||card.tier}</h3>
-        <strong>{plan?formattedPrice(plan.price_cents):'Em definição'}</strong>
+        <strong>{plan?formattedPrice(effectivePriceCents(plan)):'Em definição'}</strong>
         <small>{plan?durationLabelOf(plan):'Preço não publicado'}</small>
+        {plan&&isFlashActive(plan)&&<><FlashCountdown endsAt={plan.flash_ends_at!} label={plan.flash_label||'Oferta relâmpago'}/><small>Preço regular após o prazo: {formattedPrice(plan.price_cents)}</small></>}
         <p>{plan?descriptionOf(plan):card.desc}</p><ul>{(plan?benefitsOf(plan):card.features).map((feature,i)=><li key={i}>✓ {feature}</li>)}</ul>
         {plan?<Link href={'/checkout?plano='+encodeURIComponent(plan.slug)} className={'am-btn '+(plan.marketing_highlight?'am-fill':'am-outline')}>{plan.marketing_cta||'Escolher plano'} →</Link>:<span className="am-btn am-outline" aria-disabled="true">Indisponível</span>}
         </article>
@@ -80,7 +82,7 @@ export default async function Plans({searchParams}:{searchParams:Promise<{period
     <div className="am-plans-cards">{trials.map(p=><article key={p.slug} className="am-plan am-plan-blue">
      {(p.marketing_badge||p.marketing_highlight)&&<span className="am-top-label">{p.marketing_badge||'EXPERIMENTE'}</span>}
      <span className="am-plan-icon">◷</span><h3>{p.marketing_title||(p.slug==='teste-horas'?'Teste por horas':'Teste por dias')}</h3>
-     <strong>{formattedPrice(p.price_cents)}</strong><small>{durationLabelOf(p)}</small>
+     <strong>{formattedPrice(effectivePriceCents(p))}</strong><small>{durationLabelOf(p)}</small>
      <p>{descriptionOf(p)}</p>
      <ul>{benefitsOf(p).map((feature,i)=><li key={i}>✓ {feature}</li>)}</ul>
      <Link className={'am-btn '+(p.marketing_highlight?'am-fill':'am-outline')} href={(p.price_cents===0?'/teste-gratis?plano=':'/checkout?plano=')+encodeURIComponent(p.slug)}>{p.marketing_cta||'Experimentar'} →</Link>
