@@ -13,23 +13,21 @@ test('Pro e Gold possuem páginas comerciais independentes e a landing liga para
  assert.match(pro,/AeroMind <em>Pro<\/em>/);
  assert.match(pro,/AMPLIADO 5/);
  assert.match(pro,/EXPANDIDO 7/);
- assert.match(gold,/Rosa 10x · 2 Rodadas/);
- assert.match(gold,/Rosa 10x · 8 Rodadas/);
- assert.match(gold,/GOLD EM PREPARAÇÃO/);
- assert.match(gold,/SEM VENDA ATIVA/);
+ assert.match(gold,/Alto Risco/);
+ assert.match(gold,/Comunidade Gold VIP/);
+ assert.match(gold,/50x/);
 });
 
-test('Pro só entra no checkout se o preço estiver publicado; Gold não permite compra',()=>{
- const pro=read('app/pro/page.tsx'),planos=read('app/planos/page.tsx');
+test('checkout aparece somente para ofertas publicadas; Gold preserva o tier Ultra',()=>{
+ const pro=read('app/pro/page.tsx'),planos=read('app/planos/page.tsx'),gold=read('app/gold/page.tsx');
  assert.match(pro,/const offers=plans\.filter\(p=>p\.tier==='Pro'/);
  assert.match(pro,/plan\?<Link href=\{'\/checkout\?plano='/);
  assert.match(pro,/Preço ainda não publicado/);
  assert.match(planos,/if\(card\.tier==='Pro'&&!plan\)return proCampaign\?<Link/);
- assert.match(planos,/if\(card\.tier==='Ultra'\)return goldCampaign\?<Link/);
- const goldBranch=planos.split("if(card.tier==='Ultra')return goldCampaign?<Link")[1].split('const plan=planData.find')[0];
- assert.ok(goldBranch&&!goldBranch.includes('/checkout'));
- assert.ok(!read('app/gold/page.tsx').includes('/checkout'));
- assert.match(planos,/tier:'Ultra'/); // legado continua no catálogo
+ assert.match(planos,/tier:'Ultra'/);
+ assert.match(planos,/plan\?<Link href=\{'\/checkout\?plano='/);
+ assert.match(gold,/offers=plans\.filter\(p=>p\.tier==='Ultra'/);
+ assert.match(gold,/plan\?<Link className="ag-cta" href=\{'\/checkout\?plano='/);
 });
 
 test('Gestão de campanhas separada do catálogo e somente administradores',()=>{
