@@ -83,5 +83,5 @@ test('ajuda explica limites dos planos e Gold destaca recursos exclusivos sem pr
  assert.match(help,/Alto Risco e agenda completa/);
  assert.match(help,/não garantem acerto/);
  assert.match(plans,/Alto Risco exclusivo Gold/);
- assert.match(plans,/Radar Rosa Ampliado/);
+ assert.match(plans,/Radar Rosa: até 7/);
 });
