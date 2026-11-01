@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { revokeMyDevice, approveMyDevice } from './actions';
+import {DeviceApprovalToast} from '@/components/account/DeviceApprovalToast';
 
 export const dynamic='force-dynamic';
 export const metadata={title:'Meus dispositivos | AeroMind',robots:{index:false,follow:false}};
@@ -42,7 +43,7 @@ export default async function Devices({searchParams}:{searchParams:Promise<{stat
      </div>
      <p>Sua licença permite até {maxDevices} aparelho(s). O Android solicitará autorização, e você confirmará aqui antes de liberar o aparelho.</p>
    </div>
-   {status==='approved'&&<p role="status" className="device-notice good">Dispositivo autorizado.</p>}
+   {status==='approved'&&<DeviceApprovalToast/>}
    {status==='approve-failed'&&<p role="alert" className="device-notice error">Não foi possível autorizar. Verifique sua licença e o limite de aparelhos.</p>}
    {status==='revoked'&&<p role="status" className="device-notice good">O dispositivo foi revogado com sucesso.</p>}
    {status==='failed'&&<p role="alert" className="device-notice error">Não foi possível revogar o dispositivo. Tente novamente.</p>}
