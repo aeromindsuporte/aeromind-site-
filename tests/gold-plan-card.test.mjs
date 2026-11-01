@@ -3,39 +3,35 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 
-test('planos mostram Gold no lugar do card comercial Ultra, em todos os períodos',()=>{
+test('Básico, Pró e Gold preservam os quatro períodos no catálogo',()=>{
  const page=read('app/planos/page.tsx');
- for(const p of ["{slug:'mensal',days:30","{slug:'trimestral',days:90","{slug:'semestral',days:180","{slug:'anual',days:365"]){
-  assert.ok(page.includes(p),'Duração ausente: '+p);
+ for(const period of ["{slug:'mensal',days:30","{slug:'trimestral',days:90","{slug:'semestral',days:180","{slug:'anual',days:365"]){
+  assert.ok(page.includes(period),'Duração ausente: '+period);
  }
- assert.match(page,/cards\.map\(card=>\{/);
- assert.match(page,/if\(card\.tier==='Ultra'\)return goldCampaign\?<Link key=\{card\.tier\} href="\/gold"/);
- assert.match(page,/<h3>Gold<\/h3>/);
- assert.match(page,/goldCampaign\.cta_text/);
- assert.match(page,/className=\{'am-plan '\+card\.css\+' am-gold-preview'\}/);
- assert.match(page,/aria-label="Conhecer o AeroMind Gold/);
- assert.ok(page.indexOf("if(card.tier==='Ultra')")<page.indexOf("const plan=planData.find"),'Gold não depende de plano Ultra publicado');
-});
-test('Gold não gera cobrança nem altera tiers legados, e venda existente continua funcionando',()=>{
- const page=read('app/planos/page.tsx'),catalog=read('lib/catalog.ts');
- const branch=page.split("if(card.tier==='Ultra')return goldCampaign?<Link")[1].split("const plan=planData.find")[0];
- assert.doesNotMatch(branch,/\/checkout|formattedPrice|plan\.price_cents|Indisponível/);
- assert.match(branch,/goldCampaign\.badge/);
- assert.match(branch,/Venda ainda não disponível/);
  assert.match(page,/tier:'Básico'/);
  assert.match(page,/tier:'Pro'/);
  assert.match(page,/tier:'Ultra'/);
+ assert.match(page,/card.tier==='Ultra'\?'Gold'/);
+ assert.match(page,/Radar Rosa: até 7 sinais por hora/);
+});
+
+test('Gold tem oferta real pelo catálogo, sem alterar o tier interno Ultra',()=>{
+ const page=read('app/planos/page.tsx'),catalog=read('lib/catalog.ts');
+ assert.match(page,/const plan=planData.find/);
  assert.match(page,/plan\?<Link href=\{'\/checkout\?plano='\+encodeURIComponent\(plan\.slug\)\}/);
+ assert.match(page,/effectivePriceCents\(plan\)/);
  assert.match(catalog,/tier: 'Básico' \| 'Pro' \| 'Ultra'/);
  assert.doesNotMatch(catalog,/tier: 'Básico' \| 'Pro' \| 'Gold'/);
 });
-test('página de destino Gold está disponível, sem oferta ativa',()=>{
- const target=read('app/gold/page.tsx');
- assert.match(target,/GOLD EM PREPARAÇÃO/);
- assert.match(target,/SEM VENDA ATIVA/);
- assert.match(target,/\/planos/);
- const css=read('public/design-v2.css');
- assert.match(css,/\.am-site \.am-gold-preview/);
- assert.match(css,/\.am-gold-preview:is\(:hover,:focus-visible\)/);
- assert.match(css,/prefers-reduced-motion/);
+
+test('página Gold oferece os períodos realmente publicados e informa recursos em implantação',()=>{
+ const page=read('app/gold/page.tsx');
+ assert.match(page,/getVisiblePlans/);
+ assert.match(page,/offers=plans.filter\(p=>p.tier==='Ultra'/);
+ assert.match(page,/href=\{'\/checkout\?plano='\+encodeURIComponent\(plan\.slug\)\}/);
+ assert.match(page,/Comunidade Gold VIP/);
+ assert.match(page,/em implantação/);
+ assert.match(page,/50x/);
+ const css=read('app/gold/gold.css');
+ assert.match(css,/\.ag-mode-grid/);
 });
