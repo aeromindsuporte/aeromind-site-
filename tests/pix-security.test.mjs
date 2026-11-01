@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHmac} from 'node:crypto';
 import {MAX_PIX_WEBHOOK_BYTES,verifyPaggpaySignature,parsePaggpayEvent,isAeromindReference} from '../lib/pix/webhook.ts';
-import {readPaggpayPix,paymentConfirmed,isAeromindCallback,isSandboxKeyCompatible,paymentEnvironment,liveConfigured,MIN_PIX_CENTS} from '../lib/pix/provider.ts';
+import {readPaggpayPix,paymentConfirmed,isAeromindCallback,isSandboxKeyCompatible,paymentEnvironment,liveConfigured,MIN_PIX_CENTS,pixProvider,activePixBaseUrl} from '../lib/pix/provider.ts';
 
 const SECRET='whsec_local_fixture_not_a_credential';
 const NOW=1_792_430_000;
@@ -156,3 +156,40 @@ test('a chave live so habilita Pix com modo live, producao e callback propio',()
 
 
 test('o menor valor Pix autorizado para criação é 200 centavos',()=>{assert.equal(MIN_PIX_CENTS,200);});
+
+test('migração paggOne só ativa com chave nova e seleção explícita do provedor',()=>{
+ const keys=['VERCEL_ENV','PAGGPAY_MODE','PAGGPAY_PROVIDER','PAGGPAY_API_KEY','PAGGONE_API_KEY',
+  'PAGGPAY_WEBHOOK_SECRET','PAGGPAY_WEBHOOK_URL','SUPABASE_SERVICE_ROLE_KEY'];
+ const saved=Object.fromEntries(keys.map(k=>[k,process.env[k]]));
+ try{
+  Object.assign(process.env,{
+   VERCEL_ENV:'production',PAGGPAY_MODE:'live',PAGGPAY_PROVIDER:'paggpay',
+   PAGGPAY_API_KEY:'pp_live_test_only_fixture',PAGGPAY_WEBHOOK_SECRET:'fixture_webhook_secret',
+   PAGGPAY_WEBHOOK_URL:'https://aeromind-site.vercel.app/api/pix/webhook',
+   SUPABASE_SERVICE_ROLE_KEY:'fixture_service_key'
+  });
+  delete process.env.PAGGONE_API_KEY;
+  assert.equal(pixProvider(),'paggpay');
+  assert.equal(activePixBaseUrl(),'https://api.paggpay.com/v1');
+  assert.equal(liveConfigured(),true);
+  process.env.PAGGPAY_PROVIDER='paggone';
+  assert.equal(pixProvider(),'paggone');
+  assert.equal(activePixBaseUrl(),'https://api.paggone.com/v1');
+  assert.equal(liveConfigured(),false,'chave antiga não pode ativar o novo endpoint');
+  process.env.PAGGONE_API_KEY='paggone_new_api_key_example_only';
+  assert.equal(liveConfigured(),true);
+  process.env.PAGGONE_API_KEY='   ';
+  assert.equal(liveConfigured(),false);
+  process.env.PAGGONE_API_KEY='paggone_new_api_key_example_only';
+  process.env.PAGGPAY_MODE='sandbox';
+  assert.equal(liveConfigured(),false);
+  assert.equal(activePixBaseUrl(),'https://sandbox-api.paggpay.com/v1');
+  process.env.PAGGPAY_MODE='live';
+  process.env.VERCEL_ENV='preview';
+  assert.equal(liveConfigured(),false,'produção apenas');
+ }finally{
+  for(const k of keys){
+   if(saved[k]===undefined)delete process.env[k];else process.env[k]=saved[k];
+  }
+ }
+});
