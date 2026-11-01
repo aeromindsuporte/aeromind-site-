@@ -2,6 +2,7 @@ import Link from 'next/link';
 import {getPublicCampaigns} from '@/lib/campaigns';
 import type {Metadata} from 'next';
 import './landing-neon.css';
+import {LandingAccountLink,LandingSessionLinks} from '@/components/home/LandingSessionLinks';
 
 export const metadata:Metadata={
  title:'AeroMind | Mais clareza para suas decisões no Aviator',
@@ -132,7 +133,7 @@ const items=[
 
 export default async function Home(){
  const campaigns=await getPublicCampaigns();
- return <div className="nl-site">
+ return <LandingSessionLinks><div className="nl-site">
   <header className="nl-header">
    <div className="nl-header-inner">
     <Link href="/" className="nl-logo" aria-label="AeroMind — início"><img src="/images/aeromind-mark.svg" alt="" width="65" height="55" className="nl-logo-img"/><span>AEROMIND</span></Link>
@@ -143,10 +144,10 @@ export default async function Home(){
      <a href="#depoimentos">Depoimentos</a>
      <Link href="/planos">Planos</Link>
     </nav>
-    <Link href="/planos" className="nl-btn nl-btn-header">Começar agora <span aria-hidden="true">›</span></Link>
+    <LandingAccountLink guestHref="/planos" guestLabel="Começar agora" className="nl-btn nl-btn-header" suffix={<span aria-hidden="true">›</span>}/>
     <details className="nl-mobile-menu">
      <summary aria-label="Abrir menu de navegação"><span/><span/><span/></summary>
-     <nav aria-label="Menu mobile"><a href="#inicio">Início</a><a href="#funcionalidades">Funcionalidades</a><a href="#como-funciona">Como funciona</a><a href="#depoimentos">Depoimentos</a><Link href="/planos">Planos e preços</Link><Link href="/entrar">Entrar</Link></nav>
+     <nav aria-label="Menu mobile"><a href="#inicio">Início</a><a href="#funcionalidades">Funcionalidades</a><a href="#como-funciona">Como funciona</a><a href="#depoimentos">Depoimentos</a><Link href="/planos">Planos e preços</Link><LandingAccountLink guestHref="/entrar" guestLabel="Entrar"/></nav>
     </details>
    </div>
   </header>
@@ -164,7 +165,7 @@ export default async function Home(){
        </Link>
       </div>
       <div className="nl-hero-buttons">
-       <Link href="/planos" className="nl-btn nl-btn-primary"><span aria-hidden="true">ϟ</span> Começar agora <b aria-hidden="true">›</b></Link>
+       <LandingAccountLink guestHref="/planos" guestLabel="Começar agora" className="nl-btn nl-btn-primary" prefix={<span aria-hidden="true">ϟ</span>} suffix={<b aria-hidden="true">›</b>}/>
        <a href="#funcionalidades" className="nl-btn nl-btn-secondary"><span aria-hidden="true">▶</span> Ver funcionalidades</a>
       </div>
       <div className="nl-benefits">
@@ -217,7 +218,7 @@ export default async function Home(){
   <footer className="nl-footer"><div className="nl-shell nl-footer-inner">
    <span><AeroMark small/> AEROMIND</span>
    <p>Monitoramento e análise histórica. Sem promessas de ganho.</p>
-   <nav aria-label="Informações legais"><Link href="/planos">Planos</Link><Link href="/entrar">Entrar</Link><Link href="/termos">Termos</Link><Link href="/privacidade">Privacidade</Link><Link href="/suporte">Suporte</Link></nav>
+   <nav aria-label="Informações legais"><Link href="/planos">Planos</Link><LandingAccountLink guestHref="/entrar" guestLabel="Entrar"/><Link href="/termos">Termos</Link><Link href="/privacidade">Privacidade</Link><Link href="/suporte">Suporte</Link></nav>
   </div>
   <div className="nl-shell nl-responsibility-footer">
    <aside className="nl-responsibility-notice" aria-label="Aviso de idade mínima e riscos">
@@ -225,5 +226,5 @@ export default async function Home(){
     <p>O jogo é destinado a maiores de 18 anos. O AeroMind é um sistema de indicação e análise de dados; <strong>não há garantia de acertos ou ganhos.</strong> Jogue com responsabilidade.</p>
    </aside>
   </div></footer>
- </div>;
+ </div></LandingSessionLinks>;
 }
