@@ -39,7 +39,7 @@ export function SiteInteractionFeedback(){
   const handleSubmit=(event:Event)=>{
    if(!(event.target instanceof HTMLFormElement))return;
    const form=event.target;
-   if(!form.checkValidity()||form.dataset.feedback==='off')return;
+   if(!form.checkValidity()||form.dataset.feedback==='off'||!form.hasAttribute('action'))return;
    form.classList.add('am-form-submitting');
    begin('Processando solicitação...');
    // Se a ação tratar o resultado sem navegação, devolve o estado visual.
