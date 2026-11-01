@@ -41,5 +41,5 @@ export async function GET(req:Request){
  const age=order.pix_requested_at?Date.now()-Date.parse(order.pix_requested_at):0;
  return result({orderId:id,status:'creating',amountCents:order.amount_cents,
   requiresSupport:age>60_000||!!order.last_payment_error,
-  message:age>60_000?'Cobrança sem ID de transação. A equipe deve conferir com a PaggPay, sem gerar outra.':null});
+  message:age>60_000?'Cobrança sem ID de transação. A equipe deve conferir com o provedor Pix, sem gerar outra.':null});
 }
