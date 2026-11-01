@@ -27,14 +27,14 @@ const goldOnlyExtras=[
 ];
 
 /** Os textos permanecem editáveis no painel; a permissão não é inferida de um ✓ visual. */
-function formatBenefits(tier:PlanTier,features:string[]):BenefitItem[]{
+function formatBenefits(tier:PlanTier,features:string[],includeComparison=true):BenefitItem[]{
  const list=features.flatMap((feature):string[]=>{
   if(tier!=='Ultra'&&/alto risco e agenda completa/i.test(feature)){
    return ['Sinais de Alto Risco','Agenda completa dos sinais do dia'];
   }
   return [feature];
  });
- if(tier!=='Ultra'){
+ if(tier!=='Ultra'&&includeComparison){
   for(const extra of ['Sinais de Alto Risco','Agenda completa dos sinais do dia',...goldOnlyExtras]){
    const existing=extra.startsWith('Sinais de Alto Risco')?/alto risco/i:
     extra.startsWith('Agenda completa')?/agenda completa/i:
@@ -57,8 +57,8 @@ function formatBenefits(tier:PlanTier,features:string[]):BenefitItem[]{
  }).sort((a,b)=>({included:0,planned:1,locked:2}[a.state]-{included:0,planned:1,locked:2}[b.state]));
 }
 
-function BenefitList({tier,features}:{tier:PlanTier;features:string[]}){
- const items=formatBenefits(tier,features);
+function BenefitList({tier,features,includeComparison=true}:{tier:PlanTier;features:string[];includeComparison?:boolean}){
+ const items=formatBenefits(tier,features,includeComparison);
  return <ul className="am-plan-feature-list">{items.map((item,i)=><li key={i} className={'am-feature-'+item.state}>
   <span className="am-feature-state" aria-hidden="true">{item.state==='included'?'✓':item.state==='locked'?'✕':'◷'}</span>
   <span className="am-feature-text">{item.label}</span>
@@ -127,7 +127,7 @@ export default async function Plans({searchParams}:{searchParams:Promise<{period
      <span className="am-plan-icon">◷</span><h3>{p.marketing_title||(p.slug==='teste-horas'?'Teste por horas':'Teste por dias')}</h3>
      <strong>{formattedPrice(effectivePriceCents(p))}</strong><small>{durationLabelOf(p)}</small>
      <p>{descriptionOf(p)}</p>
-     <BenefitList tier={p.tier} features={benefitsOf(p)}/>
+     <BenefitList tier={p.tier} features={benefitsOf(p)} includeComparison={false}/>
      <Link className={'am-btn '+(p.marketing_highlight?'am-fill':'am-outline')} href={(p.price_cents===0?'/teste-gratis?plano=':'/checkout?plano=')+encodeURIComponent(p.slug)}>{p.marketing_cta||'Experimentar'} →</Link>
     </article>)}</div>
    </section>}
