@@ -11,9 +11,11 @@ export function DownloadButton(){
     const data=await res.json() as {url?:string;error?:string};
     if(!res.ok||!data.url){setError(data.error||'Não foi possível obter o download.');return;}
     // Only Supabase Storage links are accepted, never arbitrary server content.
-    const candidate=new URL(data.url);
+    const candidate=new URL(data.url,window.location.origin);
     const base=process.env.NEXT_PUBLIC_SUPABASE_URL;
-    if(!base||candidate.origin!==new URL(base).origin || !candidate.pathname.includes('/storage/v1/object/sign/aeromind-apk-releases/')){
+    const internal=candidate.origin===window.location.origin && candidate.pathname==='/api/apk-file' && !candidate.search && !candidate.hash;
+    const signed=Boolean(base) && candidate.origin===new URL(base!).origin && candidate.pathname.includes('/storage/v1/object/sign/aeromind-apk-releases/');
+    if(!internal&&!signed){
       setError('Endereço de download inválido.');return;
     }
     window.location.assign(candidate.toString());

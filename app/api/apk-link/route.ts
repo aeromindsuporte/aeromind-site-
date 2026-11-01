@@ -15,7 +15,7 @@ export async function POST(){
   const {data:active,error:licenseError}=await supabase.rpc('aeromind_has_active_license');
   if(licenseError||active!==true)return response({error:'É necessária uma licença ativa.'},403);
   const {data:release,error:releaseError}=await supabase.from('aeromind_app_releases')
-   .select('id,version_name,storage_path,sha256,size_bytes,status')
+   .select('id,version_name,version_code,storage_path,sha256,size_bytes,status')
    .eq('status','published')
    .order('version_code',{ascending:false}).limit(1).maybeSingle();
   if(releaseError||!release)return response({error:'Nenhuma versão do APK foi publicada.'},404);
@@ -25,6 +25,7 @@ export async function POST(){
   // Conta solicitações autenticadas de links, e não instalações concluídas.
   const {error:trackError}=await supabase.from('aeromind_download_events').insert({user_id:user.id,release_id:release.id});
   if(trackError)return response({error:'Falha ao registrar a solicitação do download. Tente novamente.'},503);
-  return response({url:signed.signedUrl,version:release.version_name,sha256:release.sha256,size_bytes:String(release.size_bytes)},200);
+  const route=release.size_bytes<=4_000_000?'/api/apk-file':signed.signedUrl;
+  return response({url:route,version:release.version_name,sha256:release.sha256,size_bytes:String(release.size_bytes)},200);
  }catch{return response({error:'Falha temporária ao gerar link.'},500);}
 }
