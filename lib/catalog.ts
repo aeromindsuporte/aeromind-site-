@@ -15,6 +15,7 @@ export type PublicPlan = {
   marketing_highlight?:boolean|null;
   marketing_duration_caption?:string|null;
   marketing_unpriced_label?:string|null;
+  flash_price_cents?:number|null;flash_ends_at?:string|null;flash_label?:string|null;
 };
 
 export async function getVisiblePlans(): Promise<PublicPlan[]> {
@@ -23,13 +24,13 @@ export async function getVisiblePlans(): Promise<PublicPlan[]> {
   if (!url || !key) return [];
   const client=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
   const {data,error}=await client.from('aeromind_plan_catalog')
-    .select('slug,tier,duration_days,trial_quantity,price_cents,visible,marketing_title,marketing_description,marketing_badge,marketing_features,marketing_cta,marketing_highlight,marketing_duration_caption,marketing_unpriced_label')
+    .select('slug,tier,duration_days,trial_quantity,price_cents,visible,marketing_title,marketing_description,marketing_badge,marketing_features,marketing_cta,marketing_highlight,marketing_duration_caption,marketing_unpriced_label,flash_price_cents,flash_ends_at,flash_label')
     .eq('visible',true).not('price_cents','is',null);
   if(error){console.error('Erro na leitura pública do catálogo AeroMind:',error.code||'unknown');return [];}
   if(!data) return [];
   const tiers=['Básico','Pro','Ultra'];
   return data.filter(p=>tiers.includes(p.tier)
-    && ([30,90,180,365].includes(p.duration_days)||
+    && ((p.slug.match(/^(basico|pro|ultra)-(mensal|trimestral|semestral|anual)$/)&&p.duration_days>=1&&p.duration_days<=730)||
       (p.slug==='teste-horas'&&p.duration_days===1&&Number.isInteger(p.trial_quantity)&&p.trial_quantity>=1&&p.trial_quantity<=72)||
       (p.slug==='teste-dias'&&p.duration_days===2&&Number.isInteger(p.trial_quantity)&&p.trial_quantity>=1&&p.trial_quantity<=30))
     && Number.isInteger(p.price_cents)
@@ -53,4 +54,13 @@ export function formattedDuration(plan:Pick<PublicPlan,'slug'|'duration_days'|'t
   const days=Number(plan.trial_quantity||1);return days+' '+(days===1?'dia':'dias');
  }
  return plan.duration_days+' dias';
+}
+
+/** Promoção só é real antes do prazo; checkout e pedido usam o mesmo valor vigente. */
+export function isFlashActive(plan:Pick<PublicPlan,'flash_price_cents'|'flash_ends_at'|'price_cents'>,now=Date.now()):boolean{
+ return typeof plan.flash_price_cents==='number'&&plan.flash_price_cents>=200&&
+  plan.flash_price_cents<plan.price_cents&&!!plan.flash_ends_at&&new Date(plan.flash_ends_at).getTime()>now;
+}
+export function effectivePriceCents(plan:Pick<PublicPlan,'flash_price_cents'|'flash_ends_at'|'price_cents'>,now=Date.now()):number{
+ return isFlashActive(plan,now)?plan.flash_price_cents!:plan.price_cents;
 }
