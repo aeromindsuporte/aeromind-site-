@@ -1,14 +1,14 @@
 import Link from 'next/link';
 import {getPublicCampaign} from '@/lib/campaigns';
-import {getVisiblePlans,formattedPrice} from '@/lib/catalog';
+import {getVisiblePlans,formattedPrice,effectivePriceCents,isFlashActive} from '@/lib/catalog';
 import {durationLabelOf} from '@/lib/plan-display';
 import '../gold/gold.css';
 import './pro.css';
 
 export const dynamic='force-dynamic';
-export const metadata={title:'AeroMind Pro | Conheça os recursos',description:'AeroMind Pro: monitore sua sessão e conheça os recursos AMPLIADO 5 planejados para o Aurora. Consulte apenas ofertas publicadas.'};
+export const metadata={title:'AeroMind Pro | Conheça os recursos',description:'AeroMind Pro: sinais de baixa, média e alta, histórico, ranking e até 5 sinais Radar Rosa por hora.'};
 const periods=[{days:30,label:'Mensal'},{days:90,label:'Trimestral'},{days:180,label:'Semestral'},{days:365,label:'Anual'}];
-const fallbacks=['Indicadores atuais conforme licença','Radar Rosa V4 com opção AMPLIADO 5 planejada no Aurora','Mais janelas do que a configuração CORE','Histórico e acompanhamento das sessões'];
+const fallbacks=['Tudo do Básico','Radar Rosa: até 5 sinais de rosas por hora','Histórico das rodadas e ranking de casas','Alto Risco e agenda completa exclusivos Gold'];
 export default async function ProInformation(){
  const [campaign,plans]=await Promise.all([getPublicCampaign('Pro'),getVisiblePlans()]);
  const offers=plans.filter(p=>p.tier==='Pro'&&p.slug.startsWith('pro-'));
@@ -34,14 +34,14 @@ export default async function ProInformation(){
     </div>
     <div className="ag-preview pro-preview" role="img" aria-label="Comparativo informativo dos níveis do Radar Rosa V4 planejados para AeroMind Aurora">
      <div className="ag-preview-top"><span>AEROMIND PRO · AURORA</span><span>◈</span></div>
-     <div className="ag-preview-label">RADAR ROSA V4 · ACESSO PLANEJADO</div>
+     <div className="ag-preview-label">RADAR ROSA · NÍVEIS DE ACESSO</div>
      <div className="pro-comparison"><div><small>BÁSICO</small><strong>CORE 3</strong><span>Ranks 1 a 3</span></div><div className="highlight"><small>PRO</small><strong>AMPLIADO 5</strong><span>Ranks 1 a 5</span></div><div><small>GOLD</small><strong>EXPANDIDO 7</strong><span>Ranks 1 a 7</span></div></div>
-     <div className="ag-preview-footer">PRÉVIA DAS PERMISSÕES PROPOSTAS PARA O AURORA · SEM SINAIS AO VIVO</div>
+     <div className="ag-preview-footer">DEMONSTRAÇÃO COMPARATIVA · SEM SINAIS AO VIVO</div>
     </div>
    </section>
    <section className="ag-section ag-shell">
     <div className="ag-section-title"><span>O QUE VOCÊ ENCONTRA</span><h2>Recursos Pro</h2>
-     <p>O aplicativo atual continua com os recursos de sua licença. A divisão CORE / AMPLIADO / EXPANDIDO faz parte da próxima atualização Aurora.</p></div>
+     <p>Os benefícios dependem da licença e da versão instalada. Os sinais são informativos e não garantem acertos.</p></div>
     <div className="pro-feature-grid">{(campaign?.features||fallbacks).map((feature,i)=><article key={i}><span aria-hidden="true">✓</span>{feature}</article>)}</div>
    </section>
    <section className="ag-section ag-shell" id="periodos">
@@ -51,7 +51,7 @@ export default async function ProInformation(){
      {periods.map(({days,label})=>{
       const plan=offers.find(x=>x.duration_days===days);
       return <article key={days} className={'pro-offer '+(!plan?'unavailable':'')}>
-       <small>{label}</small><strong>{plan?formattedPrice(plan.price_cents):'Em configuração'}</strong>
+       <small>{label}</small><strong>{plan?formattedPrice(effectivePriceCents(plan)):'Em configuração'}</strong>
        <p>{plan?durationLabelOf(plan):'Preço ainda não publicado'}</p>
        {plan?<Link href={'/checkout?plano='+encodeURIComponent(plan.slug)}>Escolher Pro →</Link>:
         <span>Venda indisponível</span>}
@@ -60,7 +60,7 @@ export default async function ProInformation(){
     </div>
    </section>
    <section className="ag-bottom ag-shell"><h2>Quer conhecer o Gold?</h2>
-    <p>O Gold terá funcionalidades adicionais planejadas, como EXPANDIDO 7 e módulos Rosa 10x experimentais. Ainda não está à venda.</p>
+    <p>Conheça o acesso Gold: até 7 sinais Rosa por hora, Alto Risco, agenda completa, sinais Premium e suporte prioritário. Comunidade VIP e lives em implantação.</p>
     <Link href="/gold" className="ag-cta">Conhecer Gold →</Link></section>
   </main>
   <footer className="ag-footer"><div className="ag-shell">© 2026 AeroMind · 18+ · <Link href="/termos">Termos</Link> · <Link href="/privacidade">Privacidade</Link></div></footer>
