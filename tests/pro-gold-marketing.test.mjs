@@ -9,7 +9,13 @@ test('Pro e Gold possuem páginas comerciais independentes e a landing liga para
  const home=read('app/page.tsx'),pro=read('app/pro/page.tsx'),gold=read('app/gold/page.tsx');
  assert.match(home,/getPublicCampaigns/);
  assert.match(home,/id="versoes"/);
- assert.match(home,/href=\{c.tier==='Gold'\?'\/gold':'\/pro'\}/);
+ assert.match(home,/id:'essencial'/);
+ assert.match(home,/id:'pro'/);
+ assert.match(home,/id:'gold'/);
+ assert.match(home,/nl-campaign-big-action/);
+ assert.match(home,/VER TODOS OS PLANOS E PREÇOS/);
+ assert.match(home,/planShowcase\.map\(plan=>/);
+ assert.match(home,/<Link href="\/planos" className="nl-campaign-action"/);
  assert.match(pro,/AeroMind <em>Pro<\/em>/);
  assert.match(pro,/AMPLIADO 5/);
  assert.match(pro,/EXPANDIDO 7/);
@@ -72,4 +78,21 @@ test('Formulários e apresentações continuam responsivos para celular',()=>{
  assert.match(pro,/@media\(max-width:620px\)/);
  assert.match(landing,/\.nl-campaign-grid/);
  assert.match(gold,/\.ag-mode-grid/);
+});
+
+
+test('vitrine comercial tem três cartões, destino de preços e comportamento mobile',()=>{
+ const home=read('app/page.tsx'),css=read('app/landing-neon.css');
+ for(const title of ['AeroMind Essencial','AeroMind Pró','AeroMind Gold']){
+  assert.ok(home.includes(title),'Plano ausente: '+title);
+ }
+ for(const qty of ["amount:'03'","amount:'05'","amount:'07'"]){
+  assert.ok(home.includes(qty),'Limite de rosas ausente: '+qty);
+ }
+ assert.match(home,/nl-campaign-final-cta/);
+ assert.match(home,/href="\/planos" className="nl-campaign-big-action"/);
+ assert.match(css,/\.nl-campaign-grid\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+ assert.match(css,/@media\(max-width:650px\)/);
+ assert.match(css,/\.nl-campaign-grid\{grid-template-columns:1fr/);
+ assert.match(css,/prefers-reduced-motion:reduce/);
 });
