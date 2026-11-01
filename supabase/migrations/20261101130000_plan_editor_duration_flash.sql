@@ -104,7 +104,8 @@ begin
   flash_ends_at=p_flash_ends_at,
   flash_label=case when p_flash_price_cents is null then null else nullif(btrim(p_flash_label),'') end,
   updated_at=now()
- where slug=p_slug returning to_jsonb(public.aeromind_plan_catalog.*) into new_plan;
+ where slug=p_slug;
+ select to_jsonb(c) into new_plan from public.aeromind_plan_catalog c where c.slug=p_slug;
  -- Existing paid purchases retain their agreed term. Only additional days are granted,
  -- using the original paid order as the baseline and recording every extension once.
  if not v_trial and p_duration_days>old_plan.duration_days then
