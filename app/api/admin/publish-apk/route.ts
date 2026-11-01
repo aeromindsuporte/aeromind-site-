@@ -10,7 +10,7 @@ function reply(status:number,message:string){
 }
 type ReleasePayload={
  versionCode?:number;versionName?:string;path?:string;sha256?:string;
- sizeBytes?:number;notes?:string;signingConfirmed?:boolean;
+ sizeBytes?:number;notes?:string;signingConfirmed?:boolean;replaceExisting?:boolean;
 };
 // Only the verified staff member can publish. The APK is re-read from the private
 // bucket and SHA-256 is computed by the SERVER, not trusted from client metadata.
@@ -54,11 +54,15 @@ export async function POST(request:NextRequest){
      ||!content.includes(Buffer.from('AndroidManifest.xml'))
      ||!content.includes(Buffer.from('classes.dex')))
        return reply(422,'O arquivo não parece ser um APK Android válido.');
-   const {data:id,error:publishError}=await supabase.rpc('aeromind_publish_release',{
+   const isReplacement=input.replaceExisting===true;
+   const {data:id,error:publishError}=await supabase.rpc(
+     isReplacement?'aeromind_admin_replace_release':'aeromind_publish_release',{
      p_version_code:code,p_version_name:name,p_storage_path:path,
      p_sha256:actual,p_size_bytes:bytes,p_release_notes:notes
    });
-   if(publishError||!id)return reply(422,'Não foi possível publicar: confira se o código da versão é maior que os anteriores.');
+   if(publishError||!id)return reply(422,isReplacement?
+     'Não foi possível substituir: confira a versão, as permissões e o APK enviado.':
+     'Não foi possível publicar: confira se o código da versão é maior que os anteriores.');
    return NextResponse.json({ok:true,version:name},{headers:{'Cache-Control':'no-store'}});
  }catch{
    return reply(500,'Não foi possível validar ou publicar a versão.');
