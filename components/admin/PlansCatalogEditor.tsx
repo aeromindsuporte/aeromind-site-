@@ -25,7 +25,7 @@ const trial=(p:Plan)=>p.slug.startsWith('teste-');
 const name=(p:Plan)=>titleOf(p);
 const duration=(p:Plan)=>durationOf(p);
 const symbol=(p:Plan)=>p.slug==='teste-horas'?'◷':p.slug==='teste-dias'?'▦':p.tier==='Ultra'?'♜':p.tier==='Pro'?'◈':'✦';
-const publicUrl=(p:Plan)=>trial(p)?'/planos#testes':'/planos?periodo='+({30:'mensal',90:'trimestral',180:'semestral',365:'anual'} as Record<number,string>)[p.duration_days];
+const publicUrl=(p:Plan)=>trial(p)?'/planos#testes':'/planos?periodo='+p.slug.split('-').at(-1);
 function SaveButton(){
  const {pending}=useFormStatus();
  return <button className="pv2-save" type="submit" disabled={pending}>{pending?'Salvando…':'Salvar alterações'}</button>;
