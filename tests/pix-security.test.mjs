@@ -181,6 +181,11 @@ test('migração paggOne só ativa com chave nova e seleção explícita do prov
   process.env.PAGGONE_API_KEY='   ';
   assert.equal(liveConfigured(),false);
   process.env.PAGGONE_API_KEY='paggone_new_api_key_example_only';
+  process.env.PAGGPAY_PROVIDER='paggone '; // Um erro de digitação jamais ativa o provedor legado.
+  assert.equal(pixProvider(),null);
+  assert.equal(liveConfigured(),false);
+  assert.throws(()=>activePixBaseUrl());
+  process.env.PAGGPAY_PROVIDER='paggone';
   process.env.PAGGPAY_MODE='sandbox';
   assert.equal(liveConfigured(),false);
   assert.equal(activePixBaseUrl(),'https://sandbox-api.paggpay.com/v1');
