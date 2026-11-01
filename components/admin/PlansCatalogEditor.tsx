@@ -2,7 +2,7 @@
 'use client';
 import {useEffect,useMemo,useState} from 'react';
 import Link from 'next/link';
-import {useFormStatus} from 'react-dom';
+import {useFormStatus,createPortal} from 'react-dom';
 import {savePlanEditor,toggleCatalogPlan} from '@/app/admin/actions';
 import {benefitsOf,descriptionOf,durationOf,durationLabelOf,noPriceLabelOf,titleOf} from '@/lib/plan-display';
 
@@ -12,10 +12,14 @@ export type Plan = {
  marketing_description:string|null;marketing_badge:string|null;
  marketing_features:string[]|null;marketing_cta:string|null;marketing_highlight:boolean;
  marketing_duration_caption:string|null;marketing_unpriced_label:string|null;
+ flash_price_cents:number|null;flash_ends_at:string|null;flash_label:string|null;
 };
-type Tab='general'|'price'|'license'|'marketing'|'status';
+type Tab='general'|'price'|'offer'|'license'|'marketing'|'status';
 type Filter='all'|'trials'|'commercial'|'published'|'hidden'|'featured';
 const periods:Record<number,string>={30:'Mensal',90:'Trimestral',180:'Semestral',365:'Anual'};
+const inputTime=(value:string|null)=>value?new Date(value).toLocaleString('sv-SE',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).replace(' ','T'):'';
+const monthsOf=(d:number)=>d===365?12:d%30===0?d/30:'';
+const monthsToDays=(n:number)=>n===12?365:n*30;
 const money=(cents:number|null)=>cents===null?'Sem preço':cents===0?'Grátis':(cents/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const trial=(p:Plan)=>p.slug.startsWith('teste-');
 const name=(p:Plan)=>titleOf(p);
@@ -28,12 +32,16 @@ function SaveButton(){
 }
 export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initialEdit?:string;flash?:string}){
  const initial=plans.find(p=>p.slug===initialEdit)||null;
+ const [portalRoot,setPortalRoot]=useState<HTMLElement|null>(null);
+ useEffect(()=>{setPortalRoot(document.body)},[]);
  const [query,setQuery]=useState('');
  const [filter,setFilter]=useState<Filter>('all');
  const [sort,setSort]=useState('group');
  const [draft,setDraft]=useState<Plan|null>(initial);
  const [price,setPrice]=useState(initial?.price_cents===null?'':initial?(initial.price_cents!/100).toFixed(2):'');
  const [freeTrial,setFreeTrial]=useState(Boolean(initial&&trial(initial)&&initial.price_cents===0));
+ const [flashPrice,setFlashPrice]=useState(initial?.flash_price_cents? (initial.flash_price_cents/100).toFixed(2):'');
+ const [flashEnd,setFlashEnd]=useState(inputTime(initial?.flash_ends_at||null));
  const [features,setFeatures]=useState(initial?benefitsOf(initial).join('\n'):'');
  const [tab,setTab]=useState<Tab>(flash==='plan-duration'?'general':
   flash==='plan-text'||flash==='plan-benefits'?'marketing':
@@ -74,10 +82,18 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
   setDraft({...p,marketing_features:[...(p.marketing_features||[])]});
   setPrice(p.price_cents===null?'':(p.price_cents/100).toFixed(2));
   setFreeTrial(trial(p)&&p.price_cents===0);
+  setFlashPrice(p.flash_price_cents===null?'':(p.flash_price_cents/100).toFixed(2));
+  setFlashEnd(inputTime(p.flash_ends_at));
   setFeatures(benefitsOf(p).join('\n'));setTab(section);setNewOpen(false);setCopyOpen(false);
  }
  function close(){setDraft(null);setCopyOpen(false);}
  function update(changes:Partial<Plan>){setDraft(p=>p?{...p,...changes}:null);}
+ function changeDuration(days:number){
+  if(!Number.isFinite(days))return;
+  setDraft(p=>p?{...p,duration_days:days,marketing_duration_caption:
+   !p.marketing_duration_caption||/^por \d+ dias?$/.test(p.marketing_duration_caption)
+    ?'por '+days+(days===1?' dia':' dias'):p.marketing_duration_caption}:null);
+ }
  function copyMarketing(){
   if(!draft)return;
   const target=plans.find(p=>p.slug===copyTarget);
@@ -89,7 +105,7 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
  }
  const filters:[Filter,string][]=[['all','Todos'],['trials','Testes'],['commercial','Comerciais'],
   ['published','Publicados'],['hidden','Ocultos'],['featured','Destaques']];
- const tabs:[Tab,string][]=[['general','Geral'],['price','Preço'],['license','Licença'],['marketing','Divulgação'],['status','Status']];
+ const tabs:[Tab,string][]=[['general','Geral'],['price','Preço'],['offer','Oferta relâmpago'],['license','Licença'],['marketing','Divulgação'],['status','Status']];
  const available=plans.filter(p=>!p.visible&&p.price_cents===null);
  return <div className="pv2-root">
   <div className="pv2-header">
@@ -151,7 +167,7 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
    Os modelos de licença e duração suportados são mantidos para preservar o checkout e compras já realizadas.
   </div>
 
-  {newOpen&&<div className="pv2-backdrop" onMouseDown={e=>{if(e.currentTarget===e.target)setNewOpen(false);}}>
+  {newOpen&&portalRoot&&createPortal(<div className="pv2-backdrop" onMouseDown={e=>{if(e.currentTarget===e.target)setNewOpen(false);}}>
    <section className="pv2-picker" role="dialog" aria-modal="true" aria-label="Escolher modelo de plano">
     <header><div><span className="pv2-eyebrow">NOVO PLANO</span><h2>Escolha um modelo</h2>
      <p>Selecione uma opção e configure preço, divulgação e publicação.</p></div>
@@ -163,9 +179,9 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
      {!available.length&&<p>Todos os modelos disponíveis já foram configurados. Edite um plano existente.</p>}
     </div>
    </section>
-  </div>}
+  </div>,portalRoot)}
 
-  {draft&&<div className="pv2-backdrop" onMouseDown={e=>{if(e.currentTarget===e.target)close();}}>
+  {draft&&portalRoot&&createPortal(<div className="pv2-backdrop" onMouseDown={e=>{if(e.currentTarget===e.target)close();}}>
    <aside className="pv2-drawer" role="dialog" aria-modal="true" aria-label={'Editar '+name(draft)}>
     <header className="pv2-drawer-head"><div><span className="pv2-eyebrow">EDITAR PLANO</span>
      <h2>{name(draft)}</h2><p>{duration(draft)} · {draft.tier}</p></div>
@@ -212,6 +228,10 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
       <input type="hidden" name="features" value={features}/>
       <input type="hidden" name="cta" value={draft.marketing_cta??''}/>
       <input type="hidden" name="unpriced_label" value={draft.marketing_unpriced_label??''}/>
+      <input type="hidden" name="duration_days" value={draft.duration_days}/>
+      <input type="hidden" name="flash_price" value={flashPrice}/>
+      <input type="hidden" name="flash_ends_at" value={flashEnd}/>
+      <input type="hidden" name="flash_label" value={draft.flash_label||''}/>
       <div className="pv2-form-body">
        <section hidden={tab!=='general'} className="pv2-panel">
         <h3>Informações gerais</h3><p>Dados do plano utilizados na contratação.</p>
@@ -220,7 +240,13 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
         {trial(draft)?<label>Duração em {draft.slug==='teste-horas'?'horas (1 a 72)':'dias (1 a 30)'}
          <input type="number"  min={1} step={1} max={draft.slug==='teste-horas'?72:30}
           value={draft.trial_quantity??1} onChange={e=>update({trial_quantity:Number(e.target.value)})}/></label>:
-         <><span className="pv2-info">O período comercial é fixo para este modelo.</span><label>Duração comercial<input readOnly value={duration(draft)}/></label></>}
+         <><label>Duração real em dias (1 a 730)
+          <input type="number" min={1} max={730} step={1} value={draft.duration_days}
+           onChange={e=>changeDuration(Number(e.target.value))}/></label>
+          <label>Ou ajuste em meses (1 a 24)
+           <input type="number" min={1} max={24} step={1} placeholder="Ex.: 3 meses" value={monthsOf(draft.duration_days)}
+            onChange={e=>{if(e.target.value)changeDuration(monthsToDays(Number(e.target.value)));}}/></label>
+          <div className="pv2-info">Os meses são convertidos em dias contratuais (1 mês = 30 dias; 12 meses = 365 dias). A referência comercial do modelo continua no identificador {draft.slug}.</div></>}
         <label>Título comercial<input  value={draft.marketing_title??''} maxLength={65}
          placeholder={name({...draft,marketing_title:null})} onChange={e=>update({marketing_title:e.target.value})}/></label>
         <label>Legenda mostrada abaixo do preço<input  value={draft.marketing_duration_caption||''} maxLength={80}
@@ -240,11 +266,28 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
          maxLength={40} placeholder="Sem preço" onChange={e=>update({marketing_unpriced_label:e.target.value})}/></label>
         <p>Essa mensagem é usada no catálogo administrativo enquanto o plano está sem preço. Não substitui o valor real exigido para publicar ou cobrar.</p>
         <div className="pv2-info"><strong>{freeTrial?'Teste gratuito selecionado — R$ 0,00':'Pix mínimo: R$ 2,00'}</strong> {freeTrial?'Ao salvar, esse teste será configurado por R$ 0,00, sem cobrança ou Pix.':'Marque “Teste gratuito (sem Pix)” para disponibilizar um teste sem pagamento. Planos pagos exigem pelo menos R$ 2,00.'}</div>
-        <p>Os preços de pedidos e licenças já contratados não mudam com esta edição.</p>
+        <p>O valor de pedidos já criados não muda. A oferta relâmpago vale apenas para novas cobranças enquanto estiver ativa.</p>
+       </section>
+       <section hidden={tab!=='offer'} className="pv2-panel">
+        <h3>Oferta relâmpago real</h3>
+        <p>Defina preço promocional e encerramento verdadeiro. Ao vencer, o sistema volta automaticamente ao preço regular nas novas cobranças. Sem contagem fictícia de vagas.</p>
+        {trial(draft)?<div className="pv2-info">Ofertas relâmpago não se aplicam aos modelos de teste.</div>:<>
+         <label>Preço promocional (R$)
+          <input type="number" min={2} step="0.01" inputMode="decimal" placeholder="Ex.: 29.90" value={flashPrice}
+           onChange={e=>setFlashPrice(e.target.value)}/></label>
+         <label>Termina em (horário de Brasília)
+          <input type="datetime-local" value={flashEnd} onChange={e=>setFlashEnd(e.target.value)}/></label>
+         <label>Chamada da oferta
+          <input maxLength={48} value={draft.flash_label||''} placeholder="Oferta de lançamento · até domingo"
+           onChange={e=>update({flash_label:e.target.value})}/></label>
+         <div className="pv2-info">Oferta: {flashPrice?money(Math.round(Number(flashPrice)*100)):'Não configurada'}; preço normal {price?money(Math.round(Number(price)*100)):'não definido'}. Válida somente até a data configurada.</div>
+         <button type="button" className="pv2-outline" onClick={()=>{setFlashPrice('');setFlashEnd('');update({flash_label:''})}}>Desativar oferta</button>
+        </>}
        </section>
        <section hidden={tab!=='license'} className="pv2-panel">
         <h3>Configuração da licença</h3><p>Como o acesso será liberado quando o pagamento for confirmado.</p>
         <div className="pv2-info"><strong>Prazo contratado:</strong> {duration(draft)}</div>
+        <div className="pv2-info">Quando você aumentar a duração, licenças ativas vinculadas a compras pagas desse modelo recebem os dias adicionais, com auditoria e sem duplicação. Reduções nunca encurtam contratos já pagos. Licenças administrativas sem compra vinculada não são modificadas automaticamente.</div>
         <div className="pv2-info"><strong>Ativação:</strong> o prazo é incorporado à licença após confirmação da PaggPay.</div>
         <div className="pv2-info"><strong>Dispositivos:</strong> o limite ainda é gerenciado por cliente na área de Licenças, não individualmente por plano.</div>
         <Link className="pv2-textlink" href="/admin/licencas">Abrir gerenciamento de licenças ↗</Link>
@@ -286,6 +329,6 @@ export function PlansCatalogEditor({plans,initialEdit,flash}:{plans:Plan[];initi
      </form>
     </>}
    </aside>
-  </div>}
+  </div>,portalRoot)}
  </div>;
 }
