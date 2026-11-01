@@ -1,4 +1,5 @@
 import {createClient} from '@supabase/supabase-js';
+import {unstable_cache} from 'next/cache';
 
 /** Copy-only marketing catalogue; never changes license, pricing, entitlements or checkout. */
 export type Campaign={
@@ -6,7 +7,7 @@ export type Campaign={
  description:string;badge:string;cta_text:string;features:string[];
  updated_at?:string
 };
-export async function getPublicCampaigns():Promise<Campaign[]>{
+async function loadPublicCampaigns():Promise<Campaign[]>{
  const url=process.env.NEXT_PUBLIC_SUPABASE_URL;
  const key=process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
  if(!url||!key)return [];
@@ -18,6 +19,10 @@ export async function getPublicCampaigns():Promise<Campaign[]>{
  return (data||[]).filter((c):c is Campaign=>['Gold','Pro'].includes(c.tier)
   && Array.isArray(c.features)&&c.features.every((x:unknown)=>typeof x==='string'));
 }
+/** Cache apenas de dados públicos. A edição administrativa invalida a tag imediatamente. */
+export const getPublicCampaigns=unstable_cache(loadPublicCampaigns,['aeromind-public-campaigns'],
+ {revalidate:60,tags:['aeromind-public-campaigns']});
+
 export async function getPublicCampaign(tier:'Pro'|'Gold'):Promise<Campaign|null>{
  const campaigns=await getPublicCampaigns();
  return campaigns.find(x=>x.tier===tier)||null;
