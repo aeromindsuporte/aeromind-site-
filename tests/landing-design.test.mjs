@@ -74,8 +74,8 @@ test('visual mobile preserva três demonstrações compactas ao lado dos textos'
 test('landing não interfere nos planos e ainda mantém a chamada à compra',()=>{
  const page=read('app/page.tsx');
  const css=read('app/landing-neon.css');
- assert.match(page,/<Link href="\/planos" className="nl-btn nl-btn-header"/);
- assert.match(page,/<Link href="\/planos" className="nl-btn nl-btn-primary"/);
+ assert.match(page,/<LandingAccountLink guestHref="\/planos" guestLabel="Começar agora" className="nl-btn nl-btn-header"/);
+ assert.match(page,/<LandingAccountLink guestHref="\/planos" guestLabel="Começar agora" className="nl-btn nl-btn-primary"/);
  assert.ok(css.includes('.nl-site'));
  assert.ok(!css.includes('.account-root{'));
  assert.ok(!css.includes('.admin-root{'));
