@@ -31,7 +31,9 @@ export function pixProvider():PixProvider|null{
  return null; // Provedor não reconhecido: bloquear Pix, nunca usar a chave antiga por engano.
 }
 function activeApiKey():string|undefined{
- return pixProvider()==='paggone'?process.env.PAGGONE_API_KEY:process.env.PAGGPAY_API_KEY;
+ const provider=pixProvider();
+ if(provider===null)return undefined;
+ return provider==='paggone'?process.env.PAGGONE_API_KEY:process.env.PAGGPAY_API_KEY;
 }
 export function activePixBaseUrl():string{
  if(!pixProvider())throw new Error('Provedor Pix não reconhecido');
@@ -49,13 +51,14 @@ export function isSandboxKeyCompatible(key:string|undefined):boolean{
  return usableKey(key)&&!key!.startsWith('pp_live_');
 }
 export function sandboxConfigured():boolean{
- return process.env.PAGGPAY_MODE==='sandbox' && isSandboxKeyCompatible(activeApiKey()) &&
+ return pixProvider()!==null && process.env.PAGGPAY_MODE==='sandbox' && isSandboxKeyCompatible(activeApiKey()) &&
  !!activeWebhookSecret() && isAeromindCallback(process.env.PAGGPAY_WEBHOOK_URL) &&
  !!process.env.SUPABASE_SERVICE_ROLE_KEY;
 }
 // Modo live: seleção explícita, implantação production, chave do provedor
 // escolhido, segredo HMAC e URL AeroMind. Não depende só da chave estar presente.
 export function liveConfigured():boolean{
+ if(pixProvider()===null)return false;
  const key=activeApiKey();
  const validKey=pixProvider()==='paggone'?usableKey(key):key?.startsWith('pp_live_')===true;
  return process.env.VERCEL_ENV==='production' && process.env.PAGGPAY_MODE==='live'
