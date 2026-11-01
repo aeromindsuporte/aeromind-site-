@@ -5,16 +5,16 @@ import {PlansCatalogEditor,type Plan} from '@/components/admin/PlansCatalogEdito
 import './plans-v2.css';
 export const dynamic='force-dynamic';
 
-export default async function AdminPlans({searchParams}:{searchParams:Promise<{msg?:string,editar?:string}>}){
+export default async function AdminPlans({searchParams}:{searchParams:Promise<{msg?:string,editar?:string,extended?:string}>}){
  const {sb}=await requireAdmin();
- const {msg,editar}=await searchParams;
+ const {msg,editar,extended}=await searchParams;
  const {data,error}=await sb.rpc('aeromind_admin_all_plans');
  const plans=(Array.isArray(data)?data:[]) as Plan[];
- const feedback=msg==='plan-saved'?'Alterações salvas no Supabase. Os novos dados já estão disponíveis nas páginas de vendas.':
+ const feedback=msg==='plan-saved'?'Plano salvo no Supabase. Novas compras usam os dias e preços atualizados. '+(Number(extended)>0?extended+' licença(s) de compras pagas receberam os dias adicionais.':'Nenhuma licença de compra paga precisou de extensão.'):
   msg==='price'?'Para publicar, use R$ 2,00 ou mais no Pix. Para um teste gratuito, marque “Teste gratuito (sem Pix)” e publique por R$ 0,00.':
   msg==='invalid'?'Dados inválidos. Para publicar gratuitamente, escolha um plano de teste, marque “Teste gratuito (sem Pix)” na aba Preço e confira a duração.':
   msg==='plan-price'?'Preço inválido: teste grátis exige R$ 0,00; planos pagos têm Pix mínimo de R$ 2,00.':
-  msg==='plan-duration'?'Duração inválida: de 1 a 72 horas ou de 1 a 30 dias.':
+  msg==='plan-duration'?'Duração inválida: planos comerciais aceitam 1 a 730 dias; testes aceitam 1 a 72 horas ou 1 a 30 dias.':
   msg==='plan-benefits'?'Limite de benefícios: até 8 linhas com 115 caracteres cada.':
   msg==='plan-text'?'Texto grande demais. Encurte título, descrição, selo, legenda ou botão do plano.':
   msg==='plan-validation'?'O banco rejeitou uma regra do plano. Confira duração, preço, campos de divulgação e o modo Teste gratuito.':
