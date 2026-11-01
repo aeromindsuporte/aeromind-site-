@@ -20,22 +20,43 @@ export function isAeromindCallback(raw:string|undefined):boolean {
  }catch{return false;}
 }
 
+// Migração sem interrupção: o provedor antigo permanece padrão até o operador
+// cadastrar PAGGONE_API_KEY e selecionar PAGGPAY_PROVIDER=paggone na Vercel.
+// As duas credenciais nunca se misturam nem são enviadas para outro provedor.
+export type PixProvider = 'paggpay'|'paggone';
+export function pixProvider():PixProvider{
+ return process.env.PAGGPAY_PROVIDER==='paggone'?'paggone':'paggpay';
+}
+function activeApiKey():string|undefined{
+ return pixProvider()==='paggone'?process.env.PAGGONE_API_KEY:process.env.PAGGPAY_API_KEY;
+}
+export function activePixBaseUrl():string{
+ if(process.env.PAGGPAY_MODE==='sandbox')return 'https://sandbox-api.paggpay.com/v1';
+ return pixProvider()==='paggone'?'https://api.paggone.com/v1':'https://api.paggpay.com/v1';
+}
+export function activeWebhookSecret():string|undefined{
+ return process.env.PAGGPAY_WEBHOOK_SECRET;
+}
+const usableKey=(key:string|undefined)=>typeof key==='string'&&key.length>=12&&key.length<=4096&&!/\s/.test(key);
+
 // Uma chave pp_live_ nunca pode ser enviada ao endpoint sandbox.
-// Ser compatível com o sandbox não significa credencial válida: isso depende de homologação.
+// Não assumir prefixo específico para as chaves da API paggOne.
 export function isSandboxKeyCompatible(key:string|undefined):boolean{
- return !!key && !key.startsWith('pp_live_');
+ return usableKey(key)&&!key!.startsWith('pp_live_');
 }
 export function sandboxConfigured():boolean{
- return process.env.PAGGPAY_MODE==='sandbox' && isSandboxKeyCompatible(process.env.PAGGPAY_API_KEY) &&
- !!process.env.PAGGPAY_WEBHOOK_SECRET && isAeromindCallback(process.env.PAGGPAY_WEBHOOK_URL) &&
+ return process.env.PAGGPAY_MODE==='sandbox' && isSandboxKeyCompatible(activeApiKey()) &&
+ !!activeWebhookSecret() && isAeromindCallback(process.env.PAGGPAY_WEBHOOK_URL) &&
  !!process.env.SUPABASE_SERVICE_ROLE_KEY;
 }
-// O modo live é um controle explícito de servidor: a presença da chave
-// sozinha nunca libera clientes ou cobranças.
+// Modo live: seleção explícita, implantação production, chave do provedor
+// escolhido, segredo HMAC e URL AeroMind. Não depende só da chave estar presente.
 export function liveConfigured():boolean{
+ const key=activeApiKey();
+ const validKey=pixProvider()==='paggone'?usableKey(key):key?.startsWith('pp_live_')===true;
  return process.env.VERCEL_ENV==='production' && process.env.PAGGPAY_MODE==='live'
-  && process.env.PAGGPAY_API_KEY?.startsWith('pp_live_')===true
-  && !!process.env.PAGGPAY_WEBHOOK_SECRET
+  && validKey
+  && !!activeWebhookSecret()
   && isAeromindCallback(process.env.PAGGPAY_WEBHOOK_URL)
   && !!process.env.SUPABASE_SERVICE_ROLE_KEY;
 }
@@ -45,7 +66,7 @@ export function paymentEnvironment(): 'live'|'sandbox'|null {
 }
 export class GatewayError extends Error{
  public httpStatus:number;
- constructor(httpStatus:number,message='Falha temporária ao consultar a PaggPay'){
+ constructor(httpStatus:number,message='Falha temporária ao consultar o provedor Pix'){
   super(message);this.httpStatus=httpStatus;
  }
 }
@@ -96,20 +117,20 @@ export function paymentConfirmed(pix:VerifiedPix):boolean{return pix.status==='s
 export async function paggpayFetch(path:string,body?:Data,timeoutMs=15_000):Promise<unknown>{
  if(!paymentConfigured())throw new GatewayError(503,'Pix desativado.');
  if(!/^\/(?:pix|transactions)(?:\/[A-Za-z0-9_%.-]+)?$/.test(path))throw new Error('Rota PaggPay não autorizada');
- const headers:Record<string,string>={Authorization:'Bearer '+process.env.PAGGPAY_API_KEY,
+ const headers:Record<string,string>={Authorization:'Bearer '+activeApiKey(),
   'Content-Type':'application/json',Accept:'application/json'};
  if(body&&path==='/pix'&&(!Number.isSafeInteger(body.value)||Number(body.value)<MIN_PIX_CENTS))
   throw new GatewayError(400,'Valor Pix abaixo do mínimo de R$ 2,00');
- if(body)headers['X-Paggpay-Webhook-Secret']=process.env.PAGGPAY_WEBHOOK_SECRET!;
+ if(body)headers['X-Paggpay-Webhook-Secret']=activeWebhookSecret()!;
  let response:Response;
  try {
-  response=await fetch((liveConfigured()?'https://api.paggpay.com/v1':'https://sandbox-api.paggpay.com/v1')+path,{
+  response=await fetch(activePixBaseUrl()+path,{
    method:body?'POST':'GET',headers,cache:'no-store',
    ...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(timeoutMs),
   });
- }catch{throw new GatewayError(504,'Tempo limite ou erro de rede da PaggPay. Não gere nova cobrança.');}
- if(!response.ok)throw new GatewayError(response.status,'Resposta de erro do provedor PaggPay');
- try{return await response.json();}catch{throw new GatewayError(502,'Resposta JSON desconhecida da PaggPay');}
+ }catch{throw new GatewayError(504,'Tempo limite ou erro de rede do provedor Pix. Não gere nova cobrança.');}
+ if(!response.ok)throw new GatewayError(response.status,'Resposta de erro do provedor Pix');
+ try{return await response.json();}catch{throw new GatewayError(502,'Resposta JSON desconhecida do provedor Pix');}
 }
 export async function getPaggpayPix(id:string):Promise<unknown>{
  if(!ID_PATTERN.test(id))throw new Error('ID PaggPay inválido');
@@ -136,9 +157,9 @@ export async function locatePixByReference(referenceId:string,amountCents:number
  for(let page=1;page<=3;page++){
   let response:Response;
   try{
-   response=await fetch('https://api.paggpay.com/v1/transactions?page='+page+'&per_page=100',{
+   response=await fetch(activePixBaseUrl()+'/transactions?page='+page+'&per_page=100',{
     method:'GET',
-    headers:{Authorization:'Bearer '+process.env.PAGGPAY_API_KEY,Accept:'application/json'},
+    headers:{Authorization:'Bearer '+activeApiKey(),Accept:'application/json'},
     cache:'no-store',redirect:'error',signal:AbortSignal.timeout(10_000)
    });
   }catch{return {kind:'unavailable',pagesChecked};}
