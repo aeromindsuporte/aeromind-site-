@@ -51,8 +51,8 @@ export default async function Conta() {
     x=>!x.expires_at||new Date(x.expires_at).getTime()>serverNow).length;
 
   return <main className="account-root">
-    <header className="account-header">
-      <Link href="/" className="auth-logo"><img src="/images/aeromind-mark.svg" alt="" width="40" height="40"/> AeroMind</Link>
+    <header className="account-header account-header-with-panel">
+      <Link href="/" className="auth-logo"><img src="/images/aeromind-mark.svg" alt="" width="40" height="40"/> <span className="account-brand-text">AeroMind</span></Link>
       <nav className="account-header-actions" aria-label="Ações da conta">
         {isStaff&&<Link href="/admin" className="account-panel-link" aria-label="Abrir painel administrativo">
           <svg aria-hidden="true" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
