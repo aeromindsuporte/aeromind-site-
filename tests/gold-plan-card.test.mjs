@@ -35,3 +35,24 @@ test('página Gold oferece os períodos realmente publicados e informa recursos 
  const css=read('app/gold/gold.css');
  assert.match(css,/\.ag-mode-grid/);
 });
+
+
+test('planos distinguem benefício incluído, exclusivo Gold e benefício em implantação',()=>{
+ const page=read('app/planos/page.tsx'), css=read('public/design-v2.css');
+ assert.match(page,/function formatBenefits\(/);
+ assert.match(page,/function BenefitList\(/);
+ assert.match(page,/feature-state/);
+ assert.match(page,/item\.state==='locked'\?'✕'/);
+ assert.match(page,/item\.state==='included'\?'✓'/);
+ assert.match(page,/item\.state==='locked'\?'Só no Gold':'Em implantação'/);
+ assert.match(page,/alto risco e agenda completa/i);
+ assert.match(page,/goldOnlyExtras/);
+ assert.match(page,/futureBenefit/);
+ assert.match(page,/BenefitList tier=\{card.tier\}/);
+ assert.doesNotMatch(page,/<li key=\{i\}>✓ \{feature\}<\/li>/);
+ assert.match(css,/\.am-plan \.am-plan-feature-list > li::before\{content:none!important;display:none!important\}/);
+ assert.match(css,/\.am-feature-locked \.am-feature-state/);
+ assert.match(css,/\.am-feature-planned \.am-feature-state/);
+ assert.match(css,/\.am-feature-included|\.am-feature-state/);
+ assert.match(page,/Deslize para o lado/);
+});
