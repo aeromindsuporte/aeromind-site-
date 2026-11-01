@@ -13,6 +13,59 @@ const cards=[
  {tier:'Ultra' as const, css:'am-plan-gold',icon:'✦',desc:'A experiência mais completa do AeroMind',features:['Tudo do Pro','Radar Rosa: até 7 sinais por hora','Alto Risco e agenda do dia','Sinais Premium do administrador','Suporte prioritário e Comunidade Gold']}
 ];
 
+type PlanTier = 'Básico' | 'Pro' | 'Ultra';
+type BenefitState = 'included' | 'locked' | 'planned';
+type BenefitItem = {label:string;state:BenefitState};
+
+const goldOnlyBenefit=/alto risco|agenda completa|sinais? premium|notificaç(?:ão|ões).*premium|suporte prioritário|comunidade gold|lives? exclusiv|50x/i;
+const futureBenefit=/em implantação|em desenvolvimento|planejad|quando dispon[ií]ve(?:l|is)|quando programad/i;
+const goldOnlyExtras=[
+ 'Sinais Premium do administrador',
+ 'Suporte prioritário',
+ 'Comunidade Gold VIP e lives',
+ 'Estudos especiais com alvo de até 50x'
+];
+
+/** Os textos permanecem editáveis no painel; a permissão não é inferida de um ✓ visual. */
+function formatBenefits(tier:PlanTier,features:string[]):BenefitItem[]{
+ const list=features.flatMap((feature):string[]=>{
+  if(tier!=='Ultra'&&/alto risco e agenda completa/i.test(feature)){
+   return ['Sinais de Alto Risco','Agenda completa dos sinais do dia'];
+  }
+  return [feature];
+ });
+ if(tier!=='Ultra'){
+  for(const extra of ['Sinais de Alto Risco','Agenda completa dos sinais do dia',...goldOnlyExtras]){
+   const existing=extra.startsWith('Sinais de Alto Risco')?/alto risco/i:
+    extra.startsWith('Agenda completa')?/agenda completa/i:
+    extra.startsWith('Sinais Premium')?/sinais? premium/i:
+    extra.startsWith('Suporte prioritário')?/suporte prioritário/i:
+    extra.startsWith('Comunidade Gold')?/comunidade gold/i:/50x/i;
+   if(!list.some(feature=>existing.test(feature)))list.push(extra);
+  }
+ }
+ return list.map(feature=>{
+  const state:BenefitState=tier!=='Ultra'&&goldOnlyBenefit.test(feature)?'locked':
+   futureBenefit.test(feature)?'planned':'included';
+  const label=feature
+   .replace(/\s*\(em implantação\)/ig,'')
+   .replace(/,?\s*quando dispon[ií]veis/ig,'')
+   .replace(/,?\s*quando programad[oa]s/ig,'')
+   .replace(/\s*[—-]?\s*são exclusivos Gold/ig,'')
+   .trim();
+  return {label,state};
+ }).sort((a,b)=>({included:0,planned:1,locked:2}[a.state]-{included:0,planned:1,locked:2}[b.state]));
+}
+
+function BenefitList({tier,features}:{tier:PlanTier;features:string[]}){
+ const items=formatBenefits(tier,features);
+ return <ul className="am-plan-feature-list">{items.map((item,i)=><li key={i} className={'am-feature-'+item.state}>
+  <span className="am-feature-state" aria-hidden="true">{item.state==='included'?'✓':item.state==='locked'?'✕':'◷'}</span>
+  <span className="am-feature-text">{item.label}</span>
+  {item.state!=='included'&&<span className="am-feature-status">{item.state==='locked'?'Só no Gold':'Em implantação'}</span>}
+ </li>)}</ul>;
+}
+
 export default async function Plans({searchParams}:{searchParams:Promise<{periodo?:string}>}) {
  const params=await searchParams;
  const choices=[{slug:'mensal',days:30,label:'Mensal'},{slug:'trimestral',days:90,label:'Trimestral'},{slug:'semestral',days:180,label:'Semestral'},{slug:'anual',days:365,label:'Anual'}];
@@ -33,9 +86,11 @@ export default async function Plans({searchParams}:{searchParams:Promise<{period
    <Link href="/#planos" className="am-btn am-outline am-compact" style={{marginBottom:26}}>← Voltar ao início</Link>
    <section className="am-plans" style={{paddingTop:20}}>
     <div className="am-plans-intro"><span className="am-eyebrow">✦ SUA EXPERIÊNCIA AEROMIND, DO SEU JEITO</span><h1 style={{fontSize:'clamp(34px,4vw,56px)',margin:'4px 0 18px'}}>Mais clareza. Mais recursos. <span style={{color:'#ffd68b'}}>Mais AeroMind.</span></h1><p>Escolha quanto deseja acompanhar: <strong>Básico com até 3</strong>, <strong>Pro com até 5</strong> ou <strong>Gold com até 7 sinais do Radar Rosa por hora</strong>. Veja o que cada licença inclui e escolha seu período de acesso.</p>
+    <div className="am-benefit-legend" aria-label="Legenda dos benefícios"><span><b className="am-legend-included">✓</b> Incluído</span><span><b className="am-legend-locked">✕</b> Só no Gold</span><span><b className="am-legend-planned">◷</b> Em implantação</span></div>
     <div className="am-plan-toggle" aria-label="Selecionar duração">
       {choices.map(c=><Link key={c.slug} className={selected===c.slug?'am-active-period':''} href={'/planos?periodo='+c.slug} aria-current={selected===c.slug?'page':undefined}>{c.label}</Link>)}
     </div></div>
+    <p className="am-swipe-plans">Deslize para o lado e compare os três planos <span aria-hidden="true">→</span></p>
     <div className="am-plans-cards">
       {cards.map(card=>{
         // Gold é o novo nome comercial do card Ultra; o tier interno é preservado
@@ -49,7 +104,7 @@ export default async function Plans({searchParams}:{searchParams:Promise<{period
          <h3>Pro</h3><strong>Em configuração</strong>
          <small>Preço e venda ainda não publicados</small>
          <p>{proCampaign.description}</p>
-         <ul>{proCampaign.features.slice(0,5).map((feature,i)=><li key={i}>✓ {feature}</li>)}</ul>
+         <BenefitList tier="Pro" features={proCampaign.features.slice(0,5)}/>
          <span className="am-btn am-outline">{proCampaign.cta_text} →</span>
         </Link>:null;
         return <article className={'am-plan '+card.css} key={card.tier}>
@@ -58,7 +113,8 @@ export default async function Plans({searchParams}:{searchParams:Promise<{period
         <strong>{plan?formattedPrice(effectivePriceCents(plan)):'Em definição'}</strong>
         <small>{plan?durationLabelOf(plan):'Preço não publicado'}</small>
         {plan&&isFlashActive(plan)&&<><FlashCountdown endsAt={plan.flash_ends_at!} label={plan.flash_label||'Oferta relâmpago'}/><small>Preço regular após o prazo: {formattedPrice(plan.price_cents)}</small></>}
-        <p>{plan?descriptionOf(plan):card.desc}</p><ul>{(plan?benefitsOf(plan):card.features).map((feature,i)=><li key={i}>✓ {feature}</li>)}</ul>
+        <p>{plan?descriptionOf(plan):card.desc}</p>
+        <BenefitList tier={card.tier} features={plan?benefitsOf(plan):card.features}/>
         {plan?<Link href={'/checkout?plano='+encodeURIComponent(plan.slug)} className={'am-btn '+(plan.marketing_highlight?'am-fill':'am-outline')}>{plan.marketing_cta||'Garantir meu acesso'} →</Link>:<span className="am-btn am-outline" aria-disabled="true">Indisponível</span>}
         </article>
       })}
@@ -71,7 +127,7 @@ export default async function Plans({searchParams}:{searchParams:Promise<{period
      <span className="am-plan-icon">◷</span><h3>{p.marketing_title||(p.slug==='teste-horas'?'Teste por horas':'Teste por dias')}</h3>
      <strong>{formattedPrice(effectivePriceCents(p))}</strong><small>{durationLabelOf(p)}</small>
      <p>{descriptionOf(p)}</p>
-     <ul>{benefitsOf(p).map((feature,i)=><li key={i}>✓ {feature}</li>)}</ul>
+     <BenefitList tier={p.tier} features={benefitsOf(p)}/>
      <Link className={'am-btn '+(p.marketing_highlight?'am-fill':'am-outline')} href={(p.price_cents===0?'/teste-gratis?plano=':'/checkout?plano=')+encodeURIComponent(p.slug)}>{p.marketing_cta||'Experimentar'} →</Link>
     </article>)}</div>
    </section>}
