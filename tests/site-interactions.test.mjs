@@ -38,3 +38,25 @@ test('catálogo público reutiliza cache com invalidação após salvar',()=>{
  assert.match(campaigns,/unstable_cache\(loadPublicCampaigns/);
  assert.match(action,/revalidateTag\('aeromind-public-campaigns'\)/);
 });
+
+test('páginas legais têm informações úteis e não dizem que checkout publicado está desativado',()=>{
+ const legal=read('app/[slug]/page.tsx');
+ const checkout=read('app/checkout/page.tsx');
+ const home=read('app/page.tsx');
+ const auth=read('components/auth/AuthShell.tsx');
+ assert.match(legal,/Direito de arrependimento/);
+ assert.match(legal,/7 dias/);
+ assert.match(legal,/Política de privacidade/);
+ assert.match(legal,/PaggOne/);
+ assert.match(legal,/dados cadastrais e endereço físico/i);
+ assert.doesNotMatch(legal,/A contratação permanece indisponível|pagamentos permanecem desativados|documento jurídico em elaboração/i);
+ assert.match(checkout,/href="\/reembolso"/);
+ assert.match(home,/href="\/reembolso"/);
+ assert.match(auth,/href="\/planos"/);
+ assert.doesNotMatch(auth,/href="\/#contato"|href="\/#planos"/);
+});
+test('checkout não menciona PaggPay como provedor comercial obrigatório',()=>{
+ const form=read('components/checkout/PixCheckoutForm.tsx');
+ assert.match(form,/Pagamento via Pix com provedor externo/);
+ assert.doesNotMatch(form,/Pagamento via PaggPay/);
+});
