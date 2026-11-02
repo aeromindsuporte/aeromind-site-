@@ -56,9 +56,16 @@ test('layout responsivo nas duas caixas de conversa',()=>{
 test('botão flutuante do ADM mostra atendimentos com mensagens não lidas',()=>{
  const widget=source('components/support/AdminFloatingSupport.tsx');
  const shell=source('components/admin/CommercialAdminShell.tsx');
+ const shared=source('components/support/SupportChat.tsx');
+ const root=source('app/layout.tsx');
+ const main=source('app/admin/page.tsx');
  const styles=source('components/support/admin-floating-support.css');
- assert.match(shell,/import \{AdminFloatingSupport\}/);
- assert.match(shell,/<AdminFloatingSupport\/>/);
+ assert.match(root,/<SupportFloatingChat\/>/);
+ assert.match(shared,/if\(route\?\.startsWith\('\/admin'\)\)return <AdminFloatingSupport\/>/);
+ assert.match(shared,/if\(route==='\/suporte'\)return null/);
+ assert.doesNotMatch(shell,/<AdminFloatingSupport\/>/);
+ assert.doesNotMatch(main,/<AdminFloatingSupport\/>/);
+ assert.match(main,/admin-root area-/);
  assert.match(widget,/Atendimento aos clientes/);
  assert.match(widget,/aeromind_support_chat_unread_count/);
  assert.match(widget,/aria-expanded=\{open\}/);
