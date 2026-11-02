@@ -83,7 +83,7 @@ export default async function Plans({searchParams}:{searchParams:Promise<{period
    <div className="am-header-actions"><Link href="/entrar" className="am-btn am-outline am-compact">Entrar</Link><Link href="/cadastro" className="am-btn am-fill am-compact">Criar conta →</Link></div>
   </div></header>
   <main className="am-shell" style={{paddingTop:55,paddingBottom:100}}>
-   <Link href="/#planos" className="am-btn am-outline am-compact" style={{marginBottom:26}}>← Voltar ao início</Link>
+   <Link href="/#versoes" className="am-btn am-outline am-compact" style={{marginBottom:26}}>← Voltar ao início</Link>
    <section className="am-plans" style={{paddingTop:20}}>
     <div className="am-plans-intro"><span className="am-eyebrow">✦ SUA EXPERIÊNCIA AEROMIND, DO SEU JEITO</span><h1 style={{fontSize:'clamp(34px,4vw,56px)',margin:'4px 0 18px'}}>Mais clareza. Mais recursos. <span style={{color:'#ffd68b'}}>Mais AeroMind.</span></h1><p>Escolha quanto deseja acompanhar: <strong>Básico com até 3</strong>, <strong>Pro com até 5</strong> ou <strong>Gold com até 7 sinais do Radar Rosa por hora</strong>. Veja o que cada licença inclui e escolha seu período de acesso.</p>
     <div className="am-benefit-legend" aria-label="Legenda dos benefícios"><span><b className="am-legend-included">✓</b> Incluído</span><span><b className="am-legend-locked">✕</b> Só no Gold</span><span><b className="am-legend-planned">◷</b> Em implantação</span></div>
@@ -135,6 +135,6 @@ export default async function Plans({searchParams}:{searchParams:Promise<{period
    <p className="am-price-notice">ℹ Criar uma conta não libera o monitor. É necessária uma licença ativa. Nenhum resultado histórico garante ganhos.</p>
    <p className="am-price-note" style={{marginTop:20}}>Os preços e recursos são configurados pelo administrador. Pagamentos são processados por Pix e a licença só é liberada após confirmação pelo servidor.</p>
   </main>
-  <footer className="am-footer"><div className="am-shell am-footer-note">© 2026 AeroMind · Uso responsável · <Link href="/privacidade">Privacidade</Link> · <Link href="/termos">Termos de uso</Link></div></footer>
+  <footer className="am-footer"><div className="am-shell am-footer-note">© 2026 AeroMind · Uso responsável · <Link href="/privacidade">Privacidade</Link> · <Link href="/termos">Termos de uso</Link> · <Link href="/reembolso">Reembolso e cancelamento</Link> · <Link href="/contato">Contato</Link></div></footer>
  </div></>;
 }
