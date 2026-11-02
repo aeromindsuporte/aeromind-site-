@@ -83,7 +83,9 @@ test('janela compacta mantém lista e conversa separadas e só marca lida quando
  assert.match(chat,/compact=false/);
  assert.match(chat,/compact\?null:initialTicket\|\|null/);
  assert.match(chat,/compact\?'inbox':'conversation'/);
- assert.match(chat,/compact\?null:list\[0\]\?\.id/);
+ assert.match(chat,/const id=idRef\.current&&list\.some/);
+ assert.doesNotMatch(chat,/list\[0\]\?\.id\|\|null/);
+ assert.match(chat,/Never select a ticket implicitly/);
  assert.match(chat,/if\(compact\)setMobileView\('conversation'\)/);
  assert.match(chat,/aeromind_support_chat_seen/);
  assert.match(chat,/function backToInbox\(/);
@@ -92,4 +94,21 @@ test('janela compacta mantém lista e conversa separadas e só marca lida quando
  assert.match(chat,/viewport\?\.scrollTo/);
  assert.match(chat,/aeromind_support_chat_send/);
  assert.match(chat,/aeromind_support_chat_set_status/);
+});
+
+test('avisos de novas mensagens ficam visíveis nos dois botões antes de abrir o chat',()=>{
+ const user=source('components/support/SupportChat.tsx');
+ const staff=source('components/support/AdminFloatingSupport.tsx');
+ const userCss=source('components/support/support-chat.css');
+ const staffCss=source('components/support/admin-floating-support.css');
+ assert.match(user,/combinedUnread>0&&<button type="button" className="sc-new-message-alert"/);
+ assert.match(user,/Você recebeu uma nova mensagem/);
+ assert.match(user,/window\.addEventListener\('focus',onFocus\)/);
+ assert.match(user,/if\(!chatError\)setUnread/);
+ assert.match(staff,/ready&&unread>0&&<button type="button" className="asf-incoming-alert"/);
+ assert.match(staff,/Nova mensagem de cliente/);
+ assert.match(staff,/visibilitychange/);
+ assert.match(staff,/if\(error\)\{setLastError\(true\);return;\}/);
+ assert.match(userCss,/\.sc-new-message-alert/);
+ assert.match(staffCss,/\.asf-incoming-alert/);
 });
