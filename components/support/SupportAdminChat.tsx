@@ -61,7 +61,13 @@ export function SupportAdminChat({initialTicket,compact=false}:{initialTicket?:s
   const timer=window.setInterval(()=>{void refresh()},10000);
   return ()=>window.clearInterval(timer);
  },[refresh]);
- useEffect(()=>{bottom.current?.scrollIntoView({behavior:'smooth',block:'end'})},[messages.length,selected]);
+ useEffect(()=>{
+  if(!bottom.current)return;
+  if(compact){
+   const viewport=bottom.current.parentElement;
+   viewport?.scrollTo({top:viewport.scrollHeight,behavior:'smooth'});
+  }else bottom.current.scrollIntoView({behavior:'smooth',block:'end'});
+ },[messages.length,selected,compact]);
 
  async function pick(id:string){
   idRef.current=id;setSelected(id);setMessages([]);setError('');
