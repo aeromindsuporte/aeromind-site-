@@ -21,8 +21,14 @@ const nav=[
  ['/admin/cupons','Cupons','◇'],
  ['/admin/pagamentos','Pagamentos','▣'],
  ['/admin/relatorios','Relatórios','▥'],
- ['/admin/suporte','Suporte','✉']
+ ['/admin/suporte','Suporte','✉'],
+ ['/admin/feedback','Sugestões e feedback','💡']
 ] as const;
+async function FeedbackNewBadge(){
+ const sb=await createClient();
+ const {count,error}=await sb.from('aeromind_feedback').select('id',{count:'exact',head:true}).eq('status','novo');
+ return !error&&count&&count>0?<span className="admin-alert-badge" aria-label={count+' sugestões aguardando análise'}>{count>99?'99+':count}</span>:null;
+}
 async function DevicePendingCount(){
  const sb=await createClient();
  const {count,error}=await sb.from('aeromind_device_activity').select('id',{count:'exact',head:true}).is('reviewed_at',null);
@@ -48,6 +54,7 @@ return <div className="admin-root admin-commercial">
      <span className="admin-nav-icon" aria-hidden="true">{icon}</span>{label}
      {href==='/admin/movimentacoes'&&<DevicePendingCount/>}
      {href==='/admin/suporte'&&<SupportUnreadBadge/>}
+     {href==='/admin/feedback'&&<FeedbackNewBadge/>}
     </Link>)}
    </nav>
    <div className="admin-sidebar-foot"><span>Site e suporte</span><Link href="/">↗ Ver site</Link><Link href="/minha-conta">◀ Minha conta</Link></div>
