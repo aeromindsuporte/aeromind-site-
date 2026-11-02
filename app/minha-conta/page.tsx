@@ -23,14 +23,16 @@ export default async function Conta() {
   const {data:{user},error} = await client.auth.getUser();
   if (error || !user) redirect('/entrar?next=%2Fminha-conta');
 
-  const [profileResult,licenseResult,validResult,staffResult,notificationsResult,goldResult] = await Promise.all([
+  const [profileResult,licenseResult,validResult,staffResult,notificationsResult,goldResult,feedbackUnreadResult] = await Promise.all([
     client.from('profiles').select('display_name,whatsapp_e164,whatsapp_marketing_opt_in').eq('id',user.id).maybeSingle(),
     client.from('licenses').select('id,plan_name,status,valid_until,created_at')
       .eq('user_id',user.id).order('created_at',{ascending:false}).limit(10),
     client.rpc('aeromind_has_active_license'),
     client.from('aeromind_staff').select('role').eq('user_id',user.id).maybeSingle(),
     client.from('aeromind_notification_deliveries').select('id,expires_at').eq('user_id',user.id).is('read_at',null).limit(1000),
-    client.rpc('aeromind_gold_my_entitlement')
+    client.rpc('aeromind_gold_my_entitlement'),
+    client.from('aeromind_feedback').select('id',{count:'exact',head:true})
+      .eq('user_id',user.id).not('admin_reply_at','is',null).is('reply_read_at',null)
   ]);
   const gold=(!goldResult.error&&goldResult.data&&typeof goldResult.data==='object')?goldResult.data as {
     app_access?:boolean;gold_access?:boolean;gold_rollout_enabled?:boolean;gold_expires_at?:string|null;can_use_gold?:boolean;
@@ -47,8 +49,9 @@ export default async function Conta() {
   const name=profileResult.data?.display_name || 'Cliente AeroMind';
   const isStaff=Boolean(user.email_confirmed_at) && !staffResult.error &&
     (staffResult.data?.role==='owner'||staffResult.data?.role==='admin');
+  const replyUnread=feedbackUnreadResult.error?0:(feedbackUnreadResult.count||0);
   const unreadNotifications=(notificationsResult.data||[]).filter(
-    x=>!x.expires_at||new Date(x.expires_at).getTime()>serverNow).length;
+    x=>!x.expires_at||new Date(x.expires_at).getTime()>serverNow).length+replyUnread;
 
   return <main className="account-root">
     <header className="account-header account-header-with-panel">
@@ -89,7 +92,7 @@ export default async function Conta() {
           <Link href="/download" className="account-shortcut shortcut-app"><span className="shortcut-icon" aria-hidden="true">▣</span><span className="shortcut-copy"><b>Aplicativo</b><small>Downloads e atualizações</small></span><span className="shortcut-arrow" aria-hidden="true">↗</span></Link>
           <Link href="/dispositivos" className="account-shortcut"><span className="shortcut-icon" aria-hidden="true">▤</span><span className="shortcut-copy"><b>Meus dispositivos</b><small>Gerencie seus aparelhos</small></span><span className="shortcut-arrow" aria-hidden="true">↗</span></Link>
           <Link href="/suporte" className="account-shortcut shortcut-support"><span className="shortcut-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H5l-2 1.5V12a9 9 0 0 1 18 0Z"/><path d="M8 12h8M8 15h5"/></svg></span><span className="shortcut-copy"><b>Suporte ao cliente</b><small>Converse com a equipe</small></span><span className="shortcut-arrow" aria-hidden="true">↗</span></Link>
-          <Link href="/feedback" className="account-shortcut shortcut-feedback"><span className="shortcut-icon" aria-hidden="true">💡</span><span className="shortcut-copy"><b>Sugestões e feedback</b><small>Ajude a melhorar o AeroMind</small></span><span className="shortcut-arrow" aria-hidden="true">↗</span></Link>
+          <Link href="/feedback" className="account-shortcut shortcut-feedback"><span className="shortcut-icon" aria-hidden="true">💡</span><span className="shortcut-copy"><b>Sugestões e feedback</b><small>{replyUnread>0?replyUnread+' nova(s) resposta(s) da equipe':'Ajude a melhorar o AeroMind'}</small></span>{replyUnread>0?<span className="shortcut-badge">{replyUnread>99?'99+':replyUnread}</span>:<span className="shortcut-arrow" aria-hidden="true">↗</span>}</Link>
           <Link href="/notificacoes" className="account-shortcut"><span className="shortcut-icon" aria-hidden="true">♧</span><span className="shortcut-copy"><b>Notificações</b><small>{unreadNotifications>0?unreadNotifications+' nova(s) mensagem(ns)':'Avisos e comunicados'}</small></span>{unreadNotifications>0?<span className="shortcut-badge">{unreadNotifications>99?'99+':unreadNotifications}</span>:<span className="shortcut-arrow" aria-hidden="true">↗</span>}</Link>
         </nav>
       </section>
@@ -144,7 +147,7 @@ export default async function Conta() {
       </div>
       <section id="notificacoes" className="account-card account-notification-entry" style={{margin:'18px 0',borderColor:'#7845be'}}>
         <h2>♧ Notificações AeroMind {unreadNotifications>0?'· '+unreadNotifications+' nova(s)':''}</h2>
-        <p className="account-note">Confira avisos importantes, atualizações e mensagens do Radar Ao Vivo.</p>
+        <p className="account-note">Confira avisos importantes, respostas às suas sugestões e mensagens do Radar Ao Vivo.</p>
         <Link className="auth-submit auth-button-link" href="/notificacoes">
           Abrir minhas notificações →
         </Link>
