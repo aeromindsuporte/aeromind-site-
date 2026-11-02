@@ -1,0 +1,49 @@
+/* Central flutuante do administrador, independente do suporte dos clientes. */
+.asf-root{position:fixed;right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));z-index:7200;color:#eef4ff;font-family:inherit}
+.asf-launcher{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:55px;padding:12px 19px;border:1px solid #70dafd;border-radius:99px;background:linear-gradient(115deg,#114a79,#5933bd);box-shadow:0 10px 32px #02071faa,0 0 16px #3b90d355;font-size:14px;font-weight:900;color:#fff;cursor:pointer;white-space:nowrap}
+.asf-launcher:focus-visible{outline:2px solid #d9adff;outline-offset:3px}
+.asf-launcher.asf-has-unread{border-color:#f1a9ff;animation:asf-soft-glow 2.6s ease-in-out infinite}
+.asf-icon{display:grid;place-items:center;min-width:23px;height:25px;font-size:23px;line-height:1}
+.asf-badge{position:absolute;top:-9px;right:-5px;min-width:25px;height:25px;padding:0 6px;display:grid;place-items:center;background:#f52b9a;border:2px solid #081127;border-radius:99px;color:white;font-size:11px;font-weight:950;box-shadow:0 0 0 4px #ed43a42c}
+.asf-panel{position:absolute;right:0;bottom:70px;width:min(660px,calc(100vw - 24px));height:min(760px,calc(100dvh - 105px));display:flex;flex-direction:column;overflow:hidden;background:linear-gradient(150deg,#101b39,#090f24);border:1px solid #527bb2;border-radius:19px;box-shadow:0 25px 85px #020511e6,0 0 20px #7d57d52e;isolation:isolate}
+.asf-header{display:flex;align-items:start;justify-content:space-between;gap:12px;flex:none;padding:17px 17px 15px;border-bottom:1px solid #4a629a;background:radial-gradient(ellipse at 100% 0%,#693d9a66,transparent 60%),linear-gradient(115deg,#183c66,#211d4f)}
+.asf-kicker{display:inline-block;color:#bbdcff;font-size:9px;font-weight:900;letter-spacing:1px;line-height:1.3}
+.asf-header h2{font-size:18px;line-height:1.3;font-weight:900;letter-spacing:-.3px;color:#fff;margin:4px 0}
+.asf-header p{font-size:11px;line-height:1.45;color:#bdd1e9;margin:0}
+.asf-close{width:36px;height:36px;flex:none;display:grid;place-items:center;border:1px solid #7a9ccc;border-radius:10px;background:#233662;color:#fff;font-size:26px;line-height:1;cursor:pointer}
+.asf-panel-body{flex:1;min-height:0;overflow:hidden;display:flex}
+.asf-panel-body .sa-wrap.sa-compact{flex:1;min-width:0;min-height:0;height:100%;display:flex;flex-direction:column;gap:0}
+.asf-panel-body .sa-compact .sa-toolbar{flex:none;padding:10px 13px;border:0;border-bottom:1px solid #314c80;border-radius:0;background:#0f1934}
+.asf-panel-body .sa-compact .sa-toolbar strong{font-size:12px}
+.asf-panel-body .sa-compact .sa-toolbar span{font-size:10px}
+.asf-panel-body .sa-compact .sa-toolbar button{font-size:11px;padding:8px 10px}
+.asf-panel-body .sa-compact .sa-grid{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr);border:0;border-radius:0;overflow:hidden;background:#0b132a}
+.asf-panel-body .sa-compact .sa-list{min-height:0;max-height:none;height:100%;overflow-y:auto;border:0}
+.asf-panel-body .sa-compact .sa-list h2{padding:12px 14px;font-size:13px}
+.asf-panel-body .sa-compact .sa-list-item{padding:13px}
+.asf-panel-body .sa-compact .sa-conversation{display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden}
+.asf-panel-body .sa-compact .sa-compact-hidden{display:none!important}
+.asf-panel-body .sa-compact .sa-chat-top{flex:none;gap:9px;padding:12px;align-items:start;flex-wrap:wrap}
+.asf-panel-body .sa-compact .sa-chat-top>div{flex:1 1 150px}
+.asf-panel-body .sa-compact .sa-chat-top strong{font-size:13px}
+.asf-panel-body .sa-compact .sa-chat-top select{max-width:125px;min-width:100px;font-size:11px;padding:8px}
+.asf-panel-body .sa-compact .sa-messages{flex:1;min-height:0;max-height:none;overflow-y:auto;gap:10px;padding:13px}
+.asf-panel-body .sa-compact .sa-message{padding:10px 12px}
+.asf-panel-body .sa-compact .sa-message p{font-size:12px;line-height:1.6}
+.asf-panel-body .sa-compact .sa-reply{flex:none;padding:10px;gap:7px}
+.asf-panel-body .sa-compact .sa-reply textarea{min-height:46px;max-height:110px;flex:1 1 215px;font-size:12px}
+.asf-panel-body .sa-compact .sa-reply button{min-height:44px;padding:10px 12px}
+.asf-panel-body .sa-compact .sa-reply small{font-size:10px}
+.asf-panel-body .sa-compact .sa-placeholder{padding:20px;font-size:12px}
+.asf-panel-body .sa-compact .sa-back-to-inbox{padding:7px 10px;border:1px solid #6b87be;border-radius:8px;background:#28395f;color:#e4f5ff;cursor:pointer;font-size:11px;font-weight:800;white-space:nowrap}
+@media(max-width:560px){.asf-root{right:12px;bottom:calc(12px + env(safe-area-inset-bottom))}.asf-panel{width:calc(100vw - 24px);height:min(720px,calc(100dvh - 103px));bottom:66px}
+.asf-header{padding:13px}.asf-header h2{font-size:16px}.asf-header p{font-size:10px}
+.asf-panel-body .sa-compact .sa-chat-top{flex-direction:row;align-items:center}
+.asf-panel-body .sa-compact .sa-chat-top select{flex:1 0 100%;width:100%;max-width:none}
+.asf-panel-body .sa-compact .sa-back-to-inbox{margin-right:auto}
+.asf-panel-body .sa-compact .sa-reply textarea{flex-basis:100%;max-height:90px}
+.asf-panel-body .sa-compact .sa-reply button{width:100%;min-height:40px}
+.asf-panel-body .sa-compact .sa-reply small{display:none}
+}
+@keyframes asf-soft-glow{50%{box-shadow:0 10px 32px #02071faa,0 0 23px #db63efbc}}
+@media(prefers-reduced-motion:reduce){.asf-launcher.asf-has-unread{animation:none}}
