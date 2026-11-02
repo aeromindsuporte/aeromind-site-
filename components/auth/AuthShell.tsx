@@ -13,7 +13,7 @@ export function AuthShell({ title, intro, children }: { title: ReactNode; intro:
     <header className="auth-header">
       <div className="auth-container auth-nav">
         <Link href="/" className="auth-logo"><img src="/images/aeromind-mark.svg" alt="" width="42" height="42" /> AeroMind</Link>
-        <nav aria-label="Navegação"><Link href="/">Início</Link><Link href="/#funcionalidades">Funcionalidades</Link><Link href="/#planos">Planos</Link><Link href="/#contato">Contato</Link></nav>
+        <nav aria-label="Navegação"><Link href="/">Início</Link><Link href="/#funcionalidades">Funcionalidades</Link><Link href="/planos">Planos</Link><Link href="/contato">Contato</Link></nav>
         <div className="auth-header-actions"><Link href="/entrar" className="auth-ghost-btn">Entrar</Link><Link href="/cadastro" className="auth-main-btn">Criar conta ↗</Link></div>
       </div>
     </header>
