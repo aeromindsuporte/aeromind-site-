@@ -12,9 +12,11 @@ export function AdminFloatingSupport(){
  const [open,setOpen]=useState(false);
  const [unread,setUnread]=useState(0);
  const [ready,setReady]=useState(false);
+ const [lastError,setLastError]=useState(false);
  const refreshUnread=useCallback(async()=>{
   const {data,error}=await sb.rpc('aeromind_support_chat_unread_count');
-  if(error)return;
+  if(error){setLastError(true);return;}
+  setLastError(false);
   setUnread(typeof data==='number'&&Number.isFinite(data)?Math.max(0,data):0);
   setReady(true);
  },[sb]);
@@ -22,15 +24,19 @@ export function AdminFloatingSupport(){
   let mounted=true;
   const poll=async()=>{
    const {data,error}=await sb.rpc('aeromind_support_chat_unread_count');
-   if(!mounted||error)return;
+   if(!mounted)return;
+   if(error){setLastError(true);return;}
+   setLastError(false);
    setUnread(typeof data==='number'&&Number.isFinite(data)?Math.max(0,data):0);
    setReady(true);
   };
   void poll();
   const interval=window.setInterval(()=>{if(document.visibilityState==='visible')void poll()},12000);
   const onFocus=()=>void poll();
+  const onVisibility=()=>{if(document.visibilityState==='visible')void poll()};
   window.addEventListener('focus',onFocus);
-  return ()=>{mounted=false;window.clearInterval(interval);window.removeEventListener('focus',onFocus)};
+  document.addEventListener('visibilitychange',onVisibility);
+  return ()=>{mounted=false;window.clearInterval(interval);window.removeEventListener('focus',onFocus);document.removeEventListener('visibilitychange',onVisibility)};
  },[sb]);
  useEffect(()=>{setOpen(false)},[pathname]);
  function toggle(){
@@ -38,6 +44,13 @@ export function AdminFloatingSupport(){
   setOpen(v=>!v);
  }
  return <div className="asf-root">
+  {!open&&ready&&unread>0&&<button type="button" className="asf-incoming-alert" role="status" onClick={toggle}>
+   <span className="asf-alert-dot" aria-hidden="true"/>
+   <span><strong>{unread===1?'Nova mensagem de cliente':unread+' mensagens dos clientes'}</strong>
+    <small>Toque para abrir e responder agora</small></span>
+   <span aria-hidden="true">↗</span>
+  </button>}
+  {!open&&lastError&&<span className="asf-poll-warning" role="status">Não foi possível verificar novas mensagens. <button type="button" onClick={()=>void refreshUnread()}>Tentar novamente</button></span>}
   {open&&<section className="asf-panel" role="dialog" aria-modal="false" aria-label="Atendimento aos clientes AeroMind">
    <header className="asf-header">
     <div><span className="asf-kicker">AEROMIND ADMIN · CENTRAL DE ATENDIMENTO</span>
