@@ -259,7 +259,7 @@ export default async function Home(){
   <footer className="nl-footer"><div className="nl-shell nl-footer-inner">
    <span><AeroMark small/> AEROMIND</span>
    <p>Monitoramento e análise histórica. Sem promessas de ganho.</p>
-   <nav aria-label="Informações legais"><Link href="/planos">Planos</Link><LandingAccountLink guestHref="/entrar" guestLabel="Entrar"/><Link href="/termos">Termos</Link><Link href="/privacidade">Privacidade</Link><Link href="/suporte">Suporte</Link></nav>
+   <nav aria-label="Informações legais"><Link href="/planos">Planos</Link><LandingAccountLink guestHref="/entrar" guestLabel="Entrar"/><Link href="/termos">Termos</Link><Link href="/privacidade">Privacidade</Link><Link href="/reembolso">Reembolso</Link><Link href="/contato">Contato</Link><Link href="/suporte">Suporte</Link></nav>
   </div>
   <div className="nl-shell nl-responsibility-footer">
    <aside className="nl-responsibility-notice" aria-label="Aviso de idade mínima e riscos">
