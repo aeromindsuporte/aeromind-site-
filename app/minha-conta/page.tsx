@@ -68,6 +68,15 @@ export default async function Conta() {
       <span className="auth-eyebrow">♙ ÁREA DO CLIENTE</span>
       <h1>Minha conta <em>AeroMind</em></h1>
       <p className="account-lead">Bem-vindo, {name}. Escolha uma área para ir direto ao que precisa.</p>
+      <section className="account-feedback-invite" aria-labelledby="account-feedback-title">
+       <div className="account-feedback-invite-icon" aria-hidden="true">💡</div>
+       <div className="account-feedback-invite-copy">
+        <span className="account-feedback-badge">✦ SUA VOZ É IMPORTANTE</span>
+        <h2 id="account-feedback-title">Ajude a criar o próximo AeroMind!</h2>
+        <p>Tem uma ideia, encontrou algo para melhorar ou quer contar sua experiência? Envie sua opinião diretamente para nossa equipe.</p>
+       </div>
+       <Link href="/feedback" className="account-feedback-invite-cta">Quero dar minha opinião <span aria-hidden="true">↗</span></Link>
+      </section>
 
       <section className="account-launchpad" aria-label="Acesso rápido às funções">
         <div className="account-launchpad-heading">
@@ -80,6 +89,7 @@ export default async function Conta() {
           <Link href="/download" className="account-shortcut shortcut-app"><span className="shortcut-icon" aria-hidden="true">▣</span><span className="shortcut-copy"><b>Aplicativo</b><small>Downloads e atualizações</small></span><span className="shortcut-arrow" aria-hidden="true">↗</span></Link>
           <Link href="/dispositivos" className="account-shortcut"><span className="shortcut-icon" aria-hidden="true">▤</span><span className="shortcut-copy"><b>Meus dispositivos</b><small>Gerencie seus aparelhos</small></span><span className="shortcut-arrow" aria-hidden="true">↗</span></Link>
           <Link href="/suporte" className="account-shortcut shortcut-support"><span className="shortcut-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H5l-2 1.5V12a9 9 0 0 1 18 0Z"/><path d="M8 12h8M8 15h5"/></svg></span><span className="shortcut-copy"><b>Suporte ao cliente</b><small>Converse com a equipe</small></span><span className="shortcut-arrow" aria-hidden="true">↗</span></Link>
+          <Link href="/feedback" className="account-shortcut shortcut-feedback"><span className="shortcut-icon" aria-hidden="true">💡</span><span className="shortcut-copy"><b>Sugestões e feedback</b><small>Ajude a melhorar o AeroMind</small></span><span className="shortcut-arrow" aria-hidden="true">↗</span></Link>
           <Link href="/notificacoes" className="account-shortcut"><span className="shortcut-icon" aria-hidden="true">♧</span><span className="shortcut-copy"><b>Notificações</b><small>{unreadNotifications>0?unreadNotifications+' nova(s) mensagem(ns)':'Avisos e comunicados'}</small></span>{unreadNotifications>0?<span className="shortcut-badge">{unreadNotifications>99?'99+':unreadNotifications}</span>:<span className="shortcut-arrow" aria-hidden="true">↗</span>}</Link>
         </nav>
       </section>
