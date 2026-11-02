@@ -8,10 +8,11 @@ type Thread={id:string;user_id:string;client:string;subject:string;status:string
 type Message={id:string;ticket_id:string;author_id:string;content:string;created_at:string};
 const time=(value:string)=>new Date(value).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
 
-export function SupportAdminChat({initialTicket}:{initialTicket?:string}){
+export function SupportAdminChat({initialTicket,compact=false}:{initialTicket?:string;compact?:boolean}){
  const sb=useMemo(()=>createClient(),[]);
  const [threads,setThreads]=useState<Thread[]>([]);
- const [selected,setSelected]=useState<string|null>(initialTicket||null);
+ const [selected,setSelected]=useState<string|null>(compact?null:initialTicket||null);
+ const [mobileView,setMobileView]=useState<'inbox'|'conversation'>(compact?'inbox':'conversation');
  const [messages,setMessages]=useState<Message[]>([]);
  const [reply,setReply]=useState('');
  const [staffId,setStaffId]=useState('');
@@ -30,6 +31,7 @@ export function SupportAdminChat({initialTicket}:{initialTicket?:string}){
   const {data,error:inboxError}=await sb.rpc('aeromind_support_chat_admin_inbox');
   if(inboxError||!data?.ok){setError('Não foi possível consultar os atendimentos.');return}
   const list=(Array.isArray(data.items)?data.items:[]) as Thread[];
+  if(compact)list.sort((a,b)=>(b.unread||0)-(a.unread||0) || Date.parse(b.updated_at)-Date.parse(a.updated_at));
   setThreads(list);
   const unread=list.reduce((total,t)=>total+(t.unread||0),0);
   if(baseline.current!==null&&unread>baseline.current&&typeof window!=='undefined'&&
@@ -38,8 +40,10 @@ export function SupportAdminChat({initialTicket}:{initialTicket?:string}){
    alert.onclick=()=>{window.focus();alert.close()};
   }
   baseline.current=unread;
-  const id=idRef.current&&list.some(t=>t.id===idRef.current)?idRef.current:list[0]?.id||null;
-  if(!idRef.current&&id){setSelected(id);idRef.current=id}
+  const id=idRef.current&&list.some(t=>t.id===idRef.current)
+    ?idRef.current:compact?null:list[0]?.id||null;
+  if(!compact&&!idRef.current&&id){setSelected(id);idRef.current=id}
+  if(compact&&idRef.current&&!id){idRef.current=null;setSelected(null);setMobileView('inbox')}
   if(id){
    const {data:chat,error:messageError}=await sb.from('aeromind_support_messages')
      .select('id,ticket_id,author_id,content,created_at').eq('ticket_id',id)
@@ -51,7 +55,7 @@ export function SupportAdminChat({initialTicket}:{initialTicket?:string}){
     setThreads(old=>old.map(t=>t.id===id?{...t,unread:0}:t));
    }
   }
- },[sb]);
+ },[sb,compact]);
  useEffect(()=>{
   void refresh();
   const timer=window.setInterval(()=>{void refresh()},10000);
@@ -61,6 +65,7 @@ export function SupportAdminChat({initialTicket}:{initialTicket?:string}){
 
  async function pick(id:string){
   idRef.current=id;setSelected(id);setMessages([]);setError('');
+  if(compact)setMobileView('conversation');
   await refresh();
  }
  async function send(e:React.FormEvent<HTMLFormElement>){
@@ -89,14 +94,19 @@ export function SupportAdminChat({initialTicket}:{initialTicket?:string}){
  }
  const current=threads.find(t=>t.id===selected);
  const total=threads.reduce((n,t)=>n+(t.unread||0),0);
- return <div className="sa-wrap">
-  <div className="sa-toolbar"><div><strong>{total} mensagem(ns) aguardando</strong><span>Atualização automática enquanto a sessão estiver aberta</span></div>
-   <button type="button" onClick={()=>void askAlerts()}>{enableAlerts?'✓ Avisos ativados':'🔔 Ativar avisos no navegador'}</button>
+ function backToInbox(){
+  setMobileView('inbox');
+  idRef.current=null;setSelected(null);setMessages([]);
+  void refresh();
+ }
+ return <div className={'sa-wrap'+(compact?' sa-compact':'')}>
+  <div className="sa-toolbar"><div><strong>{compact?'Caixa de entrada dos clientes':total+' mensagem(ns) aguardando'}</strong><span>{total>0?total+' mensagem(ns) não lida(s)':'Atualização automática enquanto a sessão estiver aberta'}</span></div>
+   {!compact&&<button type="button" onClick={()=>void askAlerts()}>{enableAlerts?'✓ Avisos ativados':'🔔 Ativar avisos no navegador'}</button>}
    <button type="button" onClick={()=>void refresh()}>↻ Atualizar</button>
   </div>
   {error&&<p role="alert" className="sa-error">{error}</p>}
   <div className="sa-grid">
-   <aside className="sa-list" aria-label="Conversas de clientes">
+   <aside className={'sa-list'+(compact&&mobileView==='conversation'?' sa-compact-hidden':'')} aria-label="Conversas de clientes">
     <h2>Caixa de entrada <b>{threads.length}</b></h2>
     {threads.length===0&&<p className="sa-none">Ainda não há conversas de clientes.</p>}
     {threads.map(t=><button type="button" key={t.id} onClick={()=>void pick(t.id)}
@@ -108,8 +118,9 @@ export function SupportAdminChat({initialTicket}:{initialTicket?:string}){
      </span>{t.unread>0&&<b className="sa-count">{t.unread}</b>}
     </button>)}
    </aside>
-   <section className="sa-conversation" aria-label="Chat do cliente">
+   <section className={'sa-conversation'+(compact&&mobileView==='inbox'?' sa-compact-hidden':'')} aria-label="Chat do cliente">
     {current?<><header className="sa-chat-top">
+      {compact&&<button type="button" className="sa-back-to-inbox" onClick={backToInbox}>← Conversas</button>}
       <div><strong>{current.client}</strong><span>{current.subject}</span><small><Link href={'/admin/cliente/'+current.user_id}>Abrir cadastro ↗</Link></small></div>
       <select value={current.status} aria-label="Situação do atendimento" disabled={busy} onChange={e=>void changeStatus(e.target.value)}>
        <option value="open">Novo</option><option value="in_progress">Em atendimento</option><option value="resolved">Encerrado</option>
