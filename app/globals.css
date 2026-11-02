@@ -90,3 +90,5 @@
 .legal-updated{color:#9eacd0;font-size:11px;margin:14px 0 0}
 .legal-links{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 17px;margin-top:24px;padding-top:21px;border-top:1px solid #36436b;font-size:12px}
 @media(max-width:520px){.legal-content{gap:9px;margin-top:18px}.legal-content p{font-size:13px}.legal-links{justify-content:flex-start}.legal-content h2{font-size:17px}}
+
+.inner-card:has(.legal-content){width:min(900px,100%);margin-top:50px;padding:clamp(20px,4vw,44px)}
