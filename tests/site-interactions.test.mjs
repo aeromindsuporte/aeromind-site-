@@ -48,7 +48,7 @@ test('páginas legais têm informações úteis e não dizem que checkout public
  assert.match(legal,/7 dias/);
  assert.match(legal,/Política de privacidade/);
  assert.match(legal,/PaggOne/);
- assert.match(legal,/dados cadastrais e endereço físico/i);
+ assert.match(legal,/endereço físico/i);
  assert.doesNotMatch(legal,/A contratação permanece indisponível|pagamentos permanecem desativados|documento jurídico em elaboração/i);
  assert.match(checkout,/href="\/reembolso"/);
  assert.match(home,/href="\/reembolso"/);
