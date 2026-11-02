@@ -10,7 +10,7 @@ export default async function FeedbackPage(){
  const {data:{user},error:authError}=await sb.auth.getUser();
  if(authError||!user)redirect('/entrar?next=%2Ffeedback');
  const {data,error}=await sb.from('aeromind_feedback')
-   .select('id,user_id,category,title,message,rating,status,admin_reply,created_at,updated_at')
+   .select('id,user_id,category,title,message,rating,status,admin_reply,admin_reply_at,reply_read_at,created_at,updated_at')
    .eq('user_id',user.id).order('created_at',{ascending:false}).limit(80);
  return <main className="account-root fb-page">
    <header className="account-header">
