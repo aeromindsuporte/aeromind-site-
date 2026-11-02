@@ -17,3 +17,13 @@ export async function markAllUserNotificationsRead(){
  if(error)redirect('/notificacoes?erro=salvar');
  revalidatePath('/notificacoes');revalidatePath('/minha-conta');redirect('/notificacoes');
 }
+
+export async function openFeedbackReplyNotification(form:FormData){
+ const {sb}=await signedIn();
+ const id=form.get('feedback_id');
+ if(typeof id!=='string'||!uuid.test(id))redirect('/notificacoes?erro=dados');
+ const {data,error}=await sb.rpc('aeromind_feedback_mark_reply_read',{p_feedback_id:id});
+ if(error||data!==true)redirect('/notificacoes?erro=salvar');
+ revalidatePath('/notificacoes');revalidatePath('/minha-conta');revalidatePath('/feedback');
+ redirect('/feedback#resposta-'+id);
+}
