@@ -40,10 +40,9 @@ export function SupportAdminChat({initialTicket,compact=false}:{initialTicket?:s
    alert.onclick=()=>{window.focus();alert.close()};
   }
   baseline.current=unread;
-  const id=idRef.current&&list.some(t=>t.id===idRef.current)
-    ?idRef.current:compact?null:list[0]?.id||null;
-  if(!compact&&!idRef.current&&id){setSelected(id);idRef.current=id}
-  if(compact&&idRef.current&&!id){idRef.current=null;setSelected(null);setMobileView('inbox')}
+  // Never select a ticket implicitly: listing threads must not acknowledge unread messages.
+  const id=idRef.current&&list.some(t=>t.id===idRef.current)?idRef.current:null;
+  if(idRef.current&&!id){idRef.current=null;setSelected(null);setMobileView('inbox')}
   if(id){
    const {data:chat,error:messageError}=await sb.from('aeromind_support_messages')
      .select('id,ticket_id,author_id,content,created_at').eq('ticket_id',id)
