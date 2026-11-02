@@ -43,7 +43,6 @@ export default async function NotificationsInbox({searchParams}:{searchParams:Pr
       </form>
      </article>)}</div>
     </section>}
-}
    {erro&&<p role="alert" className="ni-error">Não foi possível salvar a leitura. Tente novamente.</p>}
    {result.error?<p role="alert" className="ni-error">Não foi possível carregar as notificações agora.</p>:<NotificationList items={items} markRead={markUserNotificationRead} initialFilter={filtro}/>}
    <p className="ni-footer-note">Os alertas são enviados pelo site. Para receber notificações no aplicativo fechado, será necessária uma atualização Android com suporte específico a notificações remotas.</p>
