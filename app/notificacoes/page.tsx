@@ -29,7 +29,7 @@ export default async function NotificationsInbox({searchParams}:{searchParams:Pr
    <div className="ni-stats"><div><small>Mensagens recebidas</small><strong>{items.length+feedbackReplies.length}</strong></div><div><small>Não lidas e válidas</small><strong>{unread+feedbackUnread}</strong></div></div>
    <div className="ni-category-summary">{categories.map(c=><div key={c.key}><span>{c.name}</span><strong>{items.filter(n=>n.category===c.key&&!n.read_at&&(!n.expires_at||new Date(n.expires_at).getTime()>now)).length}</strong></div>)}
     <div><span>Respostas às sugestões</span><strong>{feedbackUnread}</strong></div></div>
-   {unread>0&&<form action={markAllUserNotificationsRead} className="ni-mark-all"><button type="submit">✓ Marcar comunicados como lidos ({unread})</button></form>
+   {unread>0&&<form action={markAllUserNotificationsRead} className="ni-mark-all"><button type="submit">✓ Marcar comunicados como lidos ({unread})</button></form>}
    {feedbackResult.error?<p className="ni-error" role="alert">Não foi possível carregar as respostas das sugestões.</p>:
     feedbackReplies.length>0&&<section className="ni-feedback-section" aria-labelledby="ni-feedback-title">
      <div className="ni-feedback-heading"><span>✦ MENSAGENS DA EQUIPE</span><h2 id="ni-feedback-title">Respostas às suas sugestões {feedbackUnread>0&&<b>{feedbackUnread} nova(s)</b>}</h2></div>
