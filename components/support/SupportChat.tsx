@@ -3,6 +3,7 @@ import {useCallback,useEffect,useMemo,useRef,useState} from 'react';
 import Link from 'next/link';
 import {usePathname,useRouter} from 'next/navigation';
 import {createClient} from '@/lib/supabase/browser';
+import {AdminFloatingSupport} from './AdminFloatingSupport';
 import './support-chat.css';
 
 type Ticket={id:string;subject:string;status:string;updated_at:string};
@@ -165,7 +166,8 @@ export function SupportFloatingChat(){
   if(!open&&feedbackUnread>0)setActiveTab('feedback');
   setOpen(v=>!v);
  }
- if(route?.startsWith('/admin')||route==='/suporte')return null;
+ if(route?.startsWith('/admin'))return <AdminFloatingSupport/>;
+ if(route==='/suporte')return null;
  return <div className="sc-floating-root">
   {open&&<section className="sc-floating-panel" aria-label="Central de suporte e respostas AeroMind">
    <div className="sc-chat-header"><span><b>✦ Central AeroMind</b><small>Suporte e respostas da nossa equipe</small></span>
