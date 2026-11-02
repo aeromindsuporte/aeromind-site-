@@ -5,7 +5,7 @@ import {createClient} from '@/lib/supabase/browser';
 
 export type FeedbackItem={
  id:string;user_id:string;category:string;title:string;message:string;rating:number|null;
- status:string;admin_reply:string|null;created_at:string;updated_at:string;
+ status:string;admin_reply:string|null;admin_reply_at?:string|null;reply_read_at?:string|null;created_at:string;updated_at:string;
 };
 const types=[
  {id:'melhoria',icon:'✦',label:'Tenho uma ideia',desc:'Uma função ou melhoria que você gostaria de ver'},
@@ -28,6 +28,18 @@ export function FeedbackForm({initial,userId}:{initial:FeedbackItem[],userId:str
  const [error,setError]=useState('');
  const [success,setSuccess]=useState(false);
  const [seeHistory,setSeeHistory]=useState(initial.length>0);
+ const [readingReply,setReadingReply]=useState<string|null>(null);
+ async function markReplyRead(id:string){
+  if(readingReply)return;
+  setReadingReply(id);
+  try{
+   const sb=createClient();
+   const {data,error:readError}=await sb.rpc('aeromind_feedback_mark_reply_read',{p_feedback_id:id});
+   if(!readError&&data===true)setItems(prev=>prev.map(item=>item.id===id?{...item,reply_read_at:new Date().toISOString()}:item));
+   else setError('Não foi possível confirmar a leitura da resposta. Tente novamente.');
+  }catch{setError('Falha de conexão. Tente novamente.');}
+  finally{setReadingReply(null);}
+ }
  async function send(e:React.FormEvent<HTMLFormElement>){
   e.preventDefault();
   if(submitting)return;
@@ -102,11 +114,17 @@ export function FeedbackForm({initial,userId}:{initial:FeedbackItem[],userId:str
    <aside className="fb-history" aria-label="Acompanhar minhas contribuições">
     <div className="fb-history-head"><span className="fb-kicker">ACOMPANHAMENTO</span><h2>Minhas contribuições</h2><p>Acompanhe suas ideias e as respostas da nossa equipe.</p></div>
     <button type="button" className="fb-history-toggle" aria-expanded={seeHistory} onClick={()=>setSeeHistory(v=>!v)}>{seeHistory?'Ocultar histórico':'Ver histórico'} <b>{items.length}</b></button>
-    {seeHistory&&(items.length?<div className="fb-history-list">{items.map(x=><article className="fb-history-item" key={x.id}>
+    {seeHistory&&(items.length?<div className="fb-history-list">{items.map(x=><article className={'fb-history-item'+(x.admin_reply&&!x.reply_read_at&&x.admin_reply_at?' fb-new-reply':'')} id={'resposta-'+x.id} key={x.id}>
      <div className="fb-history-top"><span className={'fb-status status-'+x.status}>{feedbackStatusLabel[x.status]||'Recebida'}</span><time dateTime={x.created_at}>{date(x.created_at)}</time></div>
      <h3>{x.title}</h3>
      <p>{x.message}</p>
-     {x.admin_reply&&<div className="fb-admin-reply"><b>✦ Resposta da equipe</b><p>{x.admin_reply}</p></div>}
+     {x.admin_reply&&<div className="fb-admin-reply">
+      <b>✦ Resposta da equipe {x.admin_reply_at&&!x.reply_read_at&&<span className="fb-reply-new-label">Nova resposta</span>}</b>
+      <p>{x.admin_reply}</p>
+      {x.admin_reply_at&&!x.reply_read_at&&<button type="button" className="fb-read-reply" disabled={readingReply===x.id} onClick={()=>void markReplyRead(x.id)}>
+       {readingReply===x.id?'Confirmando...':'✓ Marcar resposta como lida'}
+      </button>}
+     </div>}
     </article>)}</div>:<p className="fb-history-empty">Sua primeira contribuição poderá aparecer aqui. Toda ideia começa com uma conversa. ✦</p>)}
     <div className="fb-nudge"><span aria-hidden="true">💡</span><strong>Não existe ideia pequena!</strong><p>Às vezes, um detalhe que você percebe pode melhorar a experiência de muitas pessoas.</p></div>
    </aside>
