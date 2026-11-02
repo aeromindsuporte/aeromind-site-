@@ -66,3 +66,11 @@
 @media(max-width:520px){.fb-intro{padding:24px 19px}.fb-intro h1{font-size:29px}.fb-form-card,.fb-history{padding:17px 15px}.fb-type{padding:12px;min-height:117px}.fb-type b{font-size:12px}.fb-type small{font-size:10px}.fb-promise span{font-size:10px}.fb-rating button{min-width:48px}.fb-submit{font-size:13px}}
 @media(max-width:355px){.fb-type-grid{gap:7px}.fb-type{min-height:124px}}
 @media(prefers-reduced-motion:reduce){.fb-type{transition:none}}
+
+
+/* Resposta não lida destacada apenas até confirmação de leitura. */
+.fb-history-item:target{outline:2px solid #d591f5;scroll-margin-top:90px}
+.fb-history-item.fb-new-reply{border-color:#b16adb;background:linear-gradient(115deg,#271a49,#132244)}
+.fb-reply-new-label{display:inline-block;border-radius:99px;padding:3px 8px;background:#78316d;color:#ffe1f8;font-size:10px;font-weight:850;margin-left:7px}
+.fb-read-reply{display:inline-flex;align-items:center;justify-content:center;border:1px solid #9d7be7;background:#35306b;border-radius:9px;color:#f8f6ff;font-size:11px;font-weight:850;padding:9px 12px;margin-top:12px;cursor:pointer}
+.fb-read-reply:disabled{opacity:.6;cursor:wait}
