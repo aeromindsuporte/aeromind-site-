@@ -73,7 +73,7 @@ export default async function Activation({searchParams}:{searchParams:Promise<{p
      <div className="pix-success">
       <span className="pix-state-pill waiting">{isPaid?'Pagamento confirmado; verificando a licença':'Aguardando confirmação do pagamento'}</span>
       <h2>{isPaid?'Licença em processamento':'Seu pedido ainda não foi confirmado'}</h2>
-      <p>{isPaid?'O pagamento está registrado, mas o acesso ativo ainda não foi verificado. Não faça um segundo Pix; consulte o pedido ou o suporte.':'Apenas o pagamento confirmado pela PaggPay pode liberar o aplicativo.'}</p>
+      <p>{isPaid?'O pagamento está registrado, mas o acesso ativo ainda não foi verificado. Não faça um segundo Pix; consulte o pedido ou o suporte.':'Somente a confirmação do pagamento pelo provedor Pix pode liberar o aplicativo.'}</p>
       <div className="pix-actions"><Link className="pix-secondary" href={'/checkout/retorno?pedido='+id}>Consultar pedido →</Link>
        <Link className="pix-secondary" href="/suporte">Falar com o suporte →</Link>
       </div>
