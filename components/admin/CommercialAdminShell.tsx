@@ -5,6 +5,7 @@ import {createClient} from '@/lib/supabase/server';
 import {AdminMenuToggle} from './AdminMenuToggle';
 import {AdminAlertsRefresh} from './AdminAlertsRefresh';
 import {SupportUnreadBadge} from './SupportUnreadBadge';
+import {AdminFloatingSupport} from '@/components/support/AdminFloatingSupport';
 const nav=[
  ['/admin','Visão geral','▦'],
  ['/admin/clientes','Clientes','♙'],
@@ -64,5 +65,6 @@ return <div className="admin-root admin-commercial">
    {children}
   </main>
  </div>
+ <AdminFloatingSupport/>
 </div>;
 }
