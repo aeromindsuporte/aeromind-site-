@@ -24,5 +24,7 @@ export default async function Checkout({searchParams}:{searchParams:Promise<{pla
  gatewayReady&&(gatewayMode==='live'||!!staff?.data)?<PixCheckoutForm slug={plan.slug} planName={plan.marketing_title||plan.tier} baseCents={effectivePriceCents(plan)} mode={gatewayMode==='live'?'live':'sandbox'}/>:
  <section className="account-card" style={{maxWidth:630}}><h2>Pagamento em preparação</h2><p>O Pix está temporariamente indisponível. Nenhuma cobrança será gerada até que o sistema esteja habilitado.</p><p>Nenhuma licença será liberada por um pagamento não confirmado.</p><Link href="/suporte" className="auth-secondary auth-button-link">Falar com o suporte →</Link></section>}
  </>}
- </div></main>;
+  <p className="pix-muted" style={{textAlign:'center',margin:'25px auto 10px',maxWidth:700}}>
+ Ao contratar, consulte os <Link href="/termos" style={{textDecoration:'underline'}}>Termos de uso</Link>, a <Link href="/privacidade" style={{textDecoration:'underline'}}>Política de Privacidade</Link> e as orientações de <Link href="/reembolso" style={{textDecoration:'underline'}}>Cancelamento e reembolso</Link>. Precisa de ajuda? <Link href="/contato" style={{textDecoration:'underline'}}>Fale conosco</Link>.
+ </p></div></main>;
 }
