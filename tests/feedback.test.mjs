@@ -47,3 +47,19 @@ test('Supabase restringe acesso por dono e equipe, com limite de envios',()=>{
  assert.match(migration,/>=5 THEN/);
  assert.match(migration,/WITH CHECK \(user_id=/);
 });
+
+test('respostas já enviadas aparecem compactas com opção de edição, sem o formulário grande',()=>{
+ const inbox=read('components/feedback/FeedbackInbox.tsx');
+ const css=read('components/feedback/feedback-admin.css');
+ assert.match(inbox,/const \[editing,setEditing\]=useState\(!initial\[0\]\?\.admin_reply\?\.trim\(\)\)/);
+ assert.match(inbox,/setEditing\(!x\.admin_reply\?\.trim\(\)\)/);
+ assert.match(inbox,/chosen\.admin_reply\?\.trim\(\)&&!editing&&<div className="fba-reply-summary"/);
+ assert.match(inbox,/<button type="button" className="fba-edit-reply" onClick=\{beginEdit\}>/);
+ assert.match(inbox,/<p className="fba-reply-content">\{chosen\.admin_reply\}<\/p>/);
+ assert.match(inbox,/\{editing&&<div className="fba-editor"/);
+ assert.match(inbox,/function cancelEdit\(\)/);
+ assert.match(inbox,/setEditing\(!data\.admin_reply\?\.trim\(\)\)/);
+ assert.match(inbox,/onClick=\{cancelEdit\}/);
+ assert.match(css,/\.fba-reply-summary/);
+ assert.match(css,/@media\(max-width:500px\)/);
+});
