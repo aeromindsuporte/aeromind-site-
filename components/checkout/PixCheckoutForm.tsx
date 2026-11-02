@@ -142,9 +142,9 @@ export function PixCheckoutForm({slug,planName,baseCents,mode}:{slug:string;plan
     {total<200&&<div className="pix-feedback" role="alert">O Pix precisa ter pelo menos R$ 2,00. Ajuste seu cupom ou selecione outro plano.</div>}
     <button className="pix-primary" type="button" disabled={loading||total<200||
       payerName.trim().length<3||![11,14].includes(document.replace(/\D/g,'').length)} onClick={pay}>
-      {loading?'Conectando à PaggPay...':'Gerar QR Code Pix →'}
+      {loading?'Conectando ao provedor Pix...':'Gerar QR Code Pix →'}
     </button>
-    <div className="pix-note"><span aria-hidden="true">🔒</span> Pagamento via PaggPay. Nunca é necessário informar senha bancária nesta página.</div>
+    <div className="pix-note"><span aria-hidden="true">🔒</span> Pagamento via Pix com provedor externo. Nunca é necessário informar senha bancária nesta página.</div>
   </div>}
 
   {orderId&&<div className="pix-state-pill waiting" role="status">
