@@ -63,3 +63,17 @@
 @keyframes sc-alert-glow{50%{box-shadow:0 8px 36px #091229bb,0 0 25px #ef5ffca8}}
 @keyframes sc-notification-pulse{50%{transform:scale(1.12)}}
 @media(prefers-reduced-motion:reduce){.sc-launcher.has-unread,.sc-launcher.has-unread .sc-unread{animation:none}}
+
+
+/* Respostas novas ficam visíveis fora do chat, com contador independente. */
+.sc-new-message-alert{display:flex;align-items:center;gap:10px;max-width:min(325px,calc(100vw - 24px));
+ width:100%;text-align:left;margin:0 0 10px auto;padding:12px 14px;cursor:pointer;
+ border:1px solid #da98f4;border-radius:14px;background:linear-gradient(120deg,#3c205a,#1c376d);
+ color:#fff;box-shadow:0 10px 30px #02071ba6,0 0 21px #af4ae463}
+.sc-new-message-alert>span:nth-child(2){display:grid;gap:4px;min-width:0;flex:1}
+.sc-new-message-alert strong{font-size:12px;line-height:1.4}
+.sc-new-message-alert small{font-size:10px;color:#e4d3f1}
+.sc-alert-symbol{color:#ff63c4;font-size:20px;line-height:1;animation:sc-notification-pulse 2s ease-in-out infinite}
+.sc-poll-warning{border:1px solid #b984a4;border-radius:8px;background:#35213b;padding:8px 10px;font-size:10px;color:#ffe1ed;margin-bottom:10px}
+@media(max-width:540px){.sc-new-message-alert{max-width:min(310px,calc(100vw - 24px));margin-bottom:8px}.sc-new-message-alert strong{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.sc-alert-symbol{animation:none}}
