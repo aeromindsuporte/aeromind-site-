@@ -51,3 +51,38 @@ test('layout responsivo nas duas caixas de conversa',()=>{
  assert.match(source('components/support/admin-chat.css'),/@media\(max-width:790px\)/);
  assert.match(source('app/suporte/page.tsx'),/SupportChatPanel/);
 });
+
+
+test('botão flutuante do ADM mostra atendimentos com mensagens não lidas',()=>{
+ const widget=source('components/support/AdminFloatingSupport.tsx');
+ const shell=source('components/admin/CommercialAdminShell.tsx');
+ const styles=source('components/support/admin-floating-support.css');
+ assert.match(shell,/import \{AdminFloatingSupport\}/);
+ assert.match(shell,/<AdminFloatingSupport\/>/);
+ assert.match(widget,/Atendimento aos clientes/);
+ assert.match(widget,/aeromind_support_chat_unread_count/);
+ assert.match(widget,/aria-expanded=\{open\}/);
+ assert.match(widget,/unread>0/);
+ assert.match(widget,/asf-badge/);
+ assert.match(widget,/<SupportAdminChat compact\/>/);
+ assert.match(widget,/setInterval/);
+ assert.match(widget,/visibilityState==='visible'/);
+ assert.match(styles,/\.asf-panel/);
+ assert.match(styles,/@media\(max-width:560px\)/);
+ assert.match(styles,/prefers-reduced-motion:reduce/);
+});
+test('janela compacta mantém lista e conversa separadas e só marca lida quando cliente é selecionado',()=>{
+ const chat=source('components/support/SupportAdminChat.tsx');
+ assert.match(chat,/compact=false/);
+ assert.match(chat,/compact\?null:initialTicket\|\|null/);
+ assert.match(chat,/compact\?'inbox':'conversation'/);
+ assert.match(chat,/compact\?null:list\[0\]\?\.id/);
+ assert.match(chat,/if\(compact\)setMobileView\('conversation'\)/);
+ assert.match(chat,/aeromind_support_chat_seen/);
+ assert.match(chat,/function backToInbox\(/);
+ assert.match(chat,/sa-compact-hidden/);
+ assert.match(chat,/sa-back-to-inbox/);
+ assert.match(chat,/viewport\?\.scrollTo/);
+ assert.match(chat,/aeromind_support_chat_send/);
+ assert.match(chat,/aeromind_support_chat_set_status/);
+});
