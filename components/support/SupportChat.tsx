@@ -124,6 +124,7 @@ export function SupportFloatingChat(){
  const [feedbackReplies,setFeedbackReplies]=useState<FeedbackReplyAlert[]>([]);
  const [activeTab,setActiveTab]=useState<'chat'|'feedback'>('chat');
  const [reading,setReading]=useState<string|null>(null);
+ const [notificationError,setNotificationError]=useState(false);
  const sb=useMemo(()=>createClient(),[]);
  const feedbackUnread=feedbackReplies.filter(f=>!f.reply_read_at).length;
  const combinedUnread=unread+feedbackUnread;
@@ -134,7 +135,7 @@ export function SupportFloatingChat(){
    const {data:{user},error:authError}=await sb.auth.getUser();
    if(!mounted)return;
    if(authError||!user){setUnread(0);setFeedbackReplies([]);return;}
-   const [{data:chatCount},{data:replies,error:repliesError}]=await Promise.all([
+   const [{data:chatCount,error:chatError},{data:replies,error:repliesError}]=await Promise.all([
     sb.rpc('aeromind_support_chat_unread_count'),
     sb.from('aeromind_feedback')
       .select('id,title,admin_reply,status,admin_reply_at,reply_read_at')
@@ -142,14 +143,18 @@ export function SupportFloatingChat(){
       .order('admin_reply_at',{ascending:false}).limit(30)
    ]);
    if(!mounted)return;
-   setUnread(typeof chatCount==='number'?chatCount:0);
+   setNotificationError(Boolean(chatError||repliesError));
+   // A falha de rede não deve apagar um alerta existente.
+   if(!chatError)setUnread(typeof chatCount==='number'?Math.max(0,chatCount):0);
    if(!repliesError)setFeedbackReplies((replies||[]).filter(r=>r.admin_reply?.trim()) as FeedbackReplyAlert[]);
   };
   void load();
   const id=window.setInterval(()=>{if(document.visibilityState==='visible')void load()},17000);
   const onVisibility=()=>{if(document.visibilityState==='visible')void load();};
+  const onFocus=()=>void load();
   document.addEventListener('visibilitychange',onVisibility);
-  return ()=>{mounted=false;window.clearInterval(id);document.removeEventListener('visibilitychange',onVisibility)};
+  window.addEventListener('focus',onFocus);
+  return ()=>{mounted=false;window.clearInterval(id);document.removeEventListener('visibilitychange',onVisibility);window.removeEventListener('focus',onFocus)};
  },[route,sb]);
  async function openReply(id:string){
   if(reading)return;
@@ -169,6 +174,13 @@ export function SupportFloatingChat(){
  if(route?.startsWith('/admin'))return <AdminFloatingSupport/>;
  if(route==='/suporte')return null;
  return <div className="sc-floating-root">
+  {!open&&combinedUnread>0&&<button type="button" className="sc-new-message-alert" role="status" onClick={toggleChat}>
+    <span className="sc-alert-symbol" aria-hidden="true">●</span>
+    <span><strong>{combinedUnread===1?'Você recebeu uma nova mensagem':combinedUnread+' novas mensagens para você'}</strong>
+     <small>Toque para ver a resposta da equipe</small></span>
+    <span aria-hidden="true">↗</span>
+   </button>}
+  {!open&&notificationError&&combinedUnread===0&&<div role="status" className="sc-poll-warning">Não foi possível verificar as mensagens.</div>}
   {open&&<section className="sc-floating-panel" aria-label="Central de suporte e respostas AeroMind">
    <div className="sc-chat-header"><span><b>✦ Central AeroMind</b><small>Suporte e respostas da nossa equipe</small></span>
     <button onClick={()=>setOpen(false)} aria-label="Fechar central de suporte">×</button>
