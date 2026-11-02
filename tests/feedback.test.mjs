@@ -63,3 +63,47 @@ test('respostas já enviadas aparecem compactas com opção de edição, sem o f
  assert.match(css,/\.fba-reply-summary/);
  assert.match(css,/@media\(max-width:500px\)/);
 });
+
+
+test('resposta do administrador vira alerta novo uma única vez por alteração do texto',()=>{
+ const migration=read('supabase/migrations/20261102090000_feedback_reply_notifications.sql');
+ assert.match(migration,/ADD COLUMN IF NOT EXISTS admin_reply_at/);
+ assert.match(migration,/ADD COLUMN IF NOT EXISTS reply_read_at/);
+ assert.match(migration,/OLD.admin_reply IS DISTINCT FROM NEW.admin_reply/);
+ assert.match(migration,/NEW.reply_read_at=NULL/);
+ assert.match(migration,/reply_read_at=updated_at/); // Backfill já lido, sem notificações retroativas.
+ assert.match(migration,/CREATE OR REPLACE FUNCTION public.aeromind_feedback_mark_reply_read/);
+ assert.match(migration,/user_id=\(SELECT auth.uid\(\)\)/);
+ assert.match(migration,/REVOKE ALL ON FUNCTION public.aeromind_feedback_mark_reply_read/);
+ assert.match(migration,/GRANT EXECUTE ON FUNCTION public.aeromind_feedback_mark_reply_read\(uuid\) TO authenticated/);
+});
+test('botão de suporte soma mensagens do chat e respostas às sugestões e leva ao histórico',()=>{
+ const chat=read('components/support/SupportChat.tsx');
+ const css=read('components/support/support-chat.css');
+ assert.match(chat,/aeromind_support_chat_unread_count/);
+ assert.match(chat,/aeromind_feedback_mark_reply_read/);
+ assert.match(chat,/const combinedUnread=unread\+feedbackUnread/);
+ assert.match(chat,/setActiveTab\('feedback'\)/);
+ assert.match(chat,/Respostas \{feedbackUnread>0/);
+ assert.match(chat,/router.push\('\/feedback#resposta-'\+id\)/);
+ assert.match(chat,/combinedUnread>0&&<b className="sc-unread"/);
+ assert.match(css,/\.sc-launcher.has-unread/);
+ assert.match(css,/prefers-reduced-motion:reduce/);
+});
+test('central de notificações inclui respostas pessoais e confirma leitura antes de abrir a sugestão',()=>{
+ const page=read('app/notificacoes/page.tsx');
+ const actions=read('app/notificacoes/actions.ts');
+ const account=read('app/minha-conta/page.tsx');
+ const form=read('components/feedback/FeedbackForm.tsx');
+ assert.match(page,/ni-feedback-section/);
+ assert.match(page,/Respostas às suas sugestões/);
+ assert.match(page,/feedbackUnread/);
+ assert.match(page,/action=\{openFeedbackReplyNotification\}/);
+ assert.match(actions,/export async function openFeedbackReplyNotification/);
+ assert.match(actions,/aeromind_feedback_mark_reply_read/);
+ assert.match(actions,/redirect\('\/feedback#resposta-'\+id\)/);
+ assert.match(account,/replyUnread/);
+ assert.match(account,/feedbackUnreadResult/);
+ assert.match(form,/fb-reply-new-label/);
+ assert.match(form,/markReplyRead\(x.id\)/);
+});
