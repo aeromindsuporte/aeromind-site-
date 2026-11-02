@@ -39,6 +39,7 @@ const sections=[
   {href:'/admin/pagamentos',icon:'▣',label:'Pagamentos'},
   {href:'/admin/relatorios',icon:'▥',label:'Relatórios'},
   {href:'/admin/suporte',icon:'✉',label:'Suporte'},
+  {href:'/admin/feedback',icon:'💡',label:'Sugestões e feedback'},
 ];
 const messages:Record<string,string>={
  'license-saved':'Licença registrada. O histórico de alterações foi atualizado.',
