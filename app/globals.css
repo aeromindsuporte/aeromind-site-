@@ -92,3 +92,27 @@
 @media(max-width:520px){.legal-content{gap:9px;margin-top:18px}.legal-content p{font-size:13px}.legal-links{justify-content:flex-start}.legal-content h2{font-size:17px}}
 
 .inner-card:has(.legal-content){width:min(900px,100%);margin-top:50px;padding:clamp(20px,4vw,44px)}
+
+/* Convite de feedback em primeiro plano na conta do usuário. */
+.account-feedback-invite{position:relative;display:flex;align-items:center;gap:19px;flex-wrap:wrap;
+ padding:clamp(18px,3vw,26px);margin:19px 0 24px;border-radius:19px;
+ border:1px solid #b175ec;background:radial-gradient(ellipse at 90% 0%,#ab63de44,transparent 50%),
+ linear-gradient(110deg,#2b164c,#141c3d 74%);box-shadow:0 9px 28px #692c9645;overflow:hidden}
+.account-feedback-invite::before{content:"";position:absolute;left:20%;right:20%;top:0;height:2px;
+ background:linear-gradient(90deg,transparent,#f2b3ff,transparent)}
+.account-feedback-invite-icon{flex:none;display:grid;place-items:center;font-size:32px;width:62px;height:62px;
+ border:1px solid #b077e8;border-radius:17px;background:#512c7a7a}
+.account-feedback-invite-copy{flex:1 1 250px;min-width:0}
+.account-feedback-badge{font-size:10px;font-weight:900;letter-spacing:1.1px;color:#e9b9ff}
+.account-feedback-invite h2{font-size:clamp(18px,2.5vw,25px);line-height:1.25;letter-spacing:-.4px;color:#fff;margin:7px 0}
+.account-feedback-invite p{color:#c5d0ee;font-size:12px;line-height:1.6;margin:0;max-width:560px}
+.account-feedback-invite-cta{display:inline-flex;align-items:center;justify-content:center;gap:13px;
+ flex:0 1 auto;text-align:center;border:1px solid #f0b9ff;border-radius:12px;
+ background:linear-gradient(110deg,#c34ceb,#8445d8);padding:14px 18px;min-height:51px;
+ color:white!important;font-size:12px;font-weight:900;text-decoration:none;box-shadow:0 8px 17px #a74fe84b}
+.account-feedback-invite-cta span{font-size:19px}
+.account-feedback-invite-cta:focus-visible,.account-feedback-invite-cta:hover{filter:brightness(1.13)}
+.account-shortcut.shortcut-feedback{border-color:#9e65d8;background:linear-gradient(125deg,#392052,#16213d)}
+.account-shortcut.shortcut-feedback .shortcut-icon{background:#723a8e55;color:#e5b4ff}
+@media(max-width:650px){.account-feedback-invite{gap:12px;padding:19px}.account-feedback-invite-icon{width:46px;height:46px;font-size:25px}
+ .account-feedback-invite-copy{flex-basis:calc(100% - 60px)}.account-feedback-invite-cta{width:100%;flex:1 0 100%}}
