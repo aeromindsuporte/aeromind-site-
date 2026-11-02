@@ -80,3 +80,13 @@
 .am-flash-countdown strong{color:#ffe6aa;font-size:13px}
 .am-flash-countdown span{font-size:18px;color:#fff;font-weight:900;font-variant-numeric:tabular-nums}
 .am-flash-countdown small{color:#e9c6e1;font-size:10px;line-height:1.5}
+
+
+/* Conteúdo institucional transparente para clientes de planos e contas. */
+.legal-content{text-align:left;display:grid;gap:9px;margin:25px auto;max-width:760px;width:100%;line-height:1.72}
+.legal-content h2{margin:17px 0 0;font-size:clamp(16px,2vw,20px);line-height:1.35;color:#e7c6ff;letter-spacing:-.25px}
+.legal-content p{margin:0;color:#c6d0e5;font-size:14px;line-height:1.78}
+.legal-content a,.legal-links a{color:#a8dcff;text-decoration:underline;text-underline-offset:3px}
+.legal-updated{color:#9eacd0;font-size:11px;margin:14px 0 0}
+.legal-links{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 17px;margin-top:24px;padding-top:21px;border-top:1px solid #36436b;font-size:12px}
+@media(max-width:520px){.legal-content{gap:9px;margin-top:18px}.legal-content p{font-size:13px}.legal-links{justify-content:flex-start}.legal-content h2{font-size:17px}}
