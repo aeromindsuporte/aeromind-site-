@@ -30,3 +30,31 @@
 .fba-empty{font-size:12px;line-height:1.7;color:#a9bad9;padding:20px;border:1px dashed #505880;border-radius:13px}
 @media(max-width:900px){.fba-grid{grid-template-columns:1fr}.fba-list{max-height:420px}.fba-detail{padding:16px}}
 @media(max-width:500px){.fba-topline{gap:6px}.fba-stat{padding:11px 8px}.fba-stat b{font-size:23px}.fba-stat span{font-size:10px}.fba-filters label{flex:1 1 100%}.fba-detail-head h2{font-size:18px}}
+
+
+/* Respostas já enviadas: visual compacto, edição somente quando solicitada. */
+.fba-reply-summary{display:grid;gap:12px;margin-top:17px;padding:15px 17px;border-radius:13px;
+ border:1px solid #5279a9;background:linear-gradient(125deg,#182843,#121d37)}
+.fba-reply-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.fba-reply-label{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:850;color:#78ecc6}
+.fba-reply-content{margin:0;color:#e2ebff;font-size:13px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+.fba-root .fba-edit-reply{display:inline-flex;align-items:center;justify-content:center;gap:6px;
+ border:1px solid #795ca8;background:#2c2151;color:#e6d5ff;font-size:11px;font-weight:850;
+ border-radius:9px;min-height:35px;padding:8px 11px;cursor:pointer}
+.fba-root .fba-edit-reply:hover,.fba-root .fba-edit-reply:focus-visible{border-color:#cb95ff;background:#40306b}
+.fba-editor{gap:14px}
+.fba-editor-heading{display:grid;gap:5px}
+.fba-editor-heading strong{font-size:14px;color:#fff}
+.fba-editor-heading span{font-size:11px;font-weight:450;color:#9fb3d8;line-height:1.45}
+.fba-editor-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.fba-root .fba-editor-actions button{min-height:43px;font-size:12px;border-radius:10px;padding:11px 15px}
+.fba-root .fba-editor-actions .fba-save-reply{flex:1 1 205px}
+.fba-root .fba-editor-actions .fba-cancel-edit{color:#d8e4fc;background:#151f3d;border-color:#576a9a}
+.fba-saved-hint{margin:10px 0 0;padding:7px 0;font-size:11px;color:#81eac9;line-height:1.5}
+@media(max-width:500px){
+ .fba-reply-summary{padding:13px 12px;gap:10px}
+ .fba-reply-content{font-size:12px}
+ .fba-reply-heading{align-items:center}
+ .fba-root .fba-edit-reply{font-size:11px}
+ .fba-root .fba-editor-actions .fba-save-reply{flex-basis:100%}
+}
