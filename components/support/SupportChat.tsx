@@ -1,7 +1,7 @@
 'use client';
 import {useCallback,useEffect,useMemo,useRef,useState} from 'react';
 import Link from 'next/link';
-import {usePathname} from 'next/navigation';
+import {usePathname,useRouter} from 'next/navigation';
 import {createClient} from '@/lib/supabase/browser';
 import './support-chat.css';
 
@@ -114,33 +114,89 @@ export function SupportChatPanel({embedded=false,initialSubject='Atendimento Aer
  </div>;
 }
 
+type FeedbackReplyAlert={id:string;title:string;admin_reply:string;status:string;admin_reply_at:string;reply_read_at:string|null};
 export function SupportFloatingChat(){
- const route=usePathname();const [open,setOpen]=useState(false),[unread,setUnread]=useState(0);
+ const route=usePathname();
+ const router=useRouter();
+ const [open,setOpen]=useState(false);
+ const [unread,setUnread]=useState(0);
+ const [feedbackReplies,setFeedbackReplies]=useState<FeedbackReplyAlert[]>([]);
+ const [activeTab,setActiveTab]=useState<'chat'|'feedback'>('chat');
+ const [reading,setReading]=useState<string|null>(null);
  const sb=useMemo(()=>createClient(),[]);
+ const feedbackUnread=feedbackReplies.filter(f=>!f.reply_read_at).length;
+ const combinedUnread=unread+feedbackUnread;
  useEffect(()=>{
   if(route?.startsWith('/admin')||route==='/suporte')return;
   let mounted=true;
   const load=async()=>{
-   const {data:{user}}=await sb.auth.getUser();
-   if(!user){if(mounted)setUnread(0);return}
-   const {data}=await sb.rpc('aeromind_support_chat_unread_count');
-   if(mounted)setUnread(typeof data==='number'?data:0);
+   const {data:{user},error:authError}=await sb.auth.getUser();
+   if(!mounted)return;
+   if(authError||!user){setUnread(0);setFeedbackReplies([]);return;}
+   const [{data:chatCount},{data:replies,error:repliesError}]=await Promise.all([
+    sb.rpc('aeromind_support_chat_unread_count'),
+    sb.from('aeromind_feedback')
+      .select('id,title,admin_reply,status,admin_reply_at,reply_read_at')
+      .eq('user_id',user.id).not('admin_reply_at','is',null)
+      .order('admin_reply_at',{ascending:false}).limit(30)
+   ]);
+   if(!mounted)return;
+   setUnread(typeof chatCount==='number'?chatCount:0);
+   if(!repliesError)setFeedbackReplies((replies||[]).filter(r=>r.admin_reply?.trim()) as FeedbackReplyAlert[]);
   };
-  void load();const id=window.setInterval(()=>{if(!open&&document.visibilityState==='visible')void load()},17000);
-  return ()=>{mounted=false;window.clearInterval(id)};
- },[route,sb,open]);
+  void load();
+  const id=window.setInterval(()=>{if(document.visibilityState==='visible')void load()},17000);
+  const onVisibility=()=>{if(document.visibilityState==='visible')void load();};
+  document.addEventListener('visibilitychange',onVisibility);
+  return ()=>{mounted=false;window.clearInterval(id);document.removeEventListener('visibilitychange',onVisibility)};
+ },[route,sb]);
+ async function openReply(id:string){
+  if(reading)return;
+  setReading(id);
+  const {data,error}=await sb.rpc('aeromind_feedback_mark_reply_read',{p_feedback_id:id});
+  setReading(null);
+  if(error||data!==true)return;
+  setFeedbackReplies(prev=>prev.map(r=>r.id===id?{...r,reply_read_at:new Date().toISOString()}:r));
+  setOpen(false);
+  router.push('/feedback#resposta-'+id);
+  router.refresh();
+ }
+ function toggleChat(){
+  if(!open&&feedbackUnread>0)setActiveTab('feedback');
+  setOpen(v=>!v);
+ }
  if(route?.startsWith('/admin')||route==='/suporte')return null;
  return <div className="sc-floating-root">
-  {open&&<section className="sc-floating-panel" aria-label="Chat com suporte AeroMind">
-   <div className="sc-chat-header"><span><b>✦ Suporte AeroMind</b><small>Atendimento pela equipe · respostas aqui</small></span>
-    <button onClick={()=>setOpen(false)} aria-label="Fechar chat">×</button>
+  {open&&<section className="sc-floating-panel" aria-label="Central de suporte e respostas AeroMind">
+   <div className="sc-chat-header"><span><b>✦ Central AeroMind</b><small>Suporte e respostas da nossa equipe</small></span>
+    <button onClick={()=>setOpen(false)} aria-label="Fechar central de suporte">×</button>
    </div>
-   <SupportChatPanel embedded/>
+   <div className="sc-hub-tabs" role="group" aria-label="Tipo de mensagem">
+    <button type="button" className={activeTab==='chat'?'active':''} aria-pressed={activeTab==='chat'} onClick={()=>setActiveTab('chat')}>
+     Suporte {unread>0&&<span className="sc-tab-count">{unread>99?'99+':unread}</span>}
+    </button>
+    <button type="button" className={activeTab==='feedback'?'active':''} aria-pressed={activeTab==='feedback'} onClick={()=>setActiveTab('feedback')}>
+     Respostas {feedbackUnread>0&&<span className="sc-tab-count">{feedbackUnread>99?'99+':feedbackUnread}</span>}
+    </button>
+   </div>
+   {activeTab==='chat'?<SupportChatPanel embedded/>:<div className="sc-feedback-replies">
+    <p className="sc-feedback-description">Veja aqui quando a equipe responder às suas sugestões de melhoria.</p>
+    {feedbackReplies.length?feedbackReplies.map(reply=><article className={'sc-feedback-reply'+(!reply.reply_read_at?' is-new':'')} key={reply.id}>
+     <div className="sc-feedback-reply-heading"><strong>{reply.title}</strong>
+      {!reply.reply_read_at&&<span className="sc-feedback-new">Nova resposta</span>}
+     </div>
+     <p className="sc-feedback-answer">{reply.admin_reply}</p>
+     <button type="button" disabled={reading===reply.id} onClick={()=>void openReply(reply.id)}>
+      {reading===reply.id?'Abrindo...':'Ver no histórico de sugestões ↗'}
+     </button>
+    </article>):<div className="sc-feedback-empty">Ainda não há respostas às suas sugestões. Quando a equipe responder, a mensagem aparecerá aqui.</div>}
+    <Link href="/feedback" onClick={()=>setOpen(false)} className="sc-feedback-all">Ver minhas sugestões →</Link>
+   </div>}
   </section>}
-  <button type="button" className="sc-launcher" onClick={()=>setOpen(x=>!x)}
-   aria-label={open?'Fechar suporte':'Abrir chat do suporte'} aria-expanded={open}>
+  <button type="button" className={'sc-launcher'+(combinedUnread>0&&!open?' has-unread':'')} onClick={toggleChat}
+   aria-label={open?'Fechar central de suporte':combinedUnread>0?'Abrir suporte: '+combinedUnread+' mensagens novas':'Abrir chat do suporte'} aria-expanded={open}>
    <span aria-hidden="true">{open?'×':<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20.5 11.5a8.2 8.2 0 0 1-8.5 8.1 9.6 9.6 0 0 1-3.7-.8L3 20l1.3-4A8 8 0 0 1 3.5 11.5a8.5 8.5 0 0 1 17 0Z"/><path d="M8 11.5h.01M12 11.5h.01M16 11.5h.01"/></svg>}</span> <span>{open?'Fechar':'Suporte'}</span>
-   {!open&&unread>0&&<b className="sc-unread">{unread>99?'99+':unread}</b>}
+   {!open&&combinedUnread>0&&<b className="sc-unread">{combinedUnread>99?'99+':combinedUnread}</b>}
   </button>
  </div>;
 }
