@@ -8,6 +8,7 @@ import {effectiveLicenseStatus,labelForLicenseStatus} from '@/lib/license-status
 import {AdminAlertsRefresh} from '@/components/admin/AdminAlertsRefresh';
 import {SupportUnreadBadge} from '@/components/admin/SupportUnreadBadge';
 import {AdminMenuToggle} from '@/components/admin/AdminMenuToggle';
+import {AdminActivityBell} from '@/components/admin/AdminActivityBell';
 
 export const dynamic='force-dynamic';
 export const metadata={title:'Painel Administrativo | AeroMind', robots:{index:false,follow:false}};
@@ -26,6 +27,7 @@ type Overview={
 
 const sections=[
   {href:'/admin',icon:'▦',label:'Visão geral'},
+  {href:'/admin/atividade',icon:'🔔',label:'Atividade em tempo real'},
   {href:'/admin/clientes',icon:'♙',label:'Clientes'},
   {href:'/admin/licencas',icon:'⚿',label:'Licenças'},
   {href:'/admin/planos',icon:'◈',label:'Planos'},
@@ -115,7 +117,7 @@ export default async function Admin({searchParams,activeSection='visao'}:{search
   <header className="admin-top">
     <AdminMenuToggle/>
     <Link href="/" className="admin-top-brand"><img src="/images/aeromind-mark.svg" width="42" height="42" alt=""/>AeroMind <span>ADMIN</span></Link>
-    <div className="admin-top-right"><span className="admin-live"><i/>Dados reais</span><div className="admin-user"><span className="admin-avatar">A</span><div><strong>AeroMind Suporte</strong><small>{staff.role==='owner'?'Proprietário':'Administrador'}</small></div></div><Link href="/admin/suporte" className="admin-account-link">✉ Suporte <SupportUnreadBadge/></Link><Link href="/minha-conta" className="admin-account-link">Minha conta ↗</Link></div>
+    <div className="admin-top-right"><AdminActivityBell/><span className="admin-live"><i/>Dados reais</span><div className="admin-user"><span className="admin-avatar">A</span><div><strong>AeroMind Suporte</strong><small>{staff.role==='owner'?'Proprietário':'Administrador'}</small></div></div><Link href="/admin/suporte" className="admin-account-link">✉ Suporte <SupportUnreadBadge/></Link><Link href="/minha-conta" className="admin-account-link">Minha conta ↗</Link></div>
   </header>
   <div className="admin-shell">
     <aside id="admin-navigation" className="admin-sidebar" aria-label="Menu administrativo"><div className="admin-sidebar-heading"><p>PAINEL ADMINISTRATIVO</p><button type="button" className="admin-sidebar-close" aria-label="Fechar menu">×</button></div><nav aria-label="Todas as funções administrativas">
