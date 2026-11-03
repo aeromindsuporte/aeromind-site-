@@ -179,7 +179,7 @@ export default async function Home(){
       <h1>Mais clareza<br/>para suas decisões<br/><span>no Aviator</span></h1>
       <p>O AeroMind monitora, analisa e organiza indicadores em tempo real e histórico inteligente, para você acompanhar cada sessão com mais clareza.</p>
       <div className="nl-trial-cta">
-       <Link href="/teste-gratis?plano=teste-horas" className="nl-btn nl-btn-trial" aria-label="TESTE GRÁTIS — iniciar teste do AeroMind">
+       <Link href="/ir-para-teste?plano=teste-horas" prefetch={false} className="nl-btn nl-btn-trial" aria-label="TESTE GRÁTIS — iniciar teste do AeroMind">
         <span className="nl-btn-trial-icon" aria-hidden="true">🎁</span><strong>TESTE GRÁTIS</strong><span className="nl-btn-trial-arrow" aria-hidden="true">›</span>
        </Link>
       </div>
