@@ -128,7 +128,7 @@ export default async function Plans({searchParams}:{searchParams:Promise<{period
      <strong>{formattedPrice(effectivePriceCents(p))}</strong><small>{durationLabelOf(p)}</small>
      <p>{descriptionOf(p)}</p>
      <BenefitList tier={p.tier} features={benefitsOf(p)} includeComparison={false}/>
-     <Link className={'am-btn '+(p.marketing_highlight?'am-fill':'am-outline')} href={(p.price_cents===0?'/teste-gratis?plano=':'/checkout?plano=')+encodeURIComponent(p.slug)}>{p.marketing_cta||'Experimentar'} →</Link>
+     <Link className={'am-btn '+(p.marketing_highlight?'am-fill':'am-outline')} prefetch={false} href={(p.price_cents===0?'/ir-para-teste?plano=':'/checkout?plano=')+encodeURIComponent(p.slug)}>{p.marketing_cta||'Experimentar'} →</Link>
     </article>)}</div>
    </section>}
    <section className="am-plans-intro" style={{padding:'30px 0 12px'}}><span className="am-eyebrow">COMPARE OS BENEFÍCIOS</span><h2>Qual plano combina com você?</h2><p><strong>Básico:</strong> sinais de baixa, média e alta, histórico e ranking, com até 3 rosas/h. <strong>Pro:</strong> todos os recursos anteriores e até 5 rosas/h. <strong>Gold:</strong> até 7 rosas/h, Alto Risco, agenda do dia, sinais Premium e suporte prioritário. Comunidade Gold, lives e estudos com alvos de até 50x: benefícios programados, sujeitos à disponibilização.</p><p>O Alto Risco, a agenda completa e os sinais Premium não fazem parte dos planos Básico e Pro. Nenhum sinal ou alvo representa garantia de resultado.</p><Link className="am-btn am-outline" href="/gold">Conhecer todos os benefícios Gold →</Link></section>
