@@ -5,8 +5,10 @@ import {createClient} from '@/lib/supabase/server';
 import {AdminMenuToggle} from './AdminMenuToggle';
 import {AdminAlertsRefresh} from './AdminAlertsRefresh';
 import {SupportUnreadBadge} from './SupportUnreadBadge';
+import {AdminActivityBell} from './AdminActivityBell';
 const nav=[
  ['/admin','Visão geral','▦'],
+ ['/admin/atividade','Atividade em tempo real','🔔'],
  ['/admin/clientes','Clientes','♙'],
  ['/admin/licencas','Licenças','⚿'],
  ['/admin/planos','Planos','◈'],
@@ -41,7 +43,7 @@ return <div className="admin-root admin-commercial">
   <AdminMenuToggle/>
   <Link href="/admin" className="admin-top-brand"><img src="/images/aeromind-mark.svg" width="36" height="36" alt=""/> AeroMind <span>ADMIN</span></Link>
   <div className="admin-top-actions">
-   <Link className="admin-notification-bell" href="/admin/notificacoes" aria-label="Abrir Central de Notificações">🔔</Link>
+   <AdminActivityBell/>
    <Link href="/admin/suporte" className="admin-account-link" aria-label="Abrir mensagens do suporte">✉ Suporte <SupportUnreadBadge/></Link>
    <Link href="/minha-conta" className="admin-account-link">Minha conta ↗</Link>
   </div>
