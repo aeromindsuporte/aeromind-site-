@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
   const body = payload as Record<string, unknown>;
   const action = body.action;
   const m = parseMetadata(body);
-  if (!m || (action !== 'prepare' && action !== 'finalize' && action !== 'publish')) {
+  if (!m || (action !== 'prepare' && action !== 'finalize')) {
     return respond(400, { error: 'Metadados de versão inválidos.' });
   }
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -148,17 +148,7 @@ export async function POST(request: NextRequest) {
       return respond(200, { status: 'draft', version_code: m.version_code, path: pathFor(m) });
     }
 
-    // Apenas workflow_dispatch na branch main pode chegar aqui (OIDC).
-    // Essa RPC faz a troca publicada -> retirada -> publicada na mesma transacao.
-    if (!existing || existing.status !== 'draft') {
-      return respond(409, { error: 'A versão ainda não está pronta para publicação.' });
-    }
-    const { data: publication, error: publicationError } = await admin.rpc(
-      'aeromind_ci_publish_release',
-      { p_version_code: m.version_code, p_sha256: m.sha256 }
-    );
-    if (publicationError) return respond(503, { error: 'Publicação transacional não disponível.' });
-    return respond(200, { status: 'published', publication, version_code: m.version_code });
+
   } catch {
     return respond(500, { error: 'Falha interna no pipeline de versões.' });
   }
