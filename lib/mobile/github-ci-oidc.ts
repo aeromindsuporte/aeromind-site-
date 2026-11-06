@@ -68,7 +68,7 @@ export async function verifyGitHubOidc(header: string | null): Promise<CiClaims 
       (item as Record<string, unknown>).use === 'sig'
     ) as Record<string, unknown> | undefined;
     if (!key) return null;
-    const publicKey = createPublicKey({ key: key as JsonWebKey, format: 'jwk' });
+    const publicKey = createPublicKey({ key: key as import('node:crypto').JsonWebKey, format: 'jwk' });
     const valid = verifySignature(
       'RSA-SHA256',
       Buffer.from(h + '.' + p, 'ascii'),
