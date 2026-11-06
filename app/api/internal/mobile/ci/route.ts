@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { verifyGitHubOidc } from '@/lib/mobile/github-ci-oidc';
 
 export const runtime = 'nodejs';
@@ -53,7 +53,7 @@ function matchesRelease(row: Record<string, unknown>, m: Metadata) {
 
 /** Somente servidor: calcula SHA-256 dos bytes realmente recebidos no Storage. */
 async function verifyStorageObject(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseClient,
   metadata: Metadata
 ): Promise<boolean> {
   const { data, error } = await supabase.storage.from(BUCKET).download(pathFor(metadata));
