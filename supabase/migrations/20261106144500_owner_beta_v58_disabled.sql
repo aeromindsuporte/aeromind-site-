@@ -159,3 +159,7 @@ DO UPDATE SET enabled=false,valid_until=now();
 -- Não liberar funções privadas a clientes anônimos e não criar chave secreta.
 REVOKE ALL ON FUNCTION private.aeromind_mobile_beta_latest(text,integer) FROM PUBLIC, anon;
 REVOKE ALL ON FUNCTION private.aeromind_mobile_beta_download(text) FROM PUBLIC, anon;
+
+-- Manter o acesso dos wrappers autenticados, sem acesso anonimo.
+GRANT EXECUTE ON FUNCTION private.aeromind_mobile_beta_latest(text,integer) TO authenticated;
+GRANT EXECUTE ON FUNCTION private.aeromind_mobile_beta_download(text) TO authenticated;
