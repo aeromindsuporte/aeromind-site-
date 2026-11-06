@@ -118,7 +118,7 @@ begin
       continue;
     end if;
     is_valid := (e->>'ok')::boolean;
-    risk_result := pg_catalog.nullif(e->>'ro','');
+    risk_result := nullif(e->>'ro','');
     rec_id := null;
     insert into public.aeromind_indicator_telemetry (
        owner_id,event_key,install_id,analysis_session,round_sequence,
@@ -130,7 +130,7 @@ begin
        (e->>'a')::numeric,(e->>'l')::numeric,(e->>'m')::numeric,(e->>'h')::numeric,
        (e->>'n')::smallint,is_valid,
        (e->>'r')::numeric, e->>'rs',(e->>'ra')::smallint,
-       pg_catalog.nullif(pg_catalog.left(e->>'rk',150),''),
+       nullif(pg_catalog.left(e->>'rk',150),''),
        risk_result, pg_catalog.left(e->>'v',60)
     )
     on conflict (event_key) do nothing
