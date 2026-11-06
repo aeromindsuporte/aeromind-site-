@@ -88,3 +88,19 @@ test('beta v60 corrigida exige caminho e integridade e não libera drafts de out
   assert.equal(betaApk({...v60, storage_path: '../another-release.apk'}), false);
   assert.equal(betaApk({...v60, status: 'published'}), false);
 });
+
+test('beta v62 com motor de abertura v13 mantém assinatura e hash por versão', () => {
+  const v62 = {
+    ...valid,
+    version_code: 62,
+    version_name: 'Aurora Pulse Jogo V13 62',
+    status: 'draft',
+    storage_path: 'releases/aeromind-v62-' + sha.slice(0, 16) + '.apk',
+  };
+  assert.equal(betaApk(v62), true);
+  assert.equal(publishedApk(v62), false);
+  assert.equal(betaApk({ ...v62, status: 'published' }), false);
+  assert.equal(betaApk({ ...v62, version_code: 63 }), false);
+  assert.equal(betaApk({ ...v62, storage_path: '../apk.apk' }), false);
+  assert.equal(betaApk({ ...v62, sha256: 'invalid' }), false);
+});
