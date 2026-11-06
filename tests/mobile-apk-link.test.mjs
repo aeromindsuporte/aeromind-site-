@@ -136,3 +136,14 @@ test('beta privada v66 exige integridade e rejeita outros rascunhos', () => {
   assert.equal(betaApk({...v66, storage_path: 'releases/other.apk'}), false);
   assert.equal(betaApk({...v66, sha256: 'x'.repeat(64)}), false);
 });
+
+test('beta de recuperação funcional v68 rejeita adulteração de hash e caminho', () => {
+  const v68 = {...valid, version_code: 68, version_name: 'Aurora Pulse Estavel 68',
+    status: 'draft', storage_path: 'releases/aeromind-v68-' + sha.slice(0,16) + '.apk'};
+  assert.equal(betaApk(v68), true);
+  assert.equal(publishedApk(v68), false);
+  assert.equal(betaApk({...v68, version_code: 69}), false);
+  assert.equal(betaApk({...v68, sha256: 'x'.repeat(64)}), false);
+  assert.equal(betaApk({...v68, status: 'published'}), false);
+  assert.equal(betaApk({...v68, storage_path: '../outro.apk'}), false);
+});
