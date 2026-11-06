@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { bearerToken, installationHash, publishedApk } from '@/lib/mobile/apk-validation';
+import { bearerToken, installationHash, publishedApk, betaApk, type PublishedApk, type BetaApk } from '@/lib/mobile/apk-validation';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -18,7 +18,9 @@ function reply(status: number, data: Record<string, unknown>) {
 /**
  * Ponte Android -> Storage privado. So aceita JWT de usuario e o hash da
  * instalacao, confere a autorizacao REAL no RPC e oferece URL com 60s de vida.
- * Nunca usa service_role, cookies de navegacao, nem link arbitrario do cliente.
+ * O download publico utiliza RLS; beta privado utiliza RPC de aparelho/conta
+ * administrativa, seguida de URL temporaria assinada no servidor. A service_role
+ * nunca e exposta ao app nem a clientes.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -57,17 +59,42 @@ export async function POST(request: NextRequest) {
     const { data: active, error: licenseError } = await supabase.rpc('aeromind_has_active_license');
     if (licenseError || active !== true) return reply(403, { error: 'Licença ativa necessária.' });
 
-    const { data: release, error: releaseError } = await supabase
-      .from('aeromind_app_releases')
-      .select('id,version_code,version_name,storage_path,sha256,size_bytes,status')
-      .eq('status', 'published')
-      .order('version_code', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if (releaseError) return reply(503, { error: 'Falha ao consultar a versão publicada.' });
-    if (!publishedApk(release)) return reply(404, { error: 'Nenhum APK válido publicado.' });
+    // O RPC beta nunca entrega rascunhos a clientes comuns: exige staff,
+    // licenca, device ativo, concessao limitada a UM aparelho e rollout ativo.
+    const { data: betaRelease, error: betaError } = await supabase.rpc(
+      'aeromind_android_beta_download_release', { p_install_hash: installHash }
+    );
+    if (betaError) return reply(503, { error: 'Não foi possível validar o canal de atualização.' });
 
-    const { data: signed, error: storageError } = await supabase.storage
+    let release: PublishedApk | BetaApk;
+    if (betaRelease !== null) {
+      if (!betaApk(betaRelease)) return reply(503, { error: 'Versão beta inválida.' });
+      release = betaRelease;
+    } else {
+      const { data: publishedRelease, error: releaseError } = await supabase
+        .from('aeromind_app_releases')
+        .select('id,version_code,version_name,storage_path,sha256,size_bytes,status')
+        .eq('status', 'published')
+        .order('version_code', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (releaseError) return reply(503, { error: 'Falha ao consultar a versão publicada.' });
+      if (!publishedApk(publishedRelease)) return reply(404, { error: 'Nenhum APK válido publicado.' });
+      release = publishedRelease;
+    }
+
+    // Service role fica exclusivamente na Vercel; uso no beta so DEPOIS
+    // da autorizacao pessoal/dispositivo conferida pelo RPC autenticado.
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (release.status === 'draft' && !serviceKey) {
+      return reply(503, { error: 'Canal beta temporariamente indisponível.' });
+    }
+    const storageClient = release.status === 'draft'
+      ? createClient(url, serviceKey!, {
+        auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+      })
+      : supabase;
+    const { data: signed, error: storageError } = await storageClient.storage
       .from('aeromind-apk-releases')
       .createSignedUrl(release.storage_path, 60, { download: 'AeroMind-v' + release.version_code + '.apk' });
     if (storageError || !signed?.signedUrl) return reply(503, { error: 'Download temporariamente indisponível.' });
