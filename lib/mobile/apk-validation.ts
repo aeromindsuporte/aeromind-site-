@@ -21,14 +21,25 @@ export function installationHash(payload: unknown): string | null {
   return typeof hash === 'string' && /^[a-f0-9]{64}$/.test(hash) ? hash : null;
 }
 
-export function publishedApk(value: unknown): value is PublishedApk {
+export type BetaApk = Omit<PublishedApk, 'status'> & { status: 'draft' };
+
+function validApk(value: unknown, expectedStatus: 'published' | 'draft'): boolean {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const r = value as Record<string, unknown>;
-  if (r.status !== 'published' || typeof r.id !== 'string' || !r.id) return false;
+  if (r.status !== expectedStatus || typeof r.id !== 'string' || !r.id) return false;
   if (!Number.isSafeInteger(r.version_code) || (r.version_code as number) <= 0) return false;
   if (typeof r.version_name !== 'string' || r.version_name.length < 1 || r.version_name.length > 40) return false;
   if (typeof r.sha256 !== 'string' || !/^[0-9a-f]{64}$/.test(r.sha256)) return false;
   if (!Number.isSafeInteger(r.size_bytes) || (r.size_bytes as number) < 20000 || (r.size_bytes as number) > 100_000_000) return false;
   const path = 'releases/aeromind-v' + r.version_code + '-' + r.sha256.slice(0, 16) + '.apk';
   return r.storage_path === path;
+}
+
+/** O beta e visivel somente apos verificacao de conta, aparelho e concessao no RPC. */
+export function betaApk(value: unknown): value is BetaApk {
+  return validApk(value, 'draft') && (value as BetaApk).version_code === 55;
+}
+
+export function publishedApk(value: unknown): value is PublishedApk {
+  return validApk(value, 'published');
 }
