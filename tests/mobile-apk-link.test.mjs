@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { bearerToken, installationHash, publishedApk } from '../lib/mobile/apk-validation.ts';
+import { bearerToken, installationHash, publishedApk, betaApk } from '../lib/mobile/apk-validation.ts';
 
 const sha = 'a'.repeat(64);
 const valid = {
@@ -36,4 +36,20 @@ test('o servidor assina somente paths associados a uma release publicada valida'
   assert.equal(publishedApk({ ...valid, storage_path: '../outro.apk' }), false);
   assert.equal(publishedApk({ ...valid, size_bytes: 0 }), false);
   assert.equal(publishedApk({ ...valid, sha256: 'not-sha' }), false);
+});
+
+test('beta v55 aceita apenas draft com hash e caminho corretos, nunca vira release publica', () => {
+  const v55 = {
+    ...valid,
+    version_code: 55,
+    version_name: 'Aurora Pulse Beta 55',
+    status: 'draft',
+    storage_path: 'releases/aeromind-v55-' + sha.slice(0, 16) + '.apk',
+  };
+  assert.equal(betaApk(v55), true);
+  assert.equal(publishedApk(v55), false);
+  assert.equal(betaApk({...v55, status: 'published'}), false);
+  assert.equal(betaApk({...v55, version_code: 56}), false);
+  assert.equal(betaApk({...v55, storage_path: 'releases/outro.apk'}), false);
+  assert.equal(betaApk({...v55, size_bytes: 0}), false);
 });
