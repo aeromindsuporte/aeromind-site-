@@ -37,10 +37,10 @@ function validApk(value: unknown, expectedStatus: 'published' | 'draft'): boolea
 
 /** O beta e visivel somente apos verificacao de conta, aparelho e concessao no RPC. */
 export function betaApk(value: unknown): value is BetaApk {
-  // Somente as betas de homologacao v55, v58, v60, v62, v64, v66 e v68 sao reconhecidas pelo site.
+  // Somente as betas de homologacao v55, v58, v60, v62, v64, v66, v68 e v70 sao reconhecidas pelo site.
   // A permissao por usuario + instalacao continua exclusiva dos RPCs privados.
   if (!validApk(value, 'draft')) return false;
-  return [55, 58, 60, 62, 64, 66, 68].includes((value as BetaApk).version_code);
+  return [55, 58, 60, 62, 64, 66, 68, 70].includes((value as BetaApk).version_code);
 }
 
 export function publishedApk(value: unknown): value is PublishedApk {
