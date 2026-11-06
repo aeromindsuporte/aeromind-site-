@@ -147,3 +147,14 @@ test('beta de recuperação funcional v68 rejeita adulteração de hash e caminh
   assert.equal(betaApk({...v68, status: 'published'}), false);
   assert.equal(betaApk({...v68, storage_path: '../outro.apk'}), false);
 });
+
+test('beta ADM v70 aceita APK assinado com diagnóstico e nunca draft arbitrário', () => {
+  const v70={...valid,version_code:70,version_name:'Aurora Pulse Diagnosticos 70',
+    status:'draft',storage_path:'releases/aeromind-v70-'+sha.slice(0,16)+'.apk'};
+  assert.equal(betaApk(v70),true);
+  assert.equal(publishedApk(v70),false);
+  assert.equal(betaApk({...v70,version_code:71}),false);
+  assert.equal(betaApk({...v70,storage_path:'../v70.apk'}),false);
+  assert.equal(betaApk({...v70,sha256:'z'.repeat(64)}),false);
+  assert.equal(betaApk({...v70,status:'published'}),false);
+});
