@@ -22,7 +22,7 @@ export function validCiClaims(c: CiClaims, nowSeconds = Math.floor(Date.now() / 
     c.repository_id === OIDC_REPOSITORY_ID &&
     c.repository_visibility === 'private' &&
     c.ref === 'refs/heads/main' &&
-    c.event_name === 'workflow_dispatch' &&
+    (c.event_name === 'workflow_dispatch' || c.event_name === 'push') &&
     c.workflow_ref === OIDC_WORKFLOW &&
     typeof c.run_id === 'string' && /^[0-9]{4,16}$/.test(c.run_id) &&
     typeof c.iat === 'number' && c.iat <= nowSeconds + 30 &&
