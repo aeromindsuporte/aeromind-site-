@@ -104,3 +104,19 @@ test('beta v62 com motor de abertura v13 mantém assinatura e hash por versão',
   assert.equal(betaApk({ ...v62, storage_path: '../apk.apk' }), false);
   assert.equal(betaApk({ ...v62, sha256: 'invalid' }), false);
 });
+
+test('beta privada v64 do iframe Aviator permite somente caminho e hash exatos', () => {
+  const v64 = {
+    ...valid,
+    version_code: 64,
+    version_name: 'Aurora Pulse Aviator 64',
+    status: 'draft',
+    storage_path: 'releases/aeromind-v64-' + sha.slice(0, 16) + '.apk',
+  };
+  assert.equal(betaApk(v64), true);
+  assert.equal(publishedApk(v64), false);
+  assert.equal(betaApk({...v64, status: 'published'}), false);
+  assert.equal(betaApk({...v64, version_code: 65}), false);
+  assert.equal(betaApk({...v64, storage_path: '../arbitrary.apk'}), false);
+  assert.equal(betaApk({...v64, sha256: 'x'.repeat(64)}), false);
+});
