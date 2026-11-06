@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
   catch { return respond(400, { error: 'JSON inválido.' }); }
   const code = payload && typeof payload === 'object' && !Array.isArray(payload)
     ? (payload as Record<string, unknown>).version_code : null;
-  if (!Number.isSafeInteger(code) || (code as number) < 55) {
+  if (!Number.isSafeInteger(code) || (code as number) < 57) {
     return respond(400, { error: 'Código de versão inválido.' });
   }
   const versionCode = code as number;
