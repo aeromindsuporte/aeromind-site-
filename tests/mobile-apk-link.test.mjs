@@ -120,3 +120,19 @@ test('beta privada v64 do iframe Aviator permite somente caminho e hash exatos',
   assert.equal(betaApk({...v64, storage_path: '../arbitrary.apk'}), false);
   assert.equal(betaApk({...v64, sha256: 'x'.repeat(64)}), false);
 });
+
+test('beta privada v66 exige integridade e rejeita outros rascunhos', () => {
+  const v66 = {
+    ...valid,
+    version_code: 66,
+    version_name: 'Aurora Pulse Coleta Passiva 66',
+    status: 'draft',
+    storage_path: 'releases/aeromind-v66-' + sha.slice(0,16) + '.apk'
+  };
+  assert.equal(betaApk(v66), true);
+  assert.equal(publishedApk(v66), false);
+  assert.equal(betaApk({...v66, status: 'published'}), false);
+  assert.equal(betaApk({...v66, version_code: 67}), false);
+  assert.equal(betaApk({...v66, storage_path: 'releases/other.apk'}), false);
+  assert.equal(betaApk({...v66, sha256: 'x'.repeat(64)}), false);
+});
