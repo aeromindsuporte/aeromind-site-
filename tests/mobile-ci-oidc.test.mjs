@@ -18,6 +18,7 @@ const base={
 };
 test('claims aceitam somente workflow especifico da main privada',()=>{
   assert.equal(validCiClaims(base,t),true);
+  assert.equal(validCiClaims({...base,event_name:'push'},t),true);
   for(const [key,value] of Object.entries({
     repository:'other/private',
     repository_id:'100',
