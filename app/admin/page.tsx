@@ -40,6 +40,7 @@ const sections=[
   {href:'/admin/cupons',icon:'◇',label:'Cupons'},
   {href:'/admin/pagamentos',icon:'▣',label:'Pagamentos'},
   {href:'/admin/relatorios',icon:'▥',label:'Relatórios'},
+  {href:'/admin/indicadores',icon:'◴',label:'Indicadores ADM'},
   {href:'/admin/suporte',icon:'✉',label:'Suporte'},
   {href:'/admin/feedback',icon:'💡',label:'Sugestões e feedback'},
 ];

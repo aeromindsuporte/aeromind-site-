@@ -23,6 +23,7 @@ const nav=[
  ['/admin/cupons','Cupons','◇'],
  ['/admin/pagamentos','Pagamentos','▣'],
  ['/admin/relatorios','Relatórios','▥'],
+ ['/admin/indicadores','Indicadores ADM','◴'],
  ['/admin/suporte','Suporte','✉'],
  ['/admin/feedback','Sugestões e feedback','💡']
 ] as const;
