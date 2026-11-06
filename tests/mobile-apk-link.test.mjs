@@ -53,3 +53,21 @@ test('beta v55 aceita apenas draft com hash e caminho corretos, nunca vira relea
   assert.equal(betaApk({...v55, storage_path: 'releases/outro.apk'}), false);
   assert.equal(betaApk({...v55, size_bytes: 0}), false);
 });
+
+test('beta v58 com autorizacao de conta e aparelho pode ser validada sem aceitar qualquer draft', () => {
+  const v58 = {
+    ...valid,
+    version_code: 58,
+    version_name: 'Aurora Pulse Historico 58',
+    status: 'draft',
+    storage_path: 'releases/aeromind-v58-' + sha.slice(0, 16) + '.apk',
+  };
+  assert.equal(betaApk(v58), true);
+  assert.equal(publishedApk(v58), false);
+  assert.equal(betaApk({ ...v58, status: 'published' }), false);
+  assert.equal(betaApk({ ...v58, version_code: 57 }), false);
+  assert.equal(betaApk({ ...v58, version_code: 59 }), false);
+  assert.equal(betaApk({ ...v58, sha256: 'b'.repeat(64) }), false);
+  assert.equal(betaApk({ ...v58, storage_path: '../outro.apk' }), false);
+  assert.equal(betaApk({ ...v58, size_bytes: -1 }), false);
+});

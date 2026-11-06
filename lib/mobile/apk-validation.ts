@@ -37,7 +37,10 @@ function validApk(value: unknown, expectedStatus: 'published' | 'draft'): boolea
 
 /** O beta e visivel somente apos verificacao de conta, aparelho e concessao no RPC. */
 export function betaApk(value: unknown): value is BetaApk {
-  return validApk(value, 'draft') && (value as BetaApk).version_code === 55;
+  // Somente as betas de homologacao v55 e v58 sao reconhecidas pelo site.
+  // A permissao por usuario + instalacao continua exclusiva dos RPCs privados.
+  if (!validApk(value, 'draft')) return false;
+  return [55, 58].includes((value as BetaApk).version_code);
 }
 
 export function publishedApk(value: unknown): value is PublishedApk {
