@@ -169,3 +169,14 @@ test('beta ADM v72 aprovada requer APK exato, hash e canal privado', () => {
   assert.equal(betaApk({...v72,sha256:'z'.repeat(64)}),false);
   assert.equal(betaApk({...v72,status:'published'}),false);
 });
+
+test('beta ADM v74 aprovada requer APK exato, hash e canal privado', () => {
+  const v74={...valid,version_code:74,version_name:'Aurora Pulse Layout Aprovado 74',
+    status:'draft',storage_path:'releases/aeromind-v74-'+sha.slice(0,16)+'.apk'};
+  assert.equal(betaApk(v74),true);
+  assert.equal(publishedApk(v74),false);
+  assert.equal(betaApk({...v74,version_code:75}),false);
+  assert.equal(betaApk({...v74,storage_path:'../v74.apk'}),false);
+  assert.equal(betaApk({...v74,sha256:'z'.repeat(64)}),false);
+  assert.equal(betaApk({...v74,status:'published'}),false);
+});
