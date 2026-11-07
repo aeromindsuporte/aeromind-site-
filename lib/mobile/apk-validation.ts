@@ -40,7 +40,7 @@ export function betaApk(value: unknown): value is BetaApk {
   // Somente as betas de homologacao v55, v58, v60, v62, v64, v66, v68, v70, v72 v74 e v76 sao reconhecidas pelo site.
   // A permissao por usuario + instalacao continua exclusiva dos RPCs privados.
   if (!validApk(value, 'draft')) return false;
-  return [55, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78].includes((value as BetaApk).version_code);
+  return [55, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 79].includes((value as BetaApk).version_code);
 }
 
 export function publishedApk(value: unknown): value is PublishedApk {
