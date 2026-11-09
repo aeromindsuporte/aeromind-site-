@@ -202,3 +202,14 @@ test('beta ADM v78 aprovada requer APK exato, hash e canal privado', () => {
   assert.equal(betaApk({...v78,sha256:'z'.repeat(64)}),false);
   assert.equal(betaApk({...v78,status:'published'}),false);
 });
+
+test('beta v85 de telemetria ADM exige integridade e nao libera aos clientes', () => {
+  const v85 = {...valid, version_code:85, version_name:'Aurora Pulse 85',
+    status:'draft', storage_path:'releases/aeromind-v85-'+sha.slice(0,16)+'.apk'};
+  assert.equal(betaApk(v85),true);
+  assert.equal(publishedApk(v85),false);
+  assert.equal(betaApk({...v85,version_code:86}),false);
+  assert.equal(betaApk({...v85,storage_path:'../apk.apk'}),false);
+  assert.equal(betaApk({...v85,sha256:'x'.repeat(64)}),false);
+  assert.equal(betaApk({...v85,status:'published'}),false);
+});
